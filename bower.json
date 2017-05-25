@@ -1,0 +1,24 @@
+{
+  "name": "purescript-httpure",
+  "homepage": "",
+  "description": "",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": ""
+  },
+  "ignore": [
+    "**/.*",
+    "output",
+    "test",
+    "bower.json"
+  ],
+  "dependencies": {
+    "purescript-prelude": "^3.0.0",
+    "purescript-node-http": "^4.0.0"
+  },
+  "devDependencies": {
+    "purescript-psci-support": "^3.0.0",
+    "purescript-spec": "^1.0.0"
+  }
+}
