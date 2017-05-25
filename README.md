@@ -6,8 +6,9 @@ A purescript HTTP server framework.
 
 This project is currently an early-stage work in progress. It is not
 production-ready yet. You can track what's left before it gets production-ready
-by looking at our [roadmap](TODO.md). If you'd like to help us get there
-quicker, please contribute! To get started, check
+by looking at
+our [roadmap](https://github.com/cprussin/purescript-httpure/projects). If you'd
+like to help us get there quicker, please contribute! To get started, check
 our [contributing guide](CONTRIBUTING.md).
 
 ## Installation
