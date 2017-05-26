@@ -14,7 +14,7 @@ our [contributing guide](CONTRIBUTING.md).
 ## Installation
 
 ```bash
-bower install purescript-httpure
+bower install --save purescript-httpure
 ```
 
 ## Documentation
