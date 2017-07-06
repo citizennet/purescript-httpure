@@ -17,19 +17,48 @@ our [contributing guide](CONTRIBUTING.md).
 bower install --save purescript-httpure
 ```
 
+## Quick Start
+
+```purescript
+module Main where
+
+import Prelude (map, ($))
+
+import Control.Monad.Eff.Console as Console
+import HTTPure as HTTPure
+
+main :: HTTPure.HTTPureM (console :: Console.CONSOLE)
+main = do
+  HTTPure.serve 8080 routes $ Console.log "Server now up on port 8080"
+  where
+    routes = map HTTPure.Route
+      [ { method: HTTPure.Get
+        , route: "/"
+        , body: \_ -> "hello world!"
+        }
+      ]
+```
+
 ## Documentation
 
 Module documentation is published
 on [Pursuit](http://pursuit.purescript.org/packages/purescript-httpure).
 
-## Quick Start
+## Examples
 
-TODO
+HTTPure ships with a number of [examples](docs/examples). To run an example,
+in the project root, run:
+
+```bash
+make example EXAMPLE=<Example Name>
+```
+
+Each example's startup banner will include information on routes available on
+the example server.
 
 ## Testing
 
-We have a Makefile that wraps all commands for development. To run the test
-suite, in the project root run:
+To run the test suite, in the project root run:
 
 ```bash
 make test

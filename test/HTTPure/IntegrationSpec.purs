@@ -1,13 +1,31 @@
 module HTTPure.IntegrationSpec where
 
-import Prelude (Unit, ($))
-import Test.Spec (Spec, describe, pending)
-import Test.Spec.Runner (RunnerEffects)
+import Prelude (discard, bind)
 
-startsServerSpec :: Spec (RunnerEffects ()) Unit
-startsServerSpec =
-  pending "starts a server"
+import Control.Monad.Eff.Class as EffClass
+import Test.Spec as Spec
+import Test.Spec.Assertions as Assertions
 
-integrationSpec :: Spec (RunnerEffects ()) Unit
-integrationSpec = describe "integration" $
-  startsServerSpec
+import HTTPure.SpecHelpers as SpecHelpers
+
+import HelloWorld as HelloWorld
+import MultiRoute as MultiRoute
+
+helloWorldSpec :: SpecHelpers.Test
+helloWorldSpec = Spec.it "runs the hello world example" do
+  EffClass.liftEff HelloWorld.main
+  response <- SpecHelpers.get "http://localhost:8080"
+  response `Assertions.shouldEqual` "hello world!"
+
+multiRouteSpec :: SpecHelpers.Test
+multiRouteSpec = Spec.it "runs the multi route example" do
+  EffClass.liftEff MultiRoute.main
+  hello <- SpecHelpers.get "http://localhost:8081/hello"
+  hello `Assertions.shouldEqual` "hello"
+  goodbye <- SpecHelpers.get "http://localhost:8081/goodbye"
+  goodbye `Assertions.shouldEqual` "goodbye"
+
+integrationSpec :: SpecHelpers.Test
+integrationSpec = Spec.describe "Integration" do
+  helloWorldSpec
+  multiRouteSpec

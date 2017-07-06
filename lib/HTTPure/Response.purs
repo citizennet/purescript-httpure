@@ -4,25 +4,38 @@ module HTTPure.Response
   , write
   ) where
 
-import Control.Monad.Eff (Eff)
-import Node.Encoding (Encoding(UTF8))
-import Node.HTTP (HTTP, Response, responseAsStream) as HTTP
-import Node.Stream (Writable, writeString)
-import Prelude (Unit, bind, pure, unit)
+import Prelude (Unit, bind, discard, pure, unit)
 
--- | TODO write me
--- | TODO wrap me in a Record so that the HTTP response is accessible
-type Response e = Writable () (http :: HTTP.HTTP | e)
+import Control.Monad.Eff as Eff
+import Node.Encoding as Encoding
+import Node.HTTP as HTTP
+import Node.Stream as Stream
 
--- | TODO write me
+-- | The Response type takes as it's parameter an effects row. It is a Record
+-- | type with two fields:
+-- |
+-- | - `httpResponse`: The raw underlying HTTP response.
+-- | - `stream`: The raw response converted to a Writable stream.
+-- |
+-- | Neither field is intended to be accessed directly, rather it is recommended
+-- | to use the methods exported by this module.
+type Response e =
+  { httpResponse :: HTTP.Response
+  , stream :: Stream.Writable () (http :: HTTP.HTTP | e)
+  }
+
+-- | Convert a Node.HTTP Response into a HTTPure Response.
 fromHTTPResponse :: forall e. HTTP.Response -> Response e
-fromHTTPResponse = HTTP.responseAsStream
+fromHTTPResponse response =
+  { httpResponse: response
+  , stream: HTTP.responseAsStream response
+  }
 
--- | TODO write me
---setStatusCode ::
-
--- | TODO write me
-write :: forall e. Response e -> String -> Eff (http :: HTTP.HTTP | e) Unit
+-- | Write a string into the Response output.
+write :: forall e. Response e -> String -> Eff.Eff (http :: HTTP.HTTP | e) Unit
 write response str = do
-  _ <- writeString response UTF8 str (pure unit)
-  pure unit
+  _ <- Stream.writeString response.stream Encoding.UTF8 str noop
+  Stream.end response.stream noop
+  noop
+  where
+    noop = pure unit

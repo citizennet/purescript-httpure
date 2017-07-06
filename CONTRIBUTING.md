@@ -23,7 +23,7 @@ steps for creating a successful PR:
 2. [Create a fork](https://github.com/cprussin/purescript-httpure) on github.
 3. Create a branch in your fork for your contribution.
 4. Add your contribution to the source tree.
-5. Run the test suite.  All tests MUST pass for a PR to be accepted.
+5. Run the test suite. All tests MUST pass for a PR to be accepted.
 6. Push your code and create a PR on github. Please make sure to reference your
    issue number in your PR description.
 
@@ -43,10 +43,9 @@ live in the [docs](docs) directory. Please ensure all guides are written in
 markdown format, and all examples are fully-functional and implemented as
 self-contained subdirectories under [docs/examples](docs/examples).
 
-We try to ensure most examples have corresponding integration tests, both to add
-additional testing and to ensure that examples we promote remain functional. If
-you plan to contribute examples, please take a look
-at [IntegrationSpec.purs](test/HTTPure/IntegrationSpec.purs).
+All examples should have corresponding integration tests, to ensure that
+examples we promote remain functional. If you plan to contribute examples,
+please take a look at [IntegrationSpec.purs](test/HTTPure/IntegrationSpec.purs).
 
 ### Code
 
