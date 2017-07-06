@@ -1,18 +1,21 @@
 module HTTPure.RequestSpec where
 
-import Prelude (Unit, discard, ($))
-import Test.Spec (Spec, describe, pending)
-import Test.Spec.Runner (RunnerEffects)
+import Prelude (($))
 
-fromHTTPRequestSpec :: Spec (RunnerEffects ()) Unit
-fromHTTPRequestSpec = describe "fromHTTPRequest" $
-  pending "wraps an HTTP request"
+import Test.Spec as Spec
+import Test.Spec.Assertions as Assertions
 
-getURLSpec :: Spec (RunnerEffects ()) Unit
-getURLSpec = describe "getURL" $
-  pending "returns the URL of the request"
+import HTTPure.SpecHelpers as SpecHelpers
 
-requestSpec :: Spec (RunnerEffects ()) Unit
-requestSpec = describe "Request" do
-  fromHTTPRequestSpec
+import HTTPure.Request as Request
+
+getURLSpec :: SpecHelpers.Test
+getURLSpec = Spec.describe "getURL" $
+  Spec.it "is the URL of the request" $
+    Request.getURL req `Assertions.shouldEqual` "/test"
+    where
+      req = SpecHelpers.mockRequest "/test"
+
+requestSpec :: SpecHelpers.Test
+requestSpec = Spec.describe "Request" $
   getURLSpec

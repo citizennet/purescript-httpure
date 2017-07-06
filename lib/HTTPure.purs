@@ -1,13 +1,11 @@
 module HTTPure
   ( module HTTPure.HTTPureM
-  , module HTTPure.Server
   , module HTTPure.Request
-  , module HTTPure.Response
   , module HTTPure.Route
+  , module HTTPure.Server
   ) where
 
-import HTTPure.HTTPureM (HTTPureM)
-import HTTPure.Server (serve)
+import HTTPure.HTTPureM (HTTPureEffects, HTTPureM)
 import HTTPure.Request (Request, getURL)
-import HTTPure.Response (Response, write)
-import HTTPure.Route (Method(..), Route)
+import HTTPure.Route (Route(..))
+import HTTPure.Server (serve)

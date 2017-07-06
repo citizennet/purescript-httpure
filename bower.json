@@ -1,11 +1,11 @@
 {
   "name": "purescript-httpure",
-  "homepage": "",
-  "description": "",
+  "homepage": "https://github.com/cprussin/purescript-httpure",
+  "description": "A web framework written in PureScript.",
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": ""
+    "url": "https://github.com/cprussin/purescript-httpure"
   },
   "ignore": [
     "**/.*",
@@ -19,6 +19,8 @@
   },
   "devDependencies": {
     "purescript-psci-support": "^3.0.0",
-    "purescript-spec": "^1.0.0"
+    "purescript-spec": "^1.0.0",
+    "purescript-unsafe-coerce": "^3.0.0",
+    "purescript-node-stream-buffers": "^0.1.0"
   }
 }

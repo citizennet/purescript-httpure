@@ -1,23 +1,24 @@
 module HTTPure.HTTPureSpec where
 
-import Prelude (Unit, discard, ($))
-import Control.Monad.Eff (Eff)
-import Test.Spec (describe)
-import Test.Spec.Reporter (specReporter)
-import Test.Spec.Runner (RunnerEffects, run)
+import Prelude (discard, ($))
 
-import HTTPure.HTTPureMSpec (httpureMSpec)
-import HTTPure.RequestSpec (requestSpec)
-import HTTPure.ResponseSpec (responseSpec)
-import HTTPure.RouteSpec (routeSpec)
-import HTTPure.ServerSpec (serverSpec)
-import HTTPure.IntegrationSpec (integrationSpec)
+import Test.Spec as Spec
+import Test.Spec.Reporter as Reporter
+import Test.Spec.Runner as Runner
 
-main :: Eff (RunnerEffects ()) Unit
-main = run [ specReporter ] $ describe "HTTPure" do
-  httpureMSpec
-  requestSpec
-  responseSpec
-  routeSpec
-  serverSpec
-  integrationSpec
+import HTTPure.HTTPureMSpec as HTTPureMSpec
+import HTTPure.RequestSpec as RequestSpec
+import HTTPure.ResponseSpec as ResponseSpec
+import HTTPure.RouteSpec as RouteSpec
+import HTTPure.ServerSpec as ServerSpec
+import HTTPure.SpecHelpers as SpecHelpers
+import HTTPure.IntegrationSpec as IntegrationSpec
+
+main :: SpecHelpers.TestSuite
+main = Runner.run [ Reporter.specReporter ] $ Spec.describe "HTTPure" do
+  HTTPureMSpec.httpureMSpec
+  RequestSpec.requestSpec
+  ResponseSpec.responseSpec
+  RouteSpec.routeSpec
+  ServerSpec.serverSpec
+  IntegrationSpec.integrationSpec

@@ -1,0 +1,5 @@
+{
+  "devDependencies": {
+    "stream-buffers": "^3.0.1"
+  }
+}

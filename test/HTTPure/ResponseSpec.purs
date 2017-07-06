@@ -1,23 +1,26 @@
 module HTTPure.ResponseSpec where
 
-import Prelude (Unit, discard, ($))
-import Test.Spec (Spec, describe, pending)
-import Test.Spec.Runner (RunnerEffects)
+import Prelude (bind, discard, ($))
 
-fromHTTPResponseSpec :: Spec (RunnerEffects ()) Unit
-fromHTTPResponseSpec = describe "fromHTTPResponse" $
-  pending "wraps an HTTP response"
+import Control.Monad.Eff.Class as EffClass
+import Node.Encoding as Encoding
+import Node.StreamBuffer as StreamBuffer
+import Test.Spec as Spec
+import Test.Spec.Assertions as Assertions
 
-setStatusCodeSpec :: Spec (RunnerEffects ()) Unit
-setStatusCodeSpec = describe "setStatusCode" $
-  pending "sets the status code"
+import HTTPure.SpecHelpers as SpecHelpers
 
-writeSpec :: Spec (RunnerEffects ()) Unit
-writeSpec = describe "write" $
-  pending "adds the string to the response output"
+import HTTPure.Response as Response
 
-responseSpec :: Spec (RunnerEffects ()) Unit
-responseSpec = describe "Response" do
-  fromHTTPResponseSpec
-  setStatusCodeSpec
+writeSpec :: SpecHelpers.Test
+writeSpec = Spec.describe "write" $
+  Spec.it "sets the response body" do
+    body <- EffClass.liftEff do
+      buf <- StreamBuffer.writable
+      Response.write (SpecHelpers.mockResponse buf) "test"
+      StreamBuffer.contents Encoding.UTF8 buf
+    body `Assertions.shouldEqual` "test"
+
+responseSpec :: SpecHelpers.Test
+responseSpec = Spec.describe "Response" $
   writeSpec
