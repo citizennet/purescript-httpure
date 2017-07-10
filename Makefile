@@ -15,19 +15,19 @@ BOWERJSON := bower.json
 PACKAGEJSON := package.json
 
 # Various input directories
-SRCPATH := ./lib
-TESTPATH := ./test
-OUTPUT := ./output
-DOCS := ./docs
-EXAMPLESPATH := $(DOCS)/examples
+SRCPATH := ./Library
+TESTPATH := ./Test
+OUTPUT := ./Output
+DOCS := ./Documentation
+EXAMPLESPATH := $(DOCS)/Examples
 EXAMPLEPATH := $(EXAMPLESPATH)/$(EXAMPLE)
 
 # Various output directories
-BUILD := $(OUTPUT)/build
-COMPONENTS := $(OUTPUT)/components
-NODE_MODULES := ./node_modules
-OUTPUT_DOCS := $(OUTPUT)/docs
-OUTPUT_EXAMPLE := $(OUTPUT)/examples/$(EXAMPLE)
+BUILD := $(OUTPUT)/Build
+COMPONENTS := $(OUTPUT)/Components
+MODULES := $(OUTPUT)/node_modules
+OUTPUT_DOCS := $(OUTPUT)/Documentation
+OUTPUT_EXAMPLE := $(OUTPUT)/Examples/$(EXAMPLE)
 
 # The entry point for the compiled example, if an EXAMPLE is specified
 EXAMPLE_INDEX := $(OUTPUT_EXAMPLE)/index.js
@@ -40,15 +40,16 @@ EXAMPLESOURCES := $(EXAMPLESPATH)/**/*
 # This is the module name for the entry point for the test suite
 TESTMAIN := HTTPure.HTTPureSpec
 
-$(NODE_MODULES): $(PACKAGEJSON)
+$(MODULES): $(PACKAGEJSON)
 	$(NPM) install
+	mv node_modules $(MODULES)
 
 # Install bower components
 $(COMPONENTS): $(BOWERJSON)
 	$(BOWER) install
 
 # Build the source files
-$(BUILD): $(COMPONENTS) $(NODE_MODULES) $(SOURCES)
+$(BUILD): $(COMPONENTS) $(MODULES) $(SOURCES)
 	$(PULP) build \
 	  --src-path $(SRCPATH) \
 	  --build-path $(BUILD)
@@ -85,12 +86,13 @@ endif
 test: $(BUILD) $(TESTSOURCES) $(EXAMPLESOURCES)
 	$(PULP) test \
 	  --src-path $(SRCPATH) \
+	  --test-path $(TESTPATH) \
 	  --include $(EXAMPLESPATH) \
 	  --build-path $(BUILD) \
 	  --main $(TESTMAIN)
 
 # Launch a repl with all modules loaded
-repl: $(COMPONENTS) $(NODE_MODULES) $(SOURCES) $(TESTSOURCES) $(EXAMPLESOURCES)
+repl: $(COMPONENTS) $(MODULES) $(SOURCES) $(TESTSOURCES) $(EXAMPLESOURCES)
 	$(PULP) repl \
 	  --include $(EXAMPLESPATH) \
 	  --src-path $(SRCPATH) \
@@ -99,7 +101,6 @@ repl: $(COMPONENTS) $(NODE_MODULES) $(SOURCES) $(TESTSOURCES) $(EXAMPLESOURCES)
 # Remove all make output from the source tree
 clean:
 	rm -rf $(OUTPUT)
-	rm -rf $(NODE_MODULES)
 
 # Print out a description of all the supported tasks
 help:
@@ -115,7 +116,7 @@ help:
 	$(info - make help        Print this help)
 
 # Build the documentation
-$(OUTPUT_DOCS): $(COMPONENTS) $(NODE_MODULES) $(SOURCES)
+$(OUTPUT_DOCS): $(COMPONENTS) $(MODULES) $(SOURCES)
 	$(PULP) docs \
 	  --src-path $(SRCPATH)
 	rm -rf $(OUTPUT_DOCS)
