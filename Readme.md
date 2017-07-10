@@ -35,9 +35,10 @@ main :: HTTPure.HTTPureM (console :: Console.CONSOLE)
 main = do
   HTTPure.serve 8080 routes $ Console.log "Server now up on port 8080"
   where
-    routes = map HTTPure.Route
-      [ { method: HTTPure.Get
-        , route: "/"
+    routes =
+      [ HTTPure.Get "/"
+        { status: \_ -> 200
+        , headers: \_ -> []
         , body: \_ -> "hello world!"
         }
       ]
