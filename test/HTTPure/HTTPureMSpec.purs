@@ -1,8 +1,11 @@
 module HTTPure.HTTPureMSpec where
 
-import Prelude (Unit, pure, unit)
-import Test.Spec (Spec)
-import Test.Spec.Runner (RunnerEffects)
+import Prelude (pure, unit, ($))
 
-httpureMSpec :: Spec (RunnerEffects ()) Unit
-httpureMSpec = pure unit
+import Test.Spec as Spec
+
+import HTTPure.SpecHelpers as SpecHelpers
+
+httpureMSpec :: SpecHelpers.Test
+httpureMSpec = Spec.describe "HTTPureM" $
+  pure unit

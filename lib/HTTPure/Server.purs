@@ -1,40 +1,57 @@
-module HTTPure.Server (
-  serve
-) where
+module HTTPure.Server
+  ( boot,
+    handleRequest,
+    serve
+  ) where
 
-import Data.Maybe (Maybe(Nothing))
-import Data.Traversable (traverse_)
-import Node.HTTP (Request, Response, ListenOptions, createServer, listen) as HTTP
-import Node.Stream (end)
-import Prelude (bind, discard, pure, unit, ($), (==))
-import Data.Array (filter)
+import Prelude (pure, unit, (>>=))
 
-import HTTPure.Route (Route)
-import HTTPure.Response (fromHTTPResponse)
-import HTTPure.Request (fromHTTPRequest, getURL)
-import HTTPure.HTTPureM (HTTPureM)
+import Data.Maybe as Maybe
+import Node.HTTP as HTTP
 
--- | TODO write me
-handleRequest :: forall e. Array (Route e) -> HTTP.Request -> HTTP.Response -> HTTPureM e
-handleRequest routes request response = do
-  traverse_ (\route -> route.handler req resp) (filter matching routes)
-  end resp (pure unit)
-  pure unit
+import HTTPure.HTTPureM as HTTPureM
+import HTTPure.Request as Request
+import HTTPure.Response as Response
+import HTTPure.Route as Route
+
+-- | This function takes an array of Routes, a request, and a response, and
+-- | routes the request to the correct Routes. After the Routes have run, this
+-- | function closes the request stream.
+handleRequest :: forall e.
+                 Array (Route.Route e) ->
+                 HTTP.Request ->
+                 HTTP.Response ->
+                 HTTPureM.HTTPureM e
+handleRequest routes request response =
+  case Route.match routes req of
+    Maybe.Just route -> Route.run route req resp
+    Maybe.Nothing -> pure unit
   where
-    req  = fromHTTPRequest request
-    resp = fromHTTPResponse response
-    matching = \route -> route.route == getURL req
+    req = Request.fromHTTPRequest request
+    resp = Response.fromHTTPResponse response
 
--- | TODO write me
-getOptions :: Int -> HTTP.ListenOptions
-getOptions port = {
-  hostname: "localhost",
-  port: port,
-  backlog: Nothing
-}
+-- | Given an options object, an Array of Routes, and an HTTPureM containing
+-- | effects to run on boot, creates and runs a HTTPure server.
+boot :: forall e.
+        HTTP.ListenOptions ->
+        Array (Route.Route e) ->
+        HTTPureM.HTTPureM e ->
+        HTTPureM.HTTPureM e
+boot options routes onStarted =
+  HTTP.createServer (handleRequest routes) >>= \server ->
+    HTTP.listen server options onStarted
 
--- | TODO write me
-serve :: forall e. Array (Route e) -> Int -> HTTPureM e -> HTTPureM e
-serve routes port onStarted = do
-  server <- HTTP.createServer $ handleRequest routes -- $ loadRoutes routes
-  HTTP.listen server (getOptions port) onStarted
+-- | Create and start a server. This is the main entry point for HTTPure. Takes
+-- | a port number on which to listen, an Array of Routes to serve, and an
+-- | HTTPureM containing effects to run after the server has booted (usually
+-- | logging). Returns an HTTPureM containing the server's effects.
+serve :: forall e.
+         Int ->
+         Array (Route.Route e) ->
+         HTTPureM.HTTPureM e ->
+         HTTPureM.HTTPureM e
+serve port = boot
+  { hostname: "localhost"
+  , port: port
+  , backlog: Maybe.Nothing
+  }

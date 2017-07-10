@@ -1,23 +1,62 @@
 module HTTPure.ServerSpec where
 
-import Prelude (Unit, discard, ($))
-import Test.Spec (Spec, describe, pending)
-import Test.Spec.Runner (RunnerEffects)
+import Prelude (bind, discard, pure, unit, ($))
 
-handleRequestSpec :: Spec (RunnerEffects ()) Unit
-handleRequestSpec = describe "handleRequest" $
-  pending "handles the request"
+import Control.Monad.Eff.Class as EffClass
+import Data.Maybe as Maybe
+import Node.Encoding as Encoding
+import Node.StreamBuffer as StreamBuffer
+import Test.Spec as Spec
+import Test.Spec.Assertions as Assertions
 
-getOptionsSpec :: Spec (RunnerEffects ()) Unit
-getOptionsSpec = describe "getOptions" $
-  pending "returns an options object"
+import HTTPure.SpecHelpers as SpecHelpers
 
-serveSpec :: Spec (RunnerEffects ()) Unit
-serveSpec = describe "serve" $
-  pending "starts the server"
+import HTTPure.Server as Server
+import HTTPure.Route as Route
 
-serverSpec :: Spec (RunnerEffects ()) Unit
-serverSpec = describe "Server" do
+routes :: forall e. Array (Route.Route e)
+routes =
+  [ Route.Get "/test1"
+    { status: \_ -> 200
+    , headers: \_ -> []
+    , body: \_ -> "test1"
+    }
+  , Route.Get "/test2"
+    { status: \_ -> 200
+    , headers: \_ -> []
+    , body: \_ -> "test2"
+    }
+  ]
+
+handleRequestSpec :: SpecHelpers.Test
+handleRequestSpec = Spec.describe "handleRequest" $
+  Spec.it "matches and runs a route" do
+    body <- EffClass.liftEff do
+      buf <- StreamBuffer.writable
+      Server.handleRequest routes mockRequest $ SpecHelpers.mockHTTPResponse buf
+      StreamBuffer.contents Encoding.UTF8 buf
+    body `Assertions.shouldEqual` "test1"
+  where
+    mockRequest = SpecHelpers.mockHTTPRequest "/test1"
+
+bootSpec :: SpecHelpers.Test
+bootSpec = Spec.describe "boot" $
+  Spec.it "boots a server with the given options" do
+    EffClass.liftEff $ Server.boot options routes $ pure unit
+    out <- SpecHelpers.get "http://localhost:7900/test1"
+    out `Assertions.shouldEqual` "test1"
+  where
+    options = { port: 7900, hostname: "localhost", backlog: Maybe.Nothing }
+
+serveSpec :: SpecHelpers.Test
+serveSpec = Spec.describe "serve" $
+  Spec.it "boots a server on the given port" do
+    EffClass.liftEff $ Server.serve 7901 routes $ pure unit
+    out <- SpecHelpers.get "http://localhost:7901/test2"
+    out `Assertions.shouldEqual` "test2"
+
+serverSpec :: SpecHelpers.Test
+serverSpec = Spec.describe "Server" do
   handleRequestSpec
-  getOptionsSpec
+  bootSpec
   serveSpec
