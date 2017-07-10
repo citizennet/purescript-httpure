@@ -13,7 +13,7 @@ production-ready yet. You can track what's left before it gets production-ready
 by looking at
 our [roadmap](https://github.com/cprussin/purescript-httpure/projects). If you'd
 like to help us get there quicker, please contribute! To get started, check
-our [contributing guide](CONTRIBUTING.md).
+our [contributing guide](Contributing.md).
 
 ## Installation
 
@@ -50,8 +50,8 @@ on [Pursuit](http://pursuit.purescript.org/packages/purescript-httpure).
 
 ## Examples
 
-HTTPure ships with a number of [examples](docs/examples). To run an example,
-in the project root, run:
+HTTPure ships with a number of [examples](Documentation/Examples). To run an
+example, in the project root, run:
 
 ```bash
 make example EXAMPLE=<Example Name>
@@ -71,7 +71,7 @@ make test
 ## Contributing
 
 We are open to accepting contributions! Please see
-the [contributing guide](CONTRIBUTING.md).
+the [contributing guide](Contributing.md).
 
 ## People
 
@@ -79,8 +79,8 @@ HTTPure is written and maintained
 by [Connor Prussin](https://connor.prussin.net).
 
 We are open to accepting contributions! Please see
-the [contributing guide](CONTRIBUTING.md).
+the [contributing guide](Contributing.md).
 
 ## License
 
-[MIT](LICENSE)
+[MIT](License)
