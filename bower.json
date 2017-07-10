@@ -9,8 +9,8 @@
   },
   "ignore": [
     "**/.*",
-    "output",
-    "test",
+    "Output",
+    "Test",
     "bower.json"
   ],
   "dependencies": {
