@@ -1,10 +1,11 @@
 module HTTPure.Server
-  ( boot,
-    handleRequest,
-    serve
+  ( ServerM
+  , boot
+  , handleRequest
+  , serve
   ) where
 
-import Prelude (pure, unit, (>>=))
+import Prelude (Unit, (>>=))
 
 import Data.Maybe as Maybe
 import Node.HTTP as HTTP
@@ -12,44 +13,44 @@ import Node.HTTP as HTTP
 import HTTPure.HTTPureM as HTTPureM
 import HTTPure.Request as Request
 import HTTPure.Response as Response
-import HTTPure.Route as Route
 
--- | This function takes an array of Routes, a request, and a response, and
--- | routes the request to the correct Routes. After the Routes have run, this
--- | function closes the request stream.
+-- | The ResponseM type simply conveniently wraps up an HTTPure monad that
+-- | returns a Unit. This type is the return type of the HTTPure serve and
+-- | related methods.
+type ServerM e = HTTPureM.HTTPureM e Unit
+
+-- | This function a method which takes a request and returns a ResponseM, an
+-- | HTTP request, and an HTTP response. It runs the request, extracts the
+-- | Response from the ResponseM, and sends the Response to the HTTP Response.
 handleRequest :: forall e.
-                 Array (Route.Route e) ->
+                 (Request.Request -> Response.ResponseM e) ->
                  HTTP.Request ->
                  HTTP.Response ->
-                 HTTPureM.HTTPureM e
-handleRequest routes request response =
-  case Route.match routes req of
-    Maybe.Just route -> Route.run route req resp
-    Maybe.Nothing -> pure unit
-  where
-    req = Request.fromHTTPRequest request
-    resp = Response.fromHTTPResponse response
+                 ServerM e
+handleRequest router request response =
+  router (Request.fromHTTPRequest request) >>= Response.send response
 
--- | Given an options object, an Array of Routes, and an HTTPureM containing
--- | effects to run on boot, creates and runs a HTTPure server.
+-- | Given an options object, an function mapping Request to ResponseM, and an
+-- | HTTPureM containing effects to run on boot, creates and runs a HTTPure
+-- | server.
 boot :: forall e.
         HTTP.ListenOptions ->
-        Array (Route.Route e) ->
-        HTTPureM.HTTPureM e ->
-        HTTPureM.HTTPureM e
-boot options routes onStarted =
-  HTTP.createServer (handleRequest routes) >>= \server ->
+        (Request.Request -> Response.ResponseM e) ->
+        ServerM e ->
+        ServerM e
+boot options router onStarted =
+  HTTP.createServer (handleRequest router) >>= \server ->
     HTTP.listen server options onStarted
 
 -- | Create and start a server. This is the main entry point for HTTPure. Takes
--- | a port number on which to listen, an Array of Routes to serve, and an
--- | HTTPureM containing effects to run after the server has booted (usually
--- | logging). Returns an HTTPureM containing the server's effects.
+-- | a port number on which to listen, a function mapping Request to ResponseM,
+-- | and an HTTPureM containing effects to run after the server has booted
+-- | (usually logging). Returns an HTTPureM containing the server's effects.
 serve :: forall e.
          Int ->
-         Array (Route.Route e) ->
-         HTTPureM.HTTPureM e ->
-         HTTPureM.HTTPureM e
+         (Request.Request -> Response.ResponseM e) ->
+         ServerM e ->
+         ServerM e
 serve port = boot
   { hostname: "localhost"
   , port: port

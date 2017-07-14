@@ -3,3 +3,4 @@
 /.psc*
 /.purs*
 /.psa*
+/.dir-locals.el

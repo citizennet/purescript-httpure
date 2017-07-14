@@ -1,8 +1,9 @@
 module HelloWorld where
 
-import Prelude (discard, show, (<>), ($))
+import Prelude (discard, pure, show, (<>), ($))
 
 import Control.Monad.Eff.Console as Console
+import Data.StrMap as StrMap
 import HTTPure as HTTPure
 
 -- | Serve the example server on this port
@@ -13,19 +14,13 @@ port = 8080
 portS :: String
 portS = show port
 
--- | Specify the routes
-routes :: forall e. Array (HTTPure.Route e)
-routes =
-  [ HTTPure.Get "/"
-    { status: \_ -> 200
-    , headers: \_ -> []
-    , body: \_ -> "hello world!"
-    }
-  ]
+-- | Say 'hello world!' when run
+sayHello :: forall e. HTTPure.Request -> HTTPure.ResponseM e
+sayHello _ = pure $ HTTPure.OK StrMap.empty "hello world!"
 
 -- | Boot up the server
-main :: forall e. HTTPure.HTTPureM (console :: Console.CONSOLE | e)
-main = HTTPure.serve port routes do
+main :: forall e. HTTPure.ServerM (console :: Console.CONSOLE | e)
+main = HTTPure.serve port sayHello do
   Console.log $ ""
   Console.log $ " ┌────────────────────────────────────────────┐"
   Console.log $ " │ Server now up on port " <> portS <> "                 │"

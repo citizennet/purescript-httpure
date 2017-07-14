@@ -1,8 +1,9 @@
 module MultiRoute where
 
-import Prelude (discard, show, (<>), ($))
+import Prelude (discard, pure, show, (<>), ($))
 
 import Control.Monad.Eff.Console as Console
+import Data.StrMap as StrMap
 import HTTPure as HTTPure
 
 -- | Serve the example server on this port
@@ -14,23 +15,14 @@ portS :: String
 portS = show port
 
 -- | Specify the routes
-routes :: forall e. Array (HTTPure.Route e)
-routes =
-  [ HTTPure.Get "/hello"
-    { status: \_ -> 200
-    , headers: \_ -> []
-    , body: \_ -> "hello"
-    }
-  , HTTPure.Get "/goodbye"
-    { status: \_ -> 200
-    , headers: \_ -> []
-    , body: \_ -> "goodbye"
-    }
-  ]
+router :: forall e. HTTPure.Request -> HTTPure.ResponseM e
+router (HTTPure.Get _ "/hello")   = pure $ HTTPure.OK StrMap.empty "hello"
+router (HTTPure.Get _ "/goodbye") = pure $ HTTPure.OK StrMap.empty "goodbye"
+router _                          = pure $ HTTPure.OK StrMap.empty ""
 
 -- | Boot up the server
-main :: forall e. HTTPure.HTTPureM (console :: Console.CONSOLE | e)
-main = HTTPure.serve port routes do
+main :: forall e. HTTPure.ServerM (console :: Console.CONSOLE | e)
+main = HTTPure.serve port router do
   Console.log $ ""
   Console.log $ " ┌───────────────────────────────────────────────┐"
   Console.log $ " │ Server now up on port " <> portS <> "                    │"
