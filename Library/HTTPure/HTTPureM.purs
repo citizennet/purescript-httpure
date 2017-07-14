@@ -2,8 +2,6 @@ module HTTPure.HTTPureM
   ( HTTPureM
   ) where
 
-import Prelude (Unit)
-
 import Control.Monad.Eff as Eff
 import Node.HTTP as HTTP
 
