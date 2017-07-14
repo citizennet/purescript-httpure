@@ -33,7 +33,7 @@ import Data.StrMap as StrMap
 import HTTPure as HTTPure
 
 main :: HTTPure.ServerM (console :: Console.CONSOLE)
-main = do
+main =
   HTTPure.serve 8080 router $ Console.log "Server now up on port 8080"
   where
     router _ = pure $ HTTPure.OK StrMap.empty "hello world!"
