@@ -9,9 +9,12 @@
   },
   "ignore": [
     "**/.*",
+    "Documentation",
     "Output",
     "Test",
-    "bower.json"
+    "Makefile",
+    "*.json",
+    "*.md"
   ],
   "dependencies": {
     "purescript-prelude": "^3.0.0",

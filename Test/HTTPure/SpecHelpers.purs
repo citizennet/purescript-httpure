@@ -1,6 +1,6 @@
 module HTTPure.SpecHelpers where
 
-import Prelude (Unit, bind, discard, pure, unit, ($), (<>), (>>=), (<<<))
+import Prelude (Unit, bind, discard, pure, unit, ($), (<>), (>>=))
 
 import Control.Monad.Aff as Aff
 import Control.Monad.Eff as Eff
@@ -15,11 +15,6 @@ import Test.Spec as Spec
 import Test.Spec.Runner as Runner
 import Unsafe.Coerce as Coerce
 
-import HTTPure.HTTPureM as HTTPureM
-import HTTPure.Request as Request
-import HTTPure.Response as Response
-
-
 -- | A type alias encapsulating all effect types used in making a mock request.
 type MockRequestEffects e s =
   ( st :: ST.ST s
@@ -30,11 +25,7 @@ type MockRequestEffects e s =
 -- | A type alias encapsulating all effect types used in tests.
 type TestEffects s =
   Runner.RunnerEffects (
-    HTTPureM.HTTPureEffects (
-      MockRequestEffects
-        ( sb :: StreamBuffer.STREAM_BUFFER
-        ) s
-    )
+    MockRequestEffects ( sb :: StreamBuffer.STREAM_BUFFER ) s
   )
 
 -- | The type for integration tests.
@@ -78,22 +69,12 @@ toString response = Aff.makeAff \_ success -> do
 get :: forall e s. String -> Aff.Aff (MockRequestEffects e s) String
 get url = Aff.makeAff (getResponse url) >>= toString
 
--- | Mock a Request object
-mockRequest :: forall e. String -> Request.Request e
-mockRequest = Request.fromHTTPRequest <<< mockHTTPRequest
+-- | Mock an HTTP Request object
+mockRequest :: String -> String -> HTTP.Request
+mockRequest method url = Coerce.unsafeCoerce { method: method, url: url }
 
--- | Mock a Request object
-mockResponse :: forall e1 e2.
+-- | Mock an HTTP Request object
+mockResponse :: forall e1.
                 Stream.Writable () (sb :: StreamBuffer.STREAM_BUFFER | e1) ->
-                Response.Response e2
-mockResponse = Response.fromHTTPResponse <<< mockHTTPResponse
-
--- | Mock an HTTP Request object
-mockHTTPRequest :: String -> HTTP.Request
-mockHTTPRequest url = Coerce.unsafeCoerce { url: url }
-
--- | Mock an HTTP Request object
-mockHTTPResponse :: forall e1.
-                    Stream.Writable () (sb :: StreamBuffer.STREAM_BUFFER | e1) ->
-                    HTTP.Response
-mockHTTPResponse = Coerce.unsafeCoerce
+                HTTP.Response
+mockResponse = Coerce.unsafeCoerce

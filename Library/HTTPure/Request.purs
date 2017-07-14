@@ -1,32 +1,41 @@
 module HTTPure.Request
-  ( Request
+  ( Request(..)
   , fromHTTPRequest
-  , getURL
   ) where
 
+import Prelude ((<>))
+
+import Data.Show as Show
 import Node.HTTP as HTTP
-import Node.Stream as Stream
 
--- | The Request type takes as it's parameter an effects row. It is a Record
--- | type with two fields:
--- |
--- | - `httpRequest`: The raw underlying HTTP request.
--- | - `stream`: The raw request converted to a Readable stream.
--- |
--- | Neither field is intended to be accessed directly, rather it is recommended
--- | to use the methods exported by this module.
-type Request e =
-  { httpRequest :: HTTP.Request
-  , stream :: Stream.Readable () (http :: HTTP.HTTP | e)
-  }
+import HTTPure.Body as Body
+import HTTPure.Headers as Headers
+import HTTPure.Path as Path
 
--- | Convert a Node.HTTP Request into a HTTPure Request.
-fromHTTPRequest :: forall e. HTTP.Request -> Request e
+-- | A Request is a method along with headers, a path, and sometimes a body.
+data Request
+  = Get    Headers.Headers Path.Path
+  | Post   Headers.Headers Path.Path Body.Body
+  | Put    Headers.Headers Path.Path Body.Body
+  | Delete Headers.Headers Path.Path
+
+-- | When using show on a Request, print the method and the path.
+instance show :: Show.Show Request where
+  show (Get _ path) = "GET: " <> path
+  show (Post _ path _) = "POST: " <> path
+  show (Put _ path _) = "PUT: " <> path
+  show (Delete _ path) = "DELETE: " <> path
+
+-- | Given an HTTP Request object, this method will convert it to an HTTPure
+-- | Request object.
+fromHTTPRequest :: HTTP.Request -> Request
 fromHTTPRequest request =
-  { httpRequest: request
-  , stream: HTTP.requestAsStream request
-  }
-
--- | Get the URL used to generate a Request.
-getURL :: forall e. Request e -> String
-getURL request = HTTP.requestURL request.httpRequest
+  case method of
+    "POST" -> Post headers path ""
+    "PUT" -> Put headers path ""
+    "DELETE" -> Delete headers path
+    _ -> Get headers path
+  where
+    method = HTTP.requestMethod request
+    headers = HTTP.requestHeaders request
+    path = HTTP.requestURL request

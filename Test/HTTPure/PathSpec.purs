@@ -1,4 +1,4 @@
-module HTTPure.HTTPureMSpec where
+module HTTPure.PathSpec where
 
 import Prelude (pure, unit)
 
@@ -6,6 +6,6 @@ import Test.Spec as Spec
 
 import HTTPure.SpecHelpers as SpecHelpers
 
-httpureMSpec :: SpecHelpers.Test
-httpureMSpec = Spec.describe "HTTPureM" do
+pathSpec :: SpecHelpers.Test
+pathSpec = Spec.describe "Path" do
   pure unit
