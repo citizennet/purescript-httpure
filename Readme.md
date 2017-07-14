@@ -26,22 +26,17 @@ bower install --save purescript-httpure
 ```purescript
 module Main where
 
-import Prelude (map, ($))
+import Prelude (pure, ($))
 
 import Control.Monad.Eff.Console as Console
+import Data.StrMap as StrMap
 import HTTPure as HTTPure
 
-main :: HTTPure.HTTPureM (console :: Console.CONSOLE)
+main :: HTTPure.ServerM (console :: Console.CONSOLE)
 main = do
-  HTTPure.serve 8080 routes $ Console.log "Server now up on port 8080"
+  HTTPure.serve 8080 router $ Console.log "Server now up on port 8080"
   where
-    routes =
-      [ HTTPure.Get "/"
-        { status: \_ -> 200
-        , headers: \_ -> []
-        , body: \_ -> "hello world!"
-        }
-      ]
+    router _ = pure $ HTTPure.OK StrMap.empty "hello world!"
 ```
 
 ## Documentation
