@@ -1,7 +1,5 @@
 module HTTPure.Server
   ( ServerM
-  , boot
-  , handleRequest
   , serve
   ) where
 
