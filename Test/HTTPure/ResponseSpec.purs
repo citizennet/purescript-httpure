@@ -1,6 +1,6 @@
 module HTTPure.ResponseSpec where
 
-import Prelude (bind, discard, ($))
+import Prelude (bind, discard, pure, ($))
 
 import Control.Monad.Eff.Class as EffClass
 import Data.StrMap as StrMap
@@ -17,6 +17,13 @@ sendSpec :: SpecHelpers.Test
 sendSpec = Spec.describe "send" do
   Spec.describe "with an OK" do
     Spec.pending "writes the headers"
+    Spec.it "writes the status" do
+      resp <- EffClass.liftEff do
+        buf <- StreamBuffer.writable
+        let resp = SpecHelpers.mockResponse buf
+        Response.send resp $ Response.OK StrMap.empty ""
+        pure resp
+      SpecHelpers.getResponseStatus resp `Assertions.shouldEqual` 200
     Spec.it "writes the body" do
       body <- EffClass.liftEff do
         buf <- StreamBuffer.writable

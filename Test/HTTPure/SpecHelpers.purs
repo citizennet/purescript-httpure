@@ -1,6 +1,6 @@
 module HTTPure.SpecHelpers where
 
-import Prelude (Unit, bind, discard, pure, unit, ($), (<>), (>>=))
+import Prelude (Unit, bind, discard, pure, unit, ($), (<>), (>>=), (<<<))
 
 import Control.Monad.Aff as Aff
 import Control.Monad.Eff as Eff
@@ -78,3 +78,7 @@ mockResponse :: forall e1.
                 Stream.Writable () (sb :: StreamBuffer.STREAM_BUFFER | e1) ->
                 HTTP.Response
 mockResponse = Coerce.unsafeCoerce
+
+-- | Get the currently set status from an HTTP Response object.
+getResponseStatus :: HTTP.Response -> Int
+getResponseStatus = _.statusCode <<< Coerce.unsafeCoerce

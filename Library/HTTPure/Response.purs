@@ -4,15 +4,15 @@ module HTTPure.Response
   , send
   ) where
 
-import Prelude (Unit, bind, discard, pure, unit)
+import Prelude (Unit, discard, ($))
 
-import Node.Encoding as Encoding
+import Data.Maybe as Maybe
 import Node.HTTP as HTTP
-import Node.Stream as Stream
 
 import HTTPure.Body as Body
 import HTTPure.Headers as Headers
 import HTTPure.HTTPureM as HTTPureM
+import HTTPure.Status as Status
 
 -- | A response is a status, and can have headers and a body. Different response
 -- | codes will allow different response components to be sent.
@@ -24,14 +24,19 @@ data Response
 -- | methods.
 type ResponseM e = HTTPureM.HTTPureM e Response
 
+-- | Send a status, headers, and body to a HTTP response.
+send' :: forall e.
+         HTTP.Response ->
+         Status.Status ->
+         Headers.Headers ->
+         Maybe.Maybe Body.Body ->
+         HTTPureM.HTTPureM e Unit
+send' response status headers body = do
+  Status.write response status
+  Body.write response $ Maybe.fromMaybe "" body
+
 -- | Given an HTTP response and a HTTPure response, this method will return a
 -- | monad encapsulating writing the HTTPure response to the HTTP response and
 -- | closing the HTTP response.
 send :: forall e. HTTP.Response -> Response -> HTTPureM.HTTPureM e Unit
-send response (OK headers body) = do
-  _ <- Stream.writeString stream Encoding.UTF8 body noop
-  Stream.end stream noop
-  noop
-  where
-    stream = HTTP.responseAsStream response
-    noop = pure unit
+send response (OK headers body) = send' response 200 headers (Maybe.Just body)
