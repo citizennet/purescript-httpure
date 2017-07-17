@@ -1,16 +1,18 @@
 module HTTPure.SpecHelpers where
 
-import Prelude (Unit, bind, discard, pure, unit, ($), (<>), (>>=), (<<<))
+import Prelude (Unit, bind, discard, pure, unit, ($), (<>), (>>=), (<<<), (<$>))
 
 import Control.Monad.Aff as Aff
 import Control.Monad.Eff as Eff
 import Control.Monad.Eff.Exception as Exception
 import Control.Monad.ST as ST
+import Data.Maybe as Maybe
+import Data.String as StringUtil
+import Data.StrMap as StrMap
 import Node.Encoding as Encoding
 import Node.HTTP as HTTP
 import Node.HTTP.Client as HTTPClient
 import Node.Stream as Stream
-import Node.StreamBuffer as StreamBuffer
 import Test.Spec as Spec
 import Test.Spec.Runner as Runner
 import Unsafe.Coerce as Coerce
@@ -19,14 +21,18 @@ import Unsafe.Coerce as Coerce
 type MockRequestEffects e s =
   ( st :: ST.ST s
   , exception :: Exception.EXCEPTION
-  , http :: HTTP.HTTP | e
+  , http :: HTTP.HTTP
+  | e
+  )
+
+type MockResponseEffects e =
+  ( mockResponse :: MOCK_RESPONSE
+  | e
   )
 
 -- | A type alias encapsulating all effect types used in tests.
 type TestEffects s =
-  Runner.RunnerEffects (
-    MockRequestEffects ( sb :: StreamBuffer.STREAM_BUFFER ) s
-  )
+  Runner.RunnerEffects (MockRequestEffects (MockResponseEffects ()) s)
 
 -- | The type for integration tests.
 type Test = forall s. Spec.Spec (TestEffects s) Unit
@@ -44,10 +50,9 @@ endRequest request = Stream.end (HTTPClient.requestAsStream request) $ pure unit
 -- | client request.
 getResponse :: forall e.
                String ->
-               (Exception.Error -> Eff.Eff (http :: HTTP.HTTP | e) Unit) ->
-               (HTTPClient.Response -> Eff.Eff (http :: HTTP.HTTP | e) Unit) ->
-               Eff.Eff (http :: HTTP.HTTP | e) Unit
-getResponse url _ success = HTTPClient.requestFromURI url success >>= endRequest
+               Aff.Aff (http :: HTTP.HTTP | e) HTTPClient.Response
+getResponse url = Aff.makeAff \_ success ->
+  HTTPClient.requestFromURI url success >>= endRequest
 
 -- | Given an ST String buffer and a new string, concatenate that new string
 -- | onto the ST buffer.
@@ -67,18 +72,50 @@ toString response = Aff.makeAff \_ success -> do
 -- | Run an HTTP GET with the given url and return an Aff that contains the
 -- | string with the response body.
 get :: forall e s. String -> Aff.Aff (MockRequestEffects e s) String
-get url = Aff.makeAff (getResponse url) >>= toString
+get url = getResponse url >>= toString
+
+-- | Convert a request to an Aff containing the string with the given header
+-- | value.
+extractHeader :: String -> HTTPClient.Response -> String
+extractHeader header = unmaybe <<< lookup <<< HTTPClient.responseHeaders
+  where
+    unmaybe = Maybe.fromMaybe ""
+    lookup = StrMap.lookup $ StringUtil.toLower header
+
+-- | Run an HTTP GET with the given url and return an Aff that contains the
+-- | string with the header value for the given header.
+getHeader :: forall e s.
+             String ->
+             String ->
+             Aff.Aff (MockRequestEffects e s) String
+getHeader url header = extractHeader header <$> getResponse url
 
 -- | Mock an HTTP Request object
 mockRequest :: String -> String -> HTTP.Request
 mockRequest method url = Coerce.unsafeCoerce { method: method, url: url }
 
--- | Mock an HTTP Request object
-mockResponse :: forall e1.
-                Stream.Writable () (sb :: StreamBuffer.STREAM_BUFFER | e1) ->
-                HTTP.Response
-mockResponse = Coerce.unsafeCoerce
+-- | An effect encapsulating creating a mock response object
+foreign import data MOCK_RESPONSE :: Eff.Effect
+
+-- | Mock an HTTP Response object
+foreign import mockResponse ::
+  forall e. Eff.Eff (mockResponse :: MOCK_RESPONSE | e) HTTP.Response
+
+-- | Get the current body from an HTTP Response object (note this will only work
+-- | with an object returned from mockResponse).
+getResponseBody :: HTTP.Response -> String
+getResponseBody = _.body <<< Coerce.unsafeCoerce
 
 -- | Get the currently set status from an HTTP Response object.
 getResponseStatus :: HTTP.Response -> Int
 getResponseStatus = _.statusCode <<< Coerce.unsafeCoerce
+
+-- | Get all current headers on the HTTP Response object.
+getResponseHeaders :: HTTP.Response -> StrMap.StrMap String
+getResponseHeaders response =
+  Coerce.unsafeCoerce $ _.headers $ Coerce.unsafeCoerce response
+
+-- | Get the current value for the header on the HTTP Response object.
+getResponseHeader :: HTTP.Response -> String -> String
+getResponseHeader response header =
+  Maybe.fromMaybe "" $ StrMap.lookup header $ getResponseHeaders response

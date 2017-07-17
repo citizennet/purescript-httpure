@@ -33,6 +33,7 @@ send' :: forall e.
          HTTPureM.HTTPureM e Unit
 send' response status headers body = do
   Status.write response status
+  Headers.write response headers
   Body.write response $ Maybe.fromMaybe "" body
 
 -- | Given an HTTP response and a HTTPure response, this method will return a

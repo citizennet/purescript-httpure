@@ -1,10 +1,8 @@
 module HTTPure.BodySpec where
 
-import Prelude (bind, discard)
+import Prelude (bind, discard, pure, ($))
 
 import Control.Monad.Eff.Class as EffClass
-import Node.Encoding as Encoding
-import Node.StreamBuffer as StreamBuffer
 import Test.Spec as Spec
 import Test.Spec.Assertions as Assertions
 
@@ -16,10 +14,9 @@ writeSpec :: SpecHelpers.Test
 writeSpec = Spec.describe "write" do
   Spec.it "writes the string to the Response body" do
     body <- EffClass.liftEff do
-      buf <- StreamBuffer.writable
-      let resp = SpecHelpers.mockResponse buf
+      resp <- SpecHelpers.mockResponse
       Body.write resp "test"
-      StreamBuffer.contents Encoding.UTF8 buf
+      pure $ SpecHelpers.getResponseBody resp
     body `Assertions.shouldEqual` "test"
 
 bodySpec :: SpecHelpers.Test

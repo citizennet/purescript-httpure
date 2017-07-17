@@ -12,7 +12,6 @@ NPM := npm
 
 # Package manifest files
 BOWERJSON := bower.json
-PACKAGEJSON := package.json
 
 # Various input directories
 SRCPATH := ./Library
@@ -25,7 +24,6 @@ EXAMPLEPATH := $(EXAMPLESPATH)/$(EXAMPLE)
 # Various output directories
 BUILD := $(OUTPUT)/Build
 COMPONENTS := $(OUTPUT)/Components
-MODULES := $(OUTPUT)/node_modules
 OUTPUT_DOCS := $(OUTPUT)/Documentation
 OUTPUT_EXAMPLE := $(OUTPUT)/Examples/$(EXAMPLE)
 
@@ -40,16 +38,12 @@ EXAMPLESOURCES := $(EXAMPLESPATH)/**/*
 # This is the module name for the entry point for the test suite
 TESTMAIN := HTTPure.HTTPureSpec
 
-$(MODULES): $(PACKAGEJSON)
-	$(NPM) install
-	mv node_modules $(MODULES)
-
 # Install bower components
 $(COMPONENTS): $(BOWERJSON)
 	$(BOWER) install
 
 # Build the source files
-$(BUILD): $(COMPONENTS) $(MODULES) $(SOURCES)
+$(BUILD): $(COMPONENTS) $(SOURCES)
 	$(PULP) build \
 	  --src-path $(SRCPATH) \
 	  --build-path $(BUILD)
@@ -92,7 +86,7 @@ test: $(BUILD) $(TESTSOURCES) $(EXAMPLESOURCES)
 	  --main $(TESTMAIN)
 
 # Launch a repl with all modules loaded
-repl: $(COMPONENTS) $(MODULES) $(SOURCES) $(TESTSOURCES) $(EXAMPLESOURCES)
+repl: $(COMPONENTS) $(SOURCES) $(TESTSOURCES) $(EXAMPLESOURCES)
 	$(PULP) repl \
 	  --include $(EXAMPLESPATH) \
 	  --src-path $(SRCPATH) \
@@ -116,7 +110,7 @@ help:
 	$(info - make help        Print this help)
 
 # Build the documentation
-$(OUTPUT_DOCS): $(COMPONENTS) $(MODULES) $(SOURCES)
+$(OUTPUT_DOCS): $(COMPONENTS) $(SOURCES)
 	$(PULP) docs \
 	  --src-path $(SRCPATH)
 	rm -rf $(OUTPUT_DOCS)

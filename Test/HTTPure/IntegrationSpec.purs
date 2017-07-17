@@ -10,6 +10,7 @@ import HTTPure.SpecHelpers as SpecHelpers
 
 import HelloWorld as HelloWorld
 import MultiRoute as MultiRoute
+import Headers as Headers
 
 helloWorldSpec :: SpecHelpers.Test
 helloWorldSpec = Spec.it "runs the hello world example" do
@@ -25,7 +26,14 @@ multiRouteSpec = Spec.it "runs the multi route example" do
   goodbye <- SpecHelpers.get "http://localhost:8081/goodbye"
   goodbye `Assertions.shouldEqual` "goodbye"
 
+headersSpec :: SpecHelpers.Test
+headersSpec = Spec.it "runs the headers example" do
+  EffClass.liftEff Headers.main
+  header <- SpecHelpers.getHeader "http://localhost:8082" "X-Example"
+  header `Assertions.shouldEqual` "hello world!"
+
 integrationSpec :: SpecHelpers.Test
 integrationSpec = Spec.describe "Integration" do
   helloWorldSpec
   multiRouteSpec
+  headersSpec

@@ -21,7 +21,6 @@ sayHello _ = pure $ HTTPure.OK StrMap.empty "hello world!"
 -- | Boot up the server
 main :: forall e. HTTPure.ServerM (console :: Console.CONSOLE | e)
 main = HTTPure.serve port sayHello do
-  Console.log $ ""
   Console.log $ " ┌────────────────────────────────────────────┐"
   Console.log $ " │ Server now up on port " <> portS <> "                 │"
   Console.log $ " │                                            │"
