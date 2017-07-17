@@ -13,6 +13,7 @@ import HTTPure.PathSpec as PathSpec
 import HTTPure.RequestSpec as RequestSpec
 import HTTPure.ResponseSpec as ResponseSpec
 import HTTPure.ServerSpec as ServerSpec
+import HTTPure.StatusSpec as StatusSpec
 import HTTPure.IntegrationSpec as IntegrationSpec
 
 import HTTPure.SpecHelpers as SpecHelpers
@@ -26,4 +27,5 @@ main = Runner.run [ Reporter.specReporter ] $ Spec.describe "HTTPure" do
   RequestSpec.requestSpec
   ResponseSpec.responseSpec
   ServerSpec.serverSpec
+  StatusSpec.statusSpec
   IntegrationSpec.integrationSpec
