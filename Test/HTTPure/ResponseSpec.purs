@@ -18,7 +18,7 @@ sendSpec = Spec.describe "send" do
       header <- EffClass.liftEff do
         resp <- SpecHelpers.mockResponse
         Response.send resp $ Response.OK (StrMap.singleton "X-Test" "test") ""
-        pure $ SpecHelpers.getResponseHeader resp "X-Test"
+        pure $ SpecHelpers.getResponseHeader "X-Test" resp
       header `Assertions.shouldEqual` "test"
     Spec.it "writes the status" do
       status <- EffClass.liftEff do

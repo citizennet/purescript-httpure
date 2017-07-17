@@ -112,10 +112,9 @@ getResponseStatus = _.statusCode <<< Coerce.unsafeCoerce
 
 -- | Get all current headers on the HTTP Response object.
 getResponseHeaders :: HTTP.Response -> StrMap.StrMap String
-getResponseHeaders response =
-  Coerce.unsafeCoerce $ _.headers $ Coerce.unsafeCoerce response
+getResponseHeaders = Coerce.unsafeCoerce <<< _.headers <<< Coerce.unsafeCoerce
 
 -- | Get the current value for the header on the HTTP Response object.
-getResponseHeader :: HTTP.Response -> String -> String
-getResponseHeader response header =
-  Maybe.fromMaybe "" $ StrMap.lookup header $ getResponseHeaders response
+getResponseHeader :: String -> HTTP.Response -> String
+getResponseHeader header =
+  Maybe.fromMaybe "" <<< StrMap.lookup header <<< getResponseHeaders

@@ -17,7 +17,7 @@ writeSpec = Spec.describe "write" do
     header <- EffClass.liftEff do
       mock <- SpecHelpers.mockResponse
       Headers.write mock $ StrMap.singleton "X-Test" "test"
-      pure $ SpecHelpers.getResponseHeader mock "X-Test"
+      pure $ SpecHelpers.getResponseHeader "X-Test" mock
     header `Assertions.shouldEqual` "test"
 
 headersSpec :: SpecHelpers.Test
