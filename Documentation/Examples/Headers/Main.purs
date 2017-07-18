@@ -1,6 +1,6 @@
 module Headers where
 
-import Prelude (discard, flip, pure, show, (<>), ($), (<<<))
+import Prelude
 
 import Control.Monad.Eff.Console as Console
 import Data.StrMap as StrMap

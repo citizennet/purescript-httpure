@@ -1,6 +1,6 @@
 module HTTPure.HeadersSpec where
 
-import Prelude (bind, discard, pure, ($))
+import Prelude
 
 import Control.Monad.Eff.Class as EffClass
 import Data.StrMap as StrMap

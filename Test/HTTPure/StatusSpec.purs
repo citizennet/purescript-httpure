@@ -1,6 +1,6 @@
 module HTTPure.StatusSpec where
 
-import Prelude (bind, discard, pure, ($))
+import Prelude
 
 import Control.Monad.Eff.Class as EffClass
 import Test.Spec as Spec

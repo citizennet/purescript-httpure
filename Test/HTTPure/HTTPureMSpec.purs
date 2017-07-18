@@ -1,6 +1,6 @@
 module HTTPure.HTTPureMSpec where
 
-import Prelude (pure, unit)
+import Prelude
 
 import Test.Spec as Spec
 

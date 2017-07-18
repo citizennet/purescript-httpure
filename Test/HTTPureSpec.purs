@@ -1,6 +1,6 @@
 module HTTPure.HTTPureSpec where
 
-import Prelude (discard, ($))
+import Prelude
 
 import Test.Spec as Spec
 import Test.Spec.Reporter as Reporter

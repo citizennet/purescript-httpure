@@ -4,7 +4,7 @@ module HTTPure.Response
   , send
   ) where
 
-import Prelude (Unit, discard, ($))
+import Prelude
 
 import Data.Maybe as Maybe
 import Node.HTTP as HTTP

@@ -4,7 +4,7 @@ module HTTPure.Body
   , write
   ) where
 
-import Prelude (Unit, bind, discard, pure, unit, (>>=), (<>), ($))
+import Prelude
 
 import Control.Monad.Aff as Aff
 import Control.Monad.Eff as Eff
