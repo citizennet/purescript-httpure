@@ -46,7 +46,8 @@ $(COMPONENTS): $(BOWERJSON)
 $(BUILD): $(COMPONENTS) $(SOURCES)
 	$(PULP) build \
 	  --src-path $(SRCPATH) \
-	  --build-path $(BUILD)
+	  --build-path $(BUILD) \
+	  -- --stash --censor-lib --strict
 	touch $(BUILD)
 build: $(BUILD)
 
@@ -62,7 +63,8 @@ $(EXAMPLE_INDEX): $(OUTPUT_EXAMPLE) $(BUILD) $(EXAMPLEPATH)/Main.purs
 	  --include $(SRCPATH) \
 	  --build-path $(BUILD) \
 	  --main $(EXAMPLE) \
-	  --to $(EXAMPLE_INDEX)
+	  --to $(EXAMPLE_INDEX) \
+	  -- --stash --censor-lib --strict
 
 # Run the example specified by the environment variable EXAMPLE
 ifeq ($(EXAMPLE),)
@@ -83,14 +85,16 @@ test: $(BUILD) $(TESTSOURCES) $(EXAMPLESOURCES)
 	  --test-path $(TESTPATH) \
 	  --include $(EXAMPLESPATH) \
 	  --build-path $(BUILD) \
-	  --main $(TESTMAIN)
+	  --main $(TESTMAIN) \
+	  -- --stash --censor-lib --strict
 
 # Launch a repl with all modules loaded
 repl: $(COMPONENTS) $(SOURCES) $(TESTSOURCES) $(EXAMPLESOURCES)
 	$(PULP) repl \
 	  --include $(EXAMPLESPATH) \
 	  --src-path $(SRCPATH) \
-	  --test-path $(TESTPATH)
+	  --test-path $(TESTPATH) \
+	  -- --stash --censor-lib --strict
 
 # Remove all make output from the source tree
 clean:
@@ -112,7 +116,8 @@ help:
 # Build the documentation
 $(OUTPUT_DOCS): $(COMPONENTS) $(SOURCES)
 	$(PULP) docs \
-	  --src-path $(SRCPATH)
+	  --src-path $(SRCPATH) \
+	  -- --stash --censor-lib --strict
 	rm -rf $(OUTPUT_DOCS)
 	mv generated-docs $(OUTPUT_DOCS)
 docs: $(OUTPUT_DOCS)
