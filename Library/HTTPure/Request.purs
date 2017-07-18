@@ -3,13 +3,15 @@ module HTTPure.Request
   , fromHTTPRequest
   ) where
 
-import Prelude ((<>))
+import Prelude (bind, pure, (<>), ($))
 
+import Control.Monad.Aff as Aff
 import Data.Show as Show
 import Node.HTTP as HTTP
 
 import HTTPure.Body as Body
 import HTTPure.Headers as Headers
+import HTTPure.HTTPureM as HTTPureM
 import HTTPure.Path as Path
 
 -- | A Request is a method along with headers, a path, and sometimes a body.
@@ -28,13 +30,16 @@ instance show :: Show.Show Request where
 
 -- | Given an HTTP Request object, this method will convert it to an HTTPure
 -- | Request object.
-fromHTTPRequest :: HTTP.Request -> Request
-fromHTTPRequest request =
+fromHTTPRequest :: forall e.
+                   HTTP.Request ->
+                   Aff.Aff (HTTPureM.HTTPureEffects e) Request
+fromHTTPRequest request = do
+  body <- Body.read request
   case method of
-    "POST" -> Post headers path ""
-    "PUT" -> Put headers path ""
-    "DELETE" -> Delete headers path
-    _ -> Get headers path
+    "POST" -> pure $ Post headers path body
+    "PUT" -> pure $ Put headers path body
+    "DELETE" -> pure $ Delete headers path
+    _ -> pure $ Get headers path
   where
     method = HTTP.requestMethod request
     headers = HTTP.requestHeaders request

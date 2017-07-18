@@ -3,12 +3,21 @@ module HTTPure.BodySpec where
 import Prelude (bind, discard, pure, ($))
 
 import Control.Monad.Eff.Class as EffClass
+import Data.StrMap as StrMap
 import Test.Spec as Spec
 import Test.Spec.Assertions as Assertions
 
 import HTTPure.Body as Body
 
 import HTTPure.SpecHelpers as SpecHelpers
+
+readSpec :: SpecHelpers.Test
+readSpec = Spec.describe "read" do
+  Spec.it "returns the body of the Request" do
+    let req = SpecHelpers.mockRequest "GET" "" "test" StrMap.empty
+    request <- EffClass.liftEff req
+    body <- Body.read request
+    body `Assertions.shouldEqual` "test"
 
 writeSpec :: SpecHelpers.Test
 writeSpec = Spec.describe "write" do
@@ -21,4 +30,5 @@ writeSpec = Spec.describe "write" do
 
 bodySpec :: SpecHelpers.Test
 bodySpec = Spec.describe "Body" do
+  readSpec
   writeSpec
