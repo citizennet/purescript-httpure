@@ -46,8 +46,8 @@ on [Pursuit](http://pursuit.purescript.org/packages/purescript-httpure).
 
 ## Examples
 
-HTTPure ships with a number of [examples](Documentation/Examples). To run an
-example, in the project root, run:
+HTTPure ships with a number of [examples](docs/Examples). To run an example, in
+the project root, run:
 
 ```bash
 make example EXAMPLE=<Example Name>

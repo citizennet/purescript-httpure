@@ -39,10 +39,10 @@ this end, documentation should mostly be provided inline in the codebase, and
 should follow the same PR process as other commits.
 
 We also welcome documentation in the form of guides and examples. These should
-live in the [Documentation](Documentation) directory. Please ensure all guides
-are written in markdown format, and all examples are fully-functional and
+live in the [Documentation](docs) directory. Please ensure all guides are
+written in markdown format, and all examples are fully-functional and
 implemented as self-contained subdirectories
-under [Documentation/Examples](Documentation/Examples).
+under [Documentation/Examples](docs/Examples).
 
 All examples should have corresponding integration tests, to ensure that
 examples we promote remain functional. If you plan to contribute examples,

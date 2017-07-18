@@ -9,9 +9,9 @@
   },
   "ignore": [
     "**/.*",
-    "Documentation",
-    "Output",
-    "Test",
+    "docs",
+    "out",
+    "test",
     "Makefile",
     "*.json",
     "*.md"

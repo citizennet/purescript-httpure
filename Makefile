@@ -14,18 +14,18 @@ NPM := npm
 BOWERJSON := bower.json
 
 # Various input directories
-SRCPATH := ./Library
-TESTPATH := ./Test
-OUTPUT := ./Output
-DOCS := ./Documentation
+SRCPATH := ./src
+TESTPATH := ./test
+OUTPUT := ./out
+DOCS := ./docs
 EXAMPLESPATH := $(DOCS)/Examples
 EXAMPLEPATH := $(EXAMPLESPATH)/$(EXAMPLE)
 
 # Various output directories
-BUILD := $(OUTPUT)/Build
-COMPONENTS := $(OUTPUT)/Components
-OUTPUT_DOCS := $(OUTPUT)/Documentation
-OUTPUT_EXAMPLE := $(OUTPUT)/Examples/$(EXAMPLE)
+BUILD := $(OUTPUT)/build
+COMPONENTS := $(OUTPUT)/components
+OUTPUT_DOCS := $(OUTPUT)/docs
+OUTPUT_EXAMPLE := $(OUTPUT)/examples/$(EXAMPLE)
 
 # The entry point for the compiled example, if an EXAMPLE is specified
 EXAMPLE_INDEX := $(OUTPUT_EXAMPLE)/index.js
@@ -92,8 +92,7 @@ repl: $(COMPONENTS) $(SOURCES) $(TESTSOURCES) $(EXAMPLESOURCES)
 	$(PULP) repl \
 	  --include $(EXAMPLESPATH) \
 	  --src-path $(SRCPATH) \
-	  --test-path $(TESTPATH) \
-	  -- --stash --censor-lib --strict
+	  --test-path $(TESTPATH)
 
 # Remove all make output from the source tree
 clean:
@@ -115,8 +114,7 @@ help:
 # Build the documentation
 $(OUTPUT_DOCS): $(COMPONENTS) $(SOURCES)
 	$(PULP) docs \
-	  --src-path $(SRCPATH) \
-	  -- --stash --censor-lib --strict
+	  --src-path $(SRCPATH)
 	rm -rf $(OUTPUT_DOCS)
 	mv generated-docs $(OUTPUT_DOCS)
 docs: $(OUTPUT_DOCS)
