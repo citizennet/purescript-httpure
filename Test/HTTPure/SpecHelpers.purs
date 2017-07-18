@@ -91,8 +91,13 @@ getHeader :: forall e s.
 getHeader url header = extractHeader header <$> getResponse url
 
 -- | Mock an HTTP Request object
-mockRequest :: String -> String -> HTTP.Request
-mockRequest method url = Coerce.unsafeCoerce { method: method, url: url }
+mockRequest :: String -> String -> StrMap.StrMap String -> HTTP.Request
+mockRequest method url headers =
+  Coerce.unsafeCoerce
+    { method: method
+    , url: url
+    , headers: headers
+    }
 
 -- | An effect encapsulating creating a mock response object
 foreign import data MOCK_RESPONSE :: Eff.Effect
