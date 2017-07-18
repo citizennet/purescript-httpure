@@ -1,6 +1,6 @@
 module HTTPure.ServerSpec where
 
-import Prelude (bind, discard, pure, unit, ($))
+import Prelude
 
 import Control.Monad.Eff.Class as EffClass
 import Data.StrMap as StrMap

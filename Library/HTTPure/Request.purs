@@ -3,7 +3,7 @@ module HTTPure.Request
   , fromHTTPRequest
   ) where
 
-import Prelude (bind, pure, (<>), ($))
+import Prelude
 
 import Control.Monad.Aff as Aff
 import Data.Show as Show

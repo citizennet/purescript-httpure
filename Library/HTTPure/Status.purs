@@ -3,7 +3,7 @@ module HTTPure.Status
   , write
   ) where
 
-import Prelude (Unit)
+import Prelude
 
 import Control.Monad.Eff as Eff
 import Node.HTTP as HTTP

@@ -1,6 +1,6 @@
 module HTTPure.IntegrationSpec where
 
-import Prelude (discard, bind)
+import Prelude
 
 import Control.Monad.Eff.Class as EffClass
 import Test.Spec as Spec

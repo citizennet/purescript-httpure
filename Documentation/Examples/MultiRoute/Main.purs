@@ -1,6 +1,6 @@
 module MultiRoute where
 
-import Prelude (discard, pure, show, (<>), ($))
+import Prelude
 
 import Control.Monad.Eff.Console as Console
 import Data.StrMap as StrMap

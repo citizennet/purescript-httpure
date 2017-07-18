@@ -4,7 +4,7 @@ module HTTPure.Headers
   , write
   ) where
 
-import Prelude (Unit, bind, flip, pure, unit, ($), (<<<))
+import Prelude
 
 import Control.Monad.Eff as Eff
 import Data.Maybe as Maybe
