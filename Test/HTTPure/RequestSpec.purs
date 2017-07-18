@@ -1,7 +1,8 @@
 module HTTPure.RequestSpec where
 
-import Prelude (discard, pure, show, unit, (<>), ($), (<<<))
+import Prelude (bind, discard, pure, show, unit, (<>), ($), (>>=))
 
+import Control.Monad.Eff.Class as EffClass
 import Data.StrMap as StrMap
 import Test.Spec as Spec
 import Test.Spec.Assertions as Assertions
@@ -33,69 +34,90 @@ fromHTTPRequestSpec = Spec.describe "fromHTTPRequest" do
 
   Spec.describe "with a POST" do
     Spec.it "is a Post" do
-      case mock "POST" "" StrMap.empty of
+      response <- mock "POST" "" "" StrMap.empty
+      case response of
         (Request.Post _ _ _) -> pure unit
         a -> Assertions.fail $ "expected a Post, got " <> show a
     Spec.it "has the correct headers" do
-      case mock "POST" "" mockHeader of
+      response <- mock "POST" "" "" mockHeader
+      case response of
         (Request.Post headers _ _) ->
           Headers.lookup headers "X-Test" `Assertions.shouldEqual` "test"
         a -> Assertions.fail $ "expected a Post, got " <> show a
     Spec.it "has the correct path" do
-      case mock "POST" "test" StrMap.empty of
+      response <- mock "POST" "test" "" StrMap.empty
+      case response of
         (Request.Post _ "test" _) -> pure unit
         a -> Assertions.fail $ "expected the path 'test', got " <> show a
-    Spec.pending "has the correct body"
+    Spec.it "has the correct body" do
+      response <- mock "POST" "" "test" StrMap.empty
+      case response of
+        (Request.Post _ _ "test") -> pure unit
+        a -> Assertions.fail $ "expected the body 'test', got " <> show a
 
   Spec.describe "with a PUT" do
     Spec.it "is a Put" do
-      case mock "PUT" "" StrMap.empty of
+      response <- mock "PUT" "" "" StrMap.empty
+      case response of
         (Request.Put _ _ _) -> pure unit
         a -> Assertions.fail $ "expected a Put, got " <> show a
     Spec.it "has the correct headers" do
-      case mock "PUT" "" mockHeader of
+      response <- mock "PUT" "" "" mockHeader
+      case response of
         (Request.Put headers _ _) ->
           Headers.lookup headers "X-Test" `Assertions.shouldEqual` "test"
         a -> Assertions.fail $ "expected a Put, got " <> show a
     Spec.it "has the correct path" do
-      case mock "PUT" "test" StrMap.empty of
+      response <- mock "PUT" "test" "" StrMap.empty
+      case response of
         (Request.Put _ "test" _) -> pure unit
         a -> Assertions.fail $ "expected the path 'test', got " <> show a
-    Spec.pending "has the correct body"
+    Spec.it "has the correct body" do
+      response <- mock "PUT" "" "test" StrMap.empty
+      case response of
+        (Request.Put _ _ "test") -> pure unit
+        a -> Assertions.fail $ "expected the body 'test', got " <> show a
 
   Spec.describe "with a DELETE" do
     Spec.it "is a Delete" do
-      case mock "DELETE" "" StrMap.empty of
+      response <- mock "DELETE" "" "" StrMap.empty
+      case response of
         (Request.Delete _ _) -> pure unit
         a -> Assertions.fail $ "expected a Delete, got " <> show a
     Spec.it "has the correct headers" do
-      case mock "DELETE" "" mockHeader of
+      response <- mock "DELETE" "" "" mockHeader
+      case response of
         (Request.Delete headers _) ->
           Headers.lookup headers "X-Test" `Assertions.shouldEqual` "test"
         a -> Assertions.fail $ "expected a Delete, got " <> show a
     Spec.it "has the correct path" do
-      case mock "DELETE" "test" StrMap.empty of
+      response <- mock "DELETE" "test" "" StrMap.empty
+      case response of
         (Request.Delete _ "test") -> pure unit
         a -> Assertions.fail $ "expected the path 'test', got " <> show a
 
   Spec.describe "with a GET" do
     Spec.it "is a Get" do
-      case mock "GET" "" StrMap.empty of
+      response <- mock "GET" "" "" StrMap.empty
+      case response of
         (Request.Get _ _) -> pure unit
         a -> Assertions.fail $ "expected a Get, got " <> show a
     Spec.it "has the correct headers" do
-      case mock "GET" "" mockHeader of
+      response <- mock "GET" "" "" mockHeader
+      case response of
         (Request.Get headers _) ->
           Headers.lookup headers "X-Test" `Assertions.shouldEqual` "test"
         a -> Assertions.fail $ "expected a Get, got " <> show a
     Spec.it "has the correct path" do
-      case mock "GET" "test" StrMap.empty of
+      response <- mock "GET" "test" "" StrMap.empty
+      case response of
         (Request.Get _ "test") -> pure unit
         a -> Assertions.fail $ "expected the path 'test', got " <> show a
 
   where
-    mock path body =
-      Request.fromHTTPRequest <<< SpecHelpers.mockRequest path body
+    mock method path body headers = do
+      let req = SpecHelpers.mockRequest method path body headers
+      EffClass.liftEff req >>= Request.fromHTTPRequest
     mockHeader = StrMap.singleton "x-test" "test"
 
 requestSpec :: SpecHelpers.Test

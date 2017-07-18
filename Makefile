@@ -63,8 +63,7 @@ $(EXAMPLE_INDEX): $(OUTPUT_EXAMPLE) $(BUILD) $(EXAMPLEPATH)/Main.purs
 	  --include $(SRCPATH) \
 	  --build-path $(BUILD) \
 	  --main $(EXAMPLE) \
-	  --to $(EXAMPLE_INDEX) \
-	  -- --stash --censor-lib --strict
+	  --to $(EXAMPLE_INDEX)
 
 # Run the example specified by the environment variable EXAMPLE
 ifeq ($(EXAMPLE),)

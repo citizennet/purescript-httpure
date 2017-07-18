@@ -18,27 +18,27 @@ import Test.Spec.Runner as Runner
 import Unsafe.Coerce as Coerce
 
 -- | A type alias encapsulating all effect types used in making a mock request.
-type MockRequestEffects e s =
-  ( st :: ST.ST s
+type HTTPRequestEffects e =
+  ( st :: ST.ST String
   , exception :: Exception.EXCEPTION
   , http :: HTTP.HTTP
   | e
   )
 
-type MockResponseEffects e =
-  ( mockResponse :: MOCK_RESPONSE
-  | e
+-- | A type alias encapsulating all effect types used in tests.
+type TestEffects =
+  Runner.RunnerEffects (
+    HTTPRequestEffects
+      ( mockResponse :: MOCK_RESPONSE
+      , mockRequest :: MOCK_REQUEST
+      )
   )
 
--- | A type alias encapsulating all effect types used in tests.
-type TestEffects s =
-  Runner.RunnerEffects (MockRequestEffects (MockResponseEffects ()) s)
-
 -- | The type for integration tests.
-type Test = forall s. Spec.Spec (TestEffects s) Unit
+type Test = Spec.Spec TestEffects Unit
 
 -- | The type for the entire test suite.
-type TestSuite = forall s. Eff.Eff (TestEffects s) Unit
+type TestSuite = Eff.Eff TestEffects Unit
 
 -- | Given an HTTPClient.Request, close the request stream so the request can be
 -- | fired.
@@ -61,8 +61,8 @@ concat :: forall e s.
 concat buf new = ST.modifySTRef buf (\old -> old <> new) >>= (\_ -> pure unit)
 
 -- | Convert a request to an Aff containing the string with the response body.
-toString :: forall e s.
-            HTTPClient.Response -> Aff.Aff (MockRequestEffects e s) String
+toString :: forall e.
+            HTTPClient.Response -> Aff.Aff (HTTPRequestEffects e) String
 toString response = Aff.makeAff \_ success -> do
   let stream = HTTPClient.responseAsStream response
   buf <- ST.newSTRef ""
@@ -71,7 +71,7 @@ toString response = Aff.makeAff \_ success -> do
 
 -- | Run an HTTP GET with the given url and return an Aff that contains the
 -- | string with the response body.
-get :: forall e s. String -> Aff.Aff (MockRequestEffects e s) String
+get :: forall e. String -> Aff.Aff (HTTPRequestEffects e) String
 get url = getResponse url >>= toString
 
 -- | Convert a request to an Aff containing the string with the given header
@@ -84,20 +84,23 @@ extractHeader header = unmaybe <<< lookup <<< HTTPClient.responseHeaders
 
 -- | Run an HTTP GET with the given url and return an Aff that contains the
 -- | string with the header value for the given header.
-getHeader :: forall e s.
+getHeader :: forall e.
              String ->
              String ->
-             Aff.Aff (MockRequestEffects e s) String
+             Aff.Aff (HTTPRequestEffects e) String
 getHeader url header = extractHeader header <$> getResponse url
 
+-- | An effect encapsulating creating a mock request object
+foreign import data MOCK_REQUEST :: Eff.Effect
+
 -- | Mock an HTTP Request object
-mockRequest :: String -> String -> StrMap.StrMap String -> HTTP.Request
-mockRequest method url headers =
-  Coerce.unsafeCoerce
-    { method: method
-    , url: url
-    , headers: headers
-    }
+foreign import mockRequest ::
+  forall e.
+  String ->
+  String ->
+  String ->
+  StrMap.StrMap String ->
+  Eff.Eff (mockRequest :: MOCK_REQUEST | e) HTTP.Request
 
 -- | An effect encapsulating creating a mock response object
 foreign import data MOCK_RESPONSE :: Eff.Effect
