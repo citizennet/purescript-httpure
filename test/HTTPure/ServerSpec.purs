@@ -21,7 +21,7 @@ serveSpec :: SpecHelpers.Test
 serveSpec = Spec.describe "serve" do
   Spec.it "boots a server on the given port" do
     EffClass.liftEff $ Server.serve 7901 mockRouter $ pure unit
-    out <- SpecHelpers.get "http://localhost:7901/test"
+    out <- SpecHelpers.get 7901 StrMap.empty "/test"
     out `Assertions.shouldEqual` "/test"
 
 serverSpec :: SpecHelpers.Test
