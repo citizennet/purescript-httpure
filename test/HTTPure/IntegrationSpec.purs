@@ -17,30 +17,34 @@ import Post as Post
 headersSpec :: SpecHelpers.Test
 headersSpec = Spec.it "runs the headers example" do
   EffClass.liftEff Headers.main
-  header <- SpecHelpers.getHeader 8082 StrMap.empty "/" "X-Example"
+  header <- SpecHelpers.getHeader port StrMap.empty "/" "X-Example"
   header ?= "hello world!"
-  response <- SpecHelpers.get 8082 (StrMap.singleton "X-Input" "test") "/"
+  response <- SpecHelpers.get port (StrMap.singleton "X-Input" "test") "/"
   response ?= "test"
+  where port = Headers.port
 
 helloWorldSpec :: SpecHelpers.Test
 helloWorldSpec = Spec.it "runs the hello world example" do
   EffClass.liftEff HelloWorld.main
-  response <- SpecHelpers.get 8080 StrMap.empty "/"
+  response <- SpecHelpers.get port StrMap.empty "/"
   response ?= "hello world!"
+  where port = HelloWorld.port
 
 multiRouteSpec :: SpecHelpers.Test
 multiRouteSpec = Spec.it "runs the multi route example" do
   EffClass.liftEff MultiRoute.main
-  hello <- SpecHelpers.get 8081 StrMap.empty "/hello"
+  hello <- SpecHelpers.get port StrMap.empty "/hello"
   hello ?= "hello"
-  goodbye <- SpecHelpers.get 8081 StrMap.empty "/goodbye"
+  goodbye <- SpecHelpers.get port StrMap.empty "/goodbye"
   goodbye ?= "goodbye"
+  where port = MultiRoute.port
 
 postSpec :: SpecHelpers.Test
 postSpec = Spec.it "runs the post example" do
   EffClass.liftEff Post.main
-  response <- SpecHelpers.post 8084 StrMap.empty "/" "test"
+  response <- SpecHelpers.post port StrMap.empty "/" "test"
   response ?= "test"
+  where port = Post.port
 
 integrationSpec :: SpecHelpers.Test
 integrationSpec = Spec.describe "Integration" do
