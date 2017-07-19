@@ -16,7 +16,10 @@ import Node.HTTP.Client as HTTPClient
 import Node.Stream as Stream
 import Test.Spec as Spec
 import Test.Spec.Runner as Runner
+import Test.Spec.Assertions as Assertions
 import Unsafe.Coerce as Coerce
+
+infix 1 Assertions.shouldEqual as ?=
 
 -- | A type alias encapsulating all effect types used in making a mock request.
 type HTTPRequestEffects e =
