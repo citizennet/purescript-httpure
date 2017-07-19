@@ -4,11 +4,11 @@ import Prelude
 
 import Control.Monad.Eff.Class as EffClass
 import Test.Spec as Spec
-import Test.Spec.Assertions as Assertions
 
 import HTTPure.Status as Status
 
 import HTTPure.SpecHelpers as SpecHelpers
+import HTTPure.SpecHelpers ((?=))
 
 writeSpec :: SpecHelpers.Test
 writeSpec = Spec.describe "write" do
@@ -17,7 +17,7 @@ writeSpec = Spec.describe "write" do
       mock <- SpecHelpers.mockResponse
       Status.write mock 123
       pure $ SpecHelpers.getResponseStatus mock
-    status `Assertions.shouldEqual` 123
+    status ?= 123
 
 statusSpec :: SpecHelpers.Test
 statusSpec = Spec.describe "Status" do
