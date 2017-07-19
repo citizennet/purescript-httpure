@@ -1,5 +1,6 @@
 unreleased
 ==========
+- Support all HTTP response statuses
 - Support all HTTP request methods
   - Added in v0.1.0
     - Get

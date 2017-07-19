@@ -17,7 +17,7 @@ portS = show port
 -- | Route to the correct handler
 router :: forall e. HTTPure.Request -> HTTPure.ResponseM e
 router (HTTPure.Post _ _ body) = pure $ HTTPure.OK StrMap.empty body
-router _                       = pure $ HTTPure.OK StrMap.empty ""
+router _                       = pure $ HTTPure.NotFound StrMap.empty
 
 -- | Boot up the server
 main :: forall e. HTTPure.ServerM (console :: Console.CONSOLE | e)

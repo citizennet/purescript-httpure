@@ -23,7 +23,7 @@ sayHello = HTTPure.OK responseHeaders <<< flip HTTPure.lookup "X-Input"
 -- | Route to the correct handler
 router :: forall e. HTTPure.Request -> HTTPure.ResponseM e
 router (HTTPure.Get headers _) = pure $ sayHello headers
-router _                       = pure $ HTTPure.OK StrMap.empty ""
+router _                       = pure $ HTTPure.NotFound StrMap.empty
 
 -- | Boot up the server
 main :: forall e. HTTPure.ServerM (console :: Console.CONSOLE | e)

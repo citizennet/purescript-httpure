@@ -13,25 +13,24 @@ import HTTPure.SpecHelpers ((?=))
 
 sendSpec :: SpecHelpers.Test
 sendSpec = Spec.describe "send" do
-  Spec.describe "with an OK" do
-    Spec.it "writes the headers" do
-      header <- EffClass.liftEff do
-        resp <- SpecHelpers.mockResponse
-        Response.send resp $ Response.OK (StrMap.singleton "X-Test" "test") ""
-        pure $ SpecHelpers.getResponseHeader "X-Test" resp
-      header ?= "test"
-    Spec.it "writes the status" do
-      status <- EffClass.liftEff do
-        resp <- SpecHelpers.mockResponse
-        Response.send resp $ Response.OK StrMap.empty ""
-        pure $ SpecHelpers.getResponseStatus resp
-      status ?= 200
-    Spec.it "writes the body" do
-      body <- EffClass.liftEff do
-        resp <- SpecHelpers.mockResponse
-        Response.send resp $ Response.OK StrMap.empty "test"
-        pure $ SpecHelpers.getResponseBody resp
-      body ?= "test"
+  Spec.it "writes the headers" do
+    header <- EffClass.liftEff do
+      resp <- SpecHelpers.mockResponse
+      Response.send resp $ Response.OK (StrMap.singleton "X-Test" "test") ""
+      pure $ SpecHelpers.getResponseHeader "X-Test" resp
+    header ?= "test"
+  Spec.it "writes the status" do
+    status <- EffClass.liftEff do
+      resp <- SpecHelpers.mockResponse
+      Response.send resp $ Response.Response 465 StrMap.empty ""
+      pure $ SpecHelpers.getResponseStatus resp
+    status ?= 465
+  Spec.it "writes the body" do
+    body <- EffClass.liftEff do
+      resp <- SpecHelpers.mockResponse
+      Response.send resp $ Response.OK StrMap.empty "test"
+      pure $ SpecHelpers.getResponseBody resp
+    body ?= "test"
 
 responseSpec :: SpecHelpers.Test
 responseSpec = Spec.describe "Response" do

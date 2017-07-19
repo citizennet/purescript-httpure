@@ -18,7 +18,7 @@ portS = show port
 router :: forall e. HTTPure.Request -> HTTPure.ResponseM e
 router (HTTPure.Get _ "/hello")   = pure $ HTTPure.OK StrMap.empty "hello"
 router (HTTPure.Get _ "/goodbye") = pure $ HTTPure.OK StrMap.empty "goodbye"
-router _                          = pure $ HTTPure.OK StrMap.empty ""
+router _                          = pure $ HTTPure.NotFound StrMap.empty
 
 -- | Boot up the server
 main :: forall e. HTTPure.ServerM (console :: Console.CONSOLE | e)
