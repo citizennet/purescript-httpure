@@ -5,11 +5,11 @@ import Prelude
 import Control.Monad.Eff.Class as EffClass
 import Data.StrMap as StrMap
 import Test.Spec as Spec
-import Test.Spec.Assertions as Assertions
 
 import HTTPure.Body as Body
 
 import HTTPure.SpecHelpers as SpecHelpers
+import HTTPure.SpecHelpers ((?=))
 
 readSpec :: SpecHelpers.Test
 readSpec = Spec.describe "read" do
@@ -17,7 +17,7 @@ readSpec = Spec.describe "read" do
     let req = SpecHelpers.mockRequest "GET" "" "test" StrMap.empty
     request <- EffClass.liftEff req
     body <- Body.read request
-    body `Assertions.shouldEqual` "test"
+    body ?= "test"
 
 writeSpec :: SpecHelpers.Test
 writeSpec = Spec.describe "write" do
@@ -26,7 +26,7 @@ writeSpec = Spec.describe "write" do
       resp <- SpecHelpers.mockResponse
       Body.write resp "test"
       pure $ SpecHelpers.getResponseBody resp
-    body `Assertions.shouldEqual` "test"
+    body ?= "test"
 
 bodySpec :: SpecHelpers.Test
 bodySpec = Spec.describe "Body" do

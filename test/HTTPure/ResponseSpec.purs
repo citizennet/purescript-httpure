@@ -5,11 +5,11 @@ import Prelude
 import Control.Monad.Eff.Class as EffClass
 import Data.StrMap as StrMap
 import Test.Spec as Spec
-import Test.Spec.Assertions as Assertions
 
 import HTTPure.Response as Response
 
 import HTTPure.SpecHelpers as SpecHelpers
+import HTTPure.SpecHelpers ((?=))
 
 sendSpec :: SpecHelpers.Test
 sendSpec = Spec.describe "send" do
@@ -19,19 +19,19 @@ sendSpec = Spec.describe "send" do
         resp <- SpecHelpers.mockResponse
         Response.send resp $ Response.OK (StrMap.singleton "X-Test" "test") ""
         pure $ SpecHelpers.getResponseHeader "X-Test" resp
-      header `Assertions.shouldEqual` "test"
+      header ?= "test"
     Spec.it "writes the status" do
       status <- EffClass.liftEff do
         resp <- SpecHelpers.mockResponse
         Response.send resp $ Response.OK StrMap.empty ""
         pure $ SpecHelpers.getResponseStatus resp
-      status `Assertions.shouldEqual` 200
+      status ?= 200
     Spec.it "writes the body" do
       body <- EffClass.liftEff do
         resp <- SpecHelpers.mockResponse
         Response.send resp $ Response.OK StrMap.empty "test"
         pure $ SpecHelpers.getResponseBody resp
-      body `Assertions.shouldEqual` "test"
+      body ?= "test"
 
 responseSpec :: SpecHelpers.Test
 responseSpec = Spec.describe "Response" do
