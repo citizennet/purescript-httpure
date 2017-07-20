@@ -67,7 +67,9 @@ fromHTTPRequestSpec = Spec.describe "fromHTTPRequest" do
       response <- mock "POST" "" "test" StrMap.empty
       case response of
         (Request.Post _ _ "test") -> pure unit
-        a -> Assertions.fail $ "expected the body 'test', got " <> show a
+        (Request.Post _ _ body) ->
+          Assertions.fail $ "expected the body 'test', got " <> body
+        a -> Assertions.fail $ "expected a post, got " <> show a
 
   Spec.describe "with a PUT" do
     Spec.it "is a Put" do
@@ -90,7 +92,9 @@ fromHTTPRequestSpec = Spec.describe "fromHTTPRequest" do
       response <- mock "PUT" "" "test" StrMap.empty
       case response of
         (Request.Put _ _ "test") -> pure unit
-        a -> Assertions.fail $ "expected the body 'test', got " <> show a
+        (Request.Put _ _ body) ->
+          Assertions.fail $ "expected the body 'test', got " <> body
+        a -> Assertions.fail $ "expected a put, got " <> show a
 
   Spec.describe "with a DELETE" do
     Spec.it "is a Delete" do
@@ -149,7 +153,9 @@ fromHTTPRequestSpec = Spec.describe "fromHTTPRequest" do
       response <- mock "CONNECT" "" "test" StrMap.empty
       case response of
         (Request.Connect _ _ "test") -> pure unit
-        a -> Assertions.fail $ "expected the body 'test', got " <> show a
+        (Request.Connect _ _ body) ->
+          Assertions.fail $ "expected the body 'test', got " <> body
+        a -> Assertions.fail $ "expected a connect, got " <> show a
 
   Spec.describe "with a OPTIONS" do
     Spec.it "is a Options" do
@@ -208,7 +214,9 @@ fromHTTPRequestSpec = Spec.describe "fromHTTPRequest" do
       response <- mock "PATCH" "" "test" StrMap.empty
       case response of
         (Request.Patch _ _ "test") -> pure unit
-        a -> Assertions.fail $ "expected the body 'test', got " <> show a
+        (Request.Patch _ _ body) ->
+          Assertions.fail $ "expected the body 'test', got " <> body
+        a -> Assertions.fail $ "expected a patch, got " <> show a
 
   Spec.describe "with a GET" do
     Spec.it "is a Get" do

@@ -100,7 +100,7 @@ post :: forall e.
         String ->
         String ->
         Aff.Aff (HTTPRequestEffects e) String
-post port headers path body = request port "POST" headers path body >>= toString
+post port headers path = request port "POST" headers path >=> toString
 
 -- | Convert a request to an Aff containing the string with the given header
 -- | value.
