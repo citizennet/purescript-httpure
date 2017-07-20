@@ -25,7 +25,7 @@ read request = Aff.makeAff \_ success -> do
   let stream = HTTP.requestAsStream request
   buf <- ST.newSTRef ""
   Stream.onDataString stream Encoding.UTF8 \str ->
-    ST.modifySTRef buf (\old -> old <> str) >>= (\_ -> pure unit)
+    ST.modifySTRef buf ((<>) str) >>= \_ -> pure unit
   Stream.onEnd stream $ ST.readSTRef buf >>= success
 
 -- | Write a body to the given HTTP Response and close it.
