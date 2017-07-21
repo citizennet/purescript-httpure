@@ -1,5 +1,5 @@
-unreleased
-==========
+0.2.0 / 2017-07-20
+==================
 - Support all HTTP response statuses
 - Support all HTTP request methods
   - Added in v0.1.0
