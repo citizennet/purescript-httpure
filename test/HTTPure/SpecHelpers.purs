@@ -7,7 +7,7 @@ import Control.Monad.Eff as Eff
 import Control.Monad.Eff.Exception as Exception
 import Control.Monad.ST as ST
 import Data.Maybe as Maybe
-import Data.Options as Options
+import Data.Options ((:=))
 import Data.String as StringUtil
 import Data.StrMap as StrMap
 import Node.Encoding as Encoding
@@ -53,26 +53,24 @@ request :: forall e.
            String ->
            String ->
            Aff.Aff (http :: HTTP.HTTP | e) HTTPClient.Response
-request port method headers path body = Aff.makeAff \_ success -> do
+request port method headers path body = Aff.makeAff \_ success -> void do
   req <- HTTPClient.request options success
   let stream = HTTPClient.requestAsStream req
-  _ <- Stream.writeString stream Encoding.UTF8 body noop
-  Stream.end stream noop
-  noop
+  _ <- Stream.writeString stream Encoding.UTF8 body $ pure unit
+  Stream.end stream $ pure unit
   where
-    noop = pure unit
     options =
-      HTTPClient.method `Options.assoc` method <>
-      HTTPClient.hostname `Options.assoc` "localhost" <>
-      HTTPClient.port `Options.assoc` port <>
-      HTTPClient.path `Options.assoc` path <>
-      HTTPClient.headers `Options.assoc` HTTPClient.RequestHeaders headers
+      HTTPClient.method   := method <>
+      HTTPClient.hostname := "localhost" <>
+      HTTPClient.port     := port <>
+      HTTPClient.path     := path <>
+      HTTPClient.headers  := HTTPClient.RequestHeaders headers
 
 -- | Given an ST String buffer and a new string, concatenate that new string
 -- | onto the ST buffer.
 concat :: forall e s.
           ST.STRef s String -> String -> Eff.Eff (st :: ST.ST s | e) Unit
-concat buf new = ST.modifySTRef buf (\old -> old <> new) >>= (\_ -> pure unit)
+concat buf new = void $ ST.modifySTRef buf ((<>) new)
 
 -- | Convert a request to an Aff containing the string with the response body.
 toString :: forall e.
