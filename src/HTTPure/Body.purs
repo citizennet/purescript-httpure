@@ -25,15 +25,13 @@ read request = Aff.makeAff \_ success -> do
   let stream = HTTP.requestAsStream request
   buf <- ST.newSTRef ""
   Stream.onDataString stream Encoding.UTF8 \str ->
-    ST.modifySTRef buf ((<>) str) >>= \_ -> pure unit
+    void $ ST.modifySTRef buf ((<>) str)
   Stream.onEnd stream $ ST.readSTRef buf >>= success
 
 -- | Write a body to the given HTTP Response and close it.
 write :: forall e. HTTP.Response -> Body -> Eff.Eff (http :: HTTP.HTTP | e) Unit
-write response body = do
-  _ <- Stream.writeString stream Encoding.UTF8 body noop
-  Stream.end stream noop
-  noop
+write response body = void do
+  _ <- Stream.writeString stream Encoding.UTF8 body $ pure unit
+  Stream.end stream $ pure unit
   where
     stream = HTTP.responseAsStream response
-    noop = pure unit

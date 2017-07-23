@@ -27,9 +27,8 @@ write :: forall e.
          HTTP.Response ->
          Headers ->
          Eff.Eff (http :: HTTP.HTTP | e) Unit
-write response headers = do
-  _ <- Traversable.traverse writeHeader $ StrMap.keys headers
-  pure unit
+write response headers =
+  void $ Traversable.traverse writeHeader $ StrMap.keys headers
   where
     getHeader header = Maybe.fromMaybe "" $ StrMap.lookup header headers
     writeHeader header = HTTP.setHeader response header $ getHeader header

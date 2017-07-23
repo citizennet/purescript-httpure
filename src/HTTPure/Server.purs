@@ -27,11 +27,10 @@ handleRequest :: forall e.
                  HTTP.Request ->
                  HTTP.Response ->
                  ServerM e
-handleRequest router request response = do
-  _ <- Aff.runAff (\_ -> pure unit) (\_ -> pure unit) do
+handleRequest router request response =
+  void $ Aff.runAff (\_ -> pure unit) (\_ -> pure unit) do
     req <- Request.fromHTTPRequest request
     EffClass.liftEff $ router req >>= Response.send response
-  pure unit
 
 -- | Given an options object, a function mapping Request to ResponseM, and an
 -- | HTTPureM containing effects to run on boot, creates and runs a HTTPure
