@@ -11,6 +11,7 @@ import Data.Options ((:=))
 import Data.String as StringUtil
 import Data.StrMap as StrMap
 import Node.Encoding as Encoding
+import Node.FS as FS
 import Node.HTTP as HTTP
 import Node.HTTP.Client as HTTPClient
 import Node.Stream as Stream
@@ -35,6 +36,7 @@ type TestEffects =
     HTTPRequestEffects
       ( mockResponse :: MOCK_RESPONSE
       , mockRequest :: MOCK_REQUEST
+      , fs :: FS.FS
       )
   )
 
@@ -47,24 +49,27 @@ type TestSuite = Eff.Eff TestEffects Unit
 -- | Given a URL, a failure handler, and a success handler, create an HTTP
 -- | client request.
 request :: forall e.
+           Boolean ->
            Int ->
            String ->
            StrMap.StrMap String ->
            String ->
            String ->
            Aff.Aff (http :: HTTP.HTTP | e) HTTPClient.Response
-request port method headers path body = Aff.makeAff \_ success -> void do
+request secure port method headers path body = Aff.makeAff \_ success -> void do
   req <- HTTPClient.request options success
   let stream = HTTPClient.requestAsStream req
   _ <- Stream.writeString stream Encoding.UTF8 body $ pure unit
   Stream.end stream $ pure unit
   where
     options =
+      HTTPClient.protocol := (if secure then "https:" else "http:") <>
       HTTPClient.method   := method <>
       HTTPClient.hostname := "localhost" <>
       HTTPClient.port     := port <>
       HTTPClient.path     := path <>
-      HTTPClient.headers  := HTTPClient.RequestHeaders headers
+      HTTPClient.headers  := HTTPClient.RequestHeaders headers <>
+      HTTPClient.rejectUnauthorized := false
 
 -- | Given an ST String buffer and a new string, concatenate that new string
 -- | onto the ST buffer.
@@ -88,7 +93,16 @@ get :: forall e.
        StrMap.StrMap String ->
        String ->
        Aff.Aff (HTTPRequestEffects e) String
-get port headers path = request port "GET" headers path "" >>= toString
+get port headers path = request false port "GET" headers path "" >>= toString
+
+-- | Run an HTTPS GET with the given url and return an Aff that contains the
+-- | string with the response body.
+get' :: forall e.
+        Int ->
+        StrMap.StrMap String ->
+        String ->
+        Aff.Aff (HTTPRequestEffects e) String
+get' port headers path = request true port "GET" headers path "" >>= toString
 
 -- | Run an HTTP POST with the given url and body and return an Aff that
 -- | contains the string with the response body.
@@ -98,7 +112,7 @@ post :: forall e.
         String ->
         String ->
         Aff.Aff (HTTPRequestEffects e) String
-post port headers path = request port "POST" headers path >=> toString
+post port headers path = request false port "POST" headers path >=> toString
 
 -- | Convert a request to an Aff containing the string with the given header
 -- | value.
@@ -117,7 +131,7 @@ getHeader :: forall e.
              String ->
              Aff.Aff (HTTPRequestEffects e) String
 getHeader port headers path header =
-  extractHeader header <$> request port "GET" headers path ""
+  extractHeader header <$> request false port "GET" headers path ""
 
 -- | An effect encapsulating creating a mock request object
 foreign import data MOCK_REQUEST :: Eff.Effect
