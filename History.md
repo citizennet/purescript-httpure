@@ -1,3 +1,7 @@
+unreleased
+==========
+- Support HTTPS servers
+
 0.2.0 / 2017-07-20
 ==================
 - Support all HTTP response statuses
