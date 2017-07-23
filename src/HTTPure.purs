@@ -8,4 +8,4 @@ module HTTPure
 import HTTPure.Headers (Headers, lookup)
 import HTTPure.Request (Request(..))
 import HTTPure.Response (ResponseM, Response(..))
-import HTTPure.Server (ServerM, serve)
+import HTTPure.Server (ServerM, serve, serve')

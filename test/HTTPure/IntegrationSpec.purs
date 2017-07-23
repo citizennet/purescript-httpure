@@ -13,6 +13,7 @@ import Headers as Headers
 import HelloWorld as HelloWorld
 import MultiRoute as MultiRoute
 import Post as Post
+import SSL as SSL
 
 headersSpec :: SpecHelpers.Test
 headersSpec = Spec.it "runs the headers example" do
@@ -46,9 +47,17 @@ postSpec = Spec.it "runs the post example" do
   response ?= "test"
   where port = Post.port
 
+sslSpec :: SpecHelpers.Test
+sslSpec = Spec.it "runs the ssl example" do
+  EffClass.liftEff SSL.main
+  response <- SpecHelpers.get' port StrMap.empty "/"
+  response ?= "hello world!"
+  where port = SSL.port
+
 integrationSpec :: SpecHelpers.Test
 integrationSpec = Spec.describe "Integration" do
   headersSpec
   helloWorldSpec
   multiRouteSpec
   postSpec
+  sslSpec
