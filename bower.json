@@ -18,9 +18,9 @@
   ],
   "dependencies": {
     "purescript-prelude": "^3.0.0",
-    "purescript-node-http": "cprussin/purescript-node-http#dd87dbaec43ffc5312b78b10316023dc7b78a06d",
     "purescript-aff": "^3.1.0",
-    "purescript-node-fs": "^4.0.0"
+    "purescript-node-fs": "^4.0.0",
+    "purescript-node-http": "^4.1.0"
   },
   "devDependencies": {
     "purescript-psci-support": "^3.0.0",
