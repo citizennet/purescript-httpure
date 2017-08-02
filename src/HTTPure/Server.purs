@@ -13,6 +13,7 @@ import Data.Options ((:=))
 import Node.Encoding as Encoding
 import Node.FS.Sync as FSSync
 import Node.HTTP as HTTP
+import Node.HTTP.Secure as HTTPS
 
 import HTTPure.HTTPureM as HTTPureM
 import HTTPure.Request as Request
@@ -60,11 +61,14 @@ bootHTTPS :: forall e.
              ServerM e ->
              ServerM e
 bootHTTPS options cert key router onStarted = do
-  certText <- FSSync.readTextFile Encoding.UTF8 cert
-  keyText <- FSSync.readTextFile Encoding.UTF8 key
-  let sslOptions = HTTP.key := keyText <> HTTP.cert := certText
-  HTTP.createServerS sslOptions (handleRequest router) >>= \server ->
-    HTTP.listen server options onStarted
+  cert' <- FSSync.readTextFile Encoding.UTF8 cert
+  key' <- FSSync.readTextFile Encoding.UTF8 key
+  server <- HTTPS.createServer (sslOpts key' cert') (handleRequest router)
+  HTTP.listen server options onStarted
+  where
+    sslOpts key' cert' =
+      HTTPS.key  := HTTPS.keyString  key' <>
+      HTTPS.cert := HTTPS.certString cert'
 
 -- | Given a port number, return a HTTP.ListenOptions Record.
 listenOptions :: Int -> HTTP.ListenOptions
