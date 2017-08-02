@@ -6,7 +6,6 @@ module HTTPure.HTTPureM
 import Control.Monad.Eff as Eff
 import Control.Monad.Eff.Exception as Exception
 import Control.Monad.ST as ST
-import Node.FS as FS
 import Node.HTTP as HTTP
 
 -- | A row of types that are used by an HTTPure server.
@@ -14,7 +13,6 @@ type HTTPureEffects e =
   ( http :: HTTP.HTTP
   , st :: ST.ST String
   , exception :: Exception.EXCEPTION
-  , fs :: FS.FS
   | e
   )
 

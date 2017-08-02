@@ -27,7 +27,7 @@ sayHello :: forall e. HTTPure.Request -> HTTPure.ResponseM e
 sayHello _ = pure $ HTTPure.OK StrMap.empty "hello world!"
 
 -- | Boot up the server
-main :: forall e. HTTPure.ServerM (console :: Console.CONSOLE | e)
+main :: forall e. HTTPure.SecureServerM (console :: Console.CONSOLE | e)
 main = HTTPure.serve' port cert key sayHello do
   Console.log $ " ┌───────────────────────────────────────────┐"
   Console.log $ " │ Server now up on port " <> portS <> "                │"
