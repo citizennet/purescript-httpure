@@ -1,5 +1,6 @@
 module HTTPure.Server
   ( ServerM
+  , SecureServerM
   , serve
   , serve'
   ) where
@@ -11,6 +12,7 @@ import Control.Monad.Eff.Class as EffClass
 import Data.Maybe as Maybe
 import Data.Options ((:=))
 import Node.Encoding as Encoding
+import Node.FS as FS
 import Node.FS.Sync as FSSync
 import Node.HTTP as HTTP
 import Node.HTTP.Secure as HTTPS
@@ -23,6 +25,10 @@ import HTTPure.Response as Response
 -- | returns a Unit. This type is the return type of the HTTPure serve and
 -- | related methods.
 type ServerM e = HTTPureM.HTTPureM e Unit
+
+-- | The SecureServerM type is the same as the ServerM type, but it includes
+-- | effects for working with the filesystem (to load the key and certificate).
+type SecureServerM e = ServerM (fs :: FS.FS | e)
 
 -- | This function takes a method which takes a request and returns a ResponseM,
 -- | an HTTP request, and an HTTP response. It runs the request, extracts the
@@ -57,9 +63,9 @@ bootHTTPS :: forall e.
              HTTP.ListenOptions ->
              String ->
              String ->
-             (Request.Request -> Response.ResponseM  e) ->
-             ServerM e ->
-             ServerM e
+             (Request.Request -> Response.ResponseM  (fs :: FS.FS | e)) ->
+             SecureServerM e ->
+             SecureServerM e
 bootHTTPS options cert key router onStarted = do
   cert' <- FSSync.readTextFile Encoding.UTF8 cert
   key' <- FSSync.readTextFile Encoding.UTF8 key
@@ -100,7 +106,7 @@ serve' :: forall e.
           Int ->
           String ->
           String ->
-          (Request.Request -> Response.ResponseM e) ->
-          ServerM e ->
-          ServerM e
+          (Request.Request -> Response.ResponseM (fs :: FS.FS | e)) ->
+          SecureServerM e ->
+          SecureServerM e
 serve' = bootHTTPS <<< listenOptions
