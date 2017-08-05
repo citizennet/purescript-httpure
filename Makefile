@@ -68,10 +68,13 @@ $(EXAMPLE_INDEX): $(OUTPUT_EXAMPLE) $(BUILD) $(EXAMPLEPATH)/Main.purs
 # Run the example specified by the environment variable EXAMPLE
 ifeq ($(EXAMPLE),)
 example:
-	$(info You must supply a value in the environment variable EXAMPLE)
+	$(info Which example would you like to run?)
 	$(info )
 	$(info Available examples:)
-	ls -1 $(EXAMPLESPATH) | sed 's/^/ - /'
+	ls -1 $(EXAMPLESPATH) | cat -n
+	read -rp " > " out; \
+	out=$$(echo $$out | sed 's/[^0-9]*//g'); \
+	$(MAKE) example EXAMPLE=$$([ $$out ] && ls -1 $(EXAMPLESPATH) | sed "$${out}q;d")
 else
 example: $(BUILD) $(EXAMPLE_INDEX)
 	$(NODE) $(EXAMPLE_INDEX)
