@@ -13,6 +13,7 @@ import Headers as Headers
 import HelloWorld as HelloWorld
 import MultiRoute as MultiRoute
 import PathSegments as PathSegments
+import QueryParameters as QueryParameters
 import Post as Post
 import SSL as SSL
 
@@ -47,8 +48,21 @@ pathSegmentsSpec = Spec.it "runs the path segments example" do
   foo <- SpecHelpers.get port StrMap.empty "/segment/foo"
   foo ?= "foo"
   somebars <- SpecHelpers.get port StrMap.empty "/some/bars"
-  somebars?= "[\"some\",\"bars\"]"
+  somebars ?= "[\"some\",\"bars\"]"
   where port = PathSegments.port
+
+queryParametersSpec :: SpecHelpers.Test
+queryParametersSpec = Spec.it "runs the query parameters example" do
+  EffClass.liftEff QueryParameters.main
+  foo <- SpecHelpers.get port StrMap.empty "/?foo"
+  foo ?= "foo"
+  bar <- SpecHelpers.get port StrMap.empty "/?bar=test"
+  bar ?= "bar"
+  notbar <- SpecHelpers.get port StrMap.empty "/?bar=nottest"
+  notbar ?= ""
+  baz <- SpecHelpers.get port StrMap.empty "/?baz=test"
+  baz ?= "test"
+  where port = QueryParameters.port
 
 postSpec :: SpecHelpers.Test
 postSpec = Spec.it "runs the post example" do
@@ -70,5 +84,6 @@ integrationSpec = Spec.describe "Integration" do
   helloWorldSpec
   multiRouteSpec
   pathSegmentsSpec
+  queryParametersSpec
   postSpec
   sslSpec
