@@ -84,17 +84,17 @@ import HTTPure.Headers as Headers
 import HTTPure.HTTPureM as HTTPureM
 import HTTPure.Status as Status
 
--- | The ResponseM type simply conveniently wraps up an HTTPure monad that
+-- | The `ResponseM` type simply conveniently wraps up an HTTPure monad that
 -- | returns a response. This type is the return type of all router/route
 -- | methods.
 type ResponseM e = HTTPureM.HTTPureM e Response
 
--- | A response is a status code, headers, and a body.
+-- | A `Response` is a status code, headers, and a body.
 data Response = Response Status.Status Headers.Headers Body.Body
 
--- | Given an HTTP response and a HTTPure response, this method will return a
--- | monad encapsulating writing the HTTPure response to the HTTP response and
--- | closing the HTTP response.
+-- | Given an HTTP `Response` and a HTTPure `Response`, this method will return
+-- | a monad encapsulating writing the HTTPure `Response` to the HTTP `Response`
+-- | and closing the HTTP `Response`.
 send :: forall e. HTTP.Response -> Response -> HTTPureM.HTTPureM e Unit
 send httpresponse (Response status headers body) = do
   Status.write httpresponse $ status

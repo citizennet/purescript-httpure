@@ -17,33 +17,34 @@ import Node.HTTP as HTTP
 
 import HTTPure.Lookup as Lookup
 
--- | The Headers type is just sugar for a StrMap of Strings that represents the
--- | set of headers sent or received in an HTTP request or response.
+-- | The `Headers` type is just sugar for a `StrMap` of `Strings` that
+-- | represents the set of headers in an HTTP request or response.
 newtype Headers = Headers (StrMap.StrMap String)
 
--- | Given a string, return the matching headers. This search is
--- | case-insensitive.
+-- | Given a string, return the value of the matching header, or an empty string
+-- | if no match exists. This search is case-insensitive.
 instance lookupHeaders :: Lookup.Lookup Headers String String where
   lookup (Headers headers') =
     Maybe.fromMaybe "" <<< flip StrMap.lookup headers' <<< StringUtil.toLower
 
--- | Allow a headers set to be represented as a string.
+-- | Allow a `Headers` to be represented as a string. This string is formatted
+-- | in HTTP headers format.
 instance showHeaders :: Show Headers where
   show (Headers headers') =
     StrMap.foldMap showField headers' <> "\n"
     where
       showField key value = key <> ": " <> value <> "\n"
 
--- | Compare two Headers objects by comparing the underlying StrMaps.
+-- | Compare two `Headers` objects by comparing the underlying `StrMaps`.
 instance eqHeaders :: Eq Headers where
   eq (Headers a) (Headers b) = eq a b
 
--- | Get the headers out of a HTTP Request object.
+-- | Get the headers out of a HTTP `Request` object.
 read :: HTTP.Request -> Headers
 read = HTTP.requestHeaders >>> Headers
 
--- | Given an HTTP Response and a Headers object, return an effect that will
--- | write the Headers to the Response.
+-- | Given an HTTP `Response` and a `Headers` object, return an effect that will
+-- | write the `Headers` to the `Response`.
 write :: forall e.
          HTTP.Response ->
          Headers ->
@@ -51,6 +52,6 @@ write :: forall e.
 write response (Headers headers') = void $
   TraversableWithIndex.traverseWithIndex (HTTP.setHeader response) headers'
 
--- | Convert an Array of Tuples of 2 Strings to a Headers object.
+-- | Convert an `Array` of `Tuples` of 2 `Strings` to a `Headers` object.
 headers :: Array (Tuple.Tuple String String) -> Headers
 headers = StrMap.fromFoldable >>> Headers

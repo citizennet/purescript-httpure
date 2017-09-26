@@ -15,8 +15,8 @@ import HTTPure.Method as Method
 import HTTPure.Path as Path
 import HTTPure.Query as Query
 
--- | A Route is a function that takes a Method, a Path, a Query, a Header, and a
--- | Body, and returns a Response monad.
+-- | The `Request` type is a `Record` type that includes fields for accessing
+-- | the different parts of the HTTP request.
 type Request =
   { method :: Method.Method
   , path :: Path.Path
@@ -25,8 +25,8 @@ type Request =
   , body :: Body.Body
   }
 
--- | Given an HTTP Request object, this method will convert it to an HTTPure
--- | Request object.
+-- | Given an HTTP `Request` object, this method will convert it to an HTTPure
+-- | `Request` object.
 fromHTTPRequest :: forall e.
                    HTTP.Request ->
                    Aff.Aff (HTTPureM.HTTPureEffects e) Request

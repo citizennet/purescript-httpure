@@ -21,18 +21,19 @@ import HTTPure.HTTPureM as HTTPureM
 import HTTPure.Request as Request
 import HTTPure.Response as Response
 
--- | The ServerM type simply conveniently wraps up an HTTPure monad that
--- | returns a Unit. This type is the return type of the HTTPure serve and
+-- | The `ServerM` type simply conveniently wraps up an HTTPure monad that
+-- | returns a `Unit`. This type is the return type of the HTTPure serve and
 -- | related methods.
 type ServerM e = HTTPureM.HTTPureM e Unit
 
--- | The SecureServerM type is the same as the ServerM type, but it includes
+-- | The `SecureServerM` type is the same as the `ServerM` type, but it includes
 -- | effects for working with the filesystem (to load the key and certificate).
 type SecureServerM e = ServerM (fs :: FS.FS | e)
 
--- | This function takes a method which takes a request and returns a ResponseM,
--- | an HTTP request, and an HTTP response. It runs the request, extracts the
--- | Response from the ResponseM, and sends the Response to the HTTP Response.
+-- | This function takes a method which takes a `Request` and returns a
+-- | `ResponseM`, an HTTP `Request`, and an HTTP `Response`. It runs the
+-- | request, extracts the `Response` from the `ResponseM`, and sends the
+-- | `Response` to the HTTP `Response`.
 handleRequest :: forall e.
                  (Request.Request -> Response.ResponseM e) ->
                  HTTP.Request ->
@@ -43,9 +44,9 @@ handleRequest router request response =
     req <- Request.fromHTTPRequest request
     EffClass.liftEff $ router req >>= Response.send response
 
--- | Given a ListenOptions Record, a function mapping Request to ResponseM, and
--- | an HTTPureM containing effects to run on boot, creates and runs a HTTPure
--- | server without SSL.
+-- | Given a `ListenOptions` object, a function mapping `Request` to
+-- | `ResponseM`, and an `HTTPureM` containing effects to run on boot, creates
+-- | and runs a HTTPure server without SSL.
 bootHTTP :: forall e.
             HTTP.ListenOptions ->
             (Request.Request -> Response.ResponseM e) ->
@@ -55,8 +56,8 @@ bootHTTP options router onStarted =
   HTTP.createServer (handleRequest router) >>= \server ->
     HTTP.listen server options onStarted
 
--- | Given a ListenOptions Record, a path to a cert file, a path to a private
--- | key file, a function mapping Request to ResponseM, and an HTTPureM
+-- | Given a `ListenOptions` object, a path to a cert file, a path to a private
+-- | key file, a function mapping `Request` to `ResponseM`, and an `HTTPureM`
 -- | containing effects to run on boot, creates and runs a HTTPure server with
 -- | SSL.
 bootHTTPS :: forall e.
@@ -76,7 +77,7 @@ bootHTTPS options cert key router onStarted = do
       HTTPS.key  := HTTPS.keyString  key' <>
       HTTPS.cert := HTTPS.certString cert'
 
--- | Given a port number, return a HTTP.ListenOptions Record.
+-- | Given a port number, return a `HTTP.ListenOptions` `Record`.
 listenOptions :: Int -> HTTP.ListenOptions
 listenOptions port =
   { hostname: "localhost"
@@ -85,9 +86,10 @@ listenOptions port =
   }
 
 -- | Create and start a server. This is the main entry point for HTTPure. Takes
--- | a port number on which to listen, a function mapping Request to ResponseM,
--- | and an HTTPureM containing effects to run after the server has booted
--- | (usually logging). Returns an HTTPureM containing the server's effects.
+-- | a port number on which to listen, a function mapping `Request` to
+-- | `ResponseM`, and an `HTTPureM` containing effects to run after the server
+-- | has booted (usually logging). Returns an `HTTPureM` containing the server's
+-- | effects.
 serve :: forall e.
          Int ->
          (Request.Request -> Response.ResponseM e) ->
@@ -100,7 +102,7 @@ serve = bootHTTP <<< listenOptions
 -- | 1. A port number
 -- | 2. A path to a cert file
 -- | 3. A path to a private key file
--- | 4. A handler method which maps Request to ResponseM
+-- | 4. A handler method which maps `Request` to `ResponseM`
 -- | 5. A callback to call when the server is up
 serve' :: forall e.
           Int ->

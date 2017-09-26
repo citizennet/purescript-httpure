@@ -15,11 +15,11 @@ import Node.Stream as Stream
 
 import HTTPure.HTTPureM as HTTPureM
 
--- | The Body type is just sugar for a String, that will be sent or received in
--- | the HTTP body.
+-- | The `Body` type is just sugar for a `String`, that will be sent or received
+-- | in the HTTP body.
 type Body = String
 
--- | Extract the contents of the body of the HTTP Request.
+-- | Extract the contents of the body of the HTTP `Request`.
 read :: forall e. HTTP.Request -> Aff.Aff (HTTPureM.HTTPureEffects e) Body
 read request = Aff.makeAff \_ success -> do
   let stream = HTTP.requestAsStream request
@@ -28,7 +28,7 @@ read request = Aff.makeAff \_ success -> do
     void $ ST.modifySTRef buf ((<>) str)
   Stream.onEnd stream $ ST.readSTRef buf >>= success
 
--- | Write a body to the given HTTP Response and close it.
+-- | Write a `Body` to the given HTTP `Response` and close it.
 write :: forall e. HTTP.Response -> Body -> Eff.Eff (http :: HTTP.HTTP | e) Unit
 write response body = void do
   _ <- Stream.writeString stream Encoding.UTF8 body $ pure unit
