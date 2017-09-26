@@ -1,3 +1,10 @@
+unreleased
+==========
+- Major refactor for simpler APIs
+- Lookup typeclass and `!!` operator
+- Support for inspecting and routing on path segments
+- Support for inspecting and routing on query parameters
+
 0.3.0 / 2017-08-01
 ==================
 - Support HTTPS servers

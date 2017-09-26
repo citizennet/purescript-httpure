@@ -3,6 +3,7 @@ module HTTPure.ServerSpec where
 import Prelude
 
 import Control.Monad.Eff.Class as EffClass
+import Data.String as String
 import Data.StrMap as StrMap
 import Test.Spec as Spec
 import Test.Spec.Assertions.Aff as AffAssertions
@@ -15,8 +16,7 @@ import HTTPure.SpecHelpers as SpecHelpers
 import HTTPure.SpecHelpers ((?=))
 
 mockRouter :: forall e. Request.Request -> Response.ResponseM e
-mockRouter (Request.Get _ path) = pure $ Response.OK StrMap.empty path
-mockRouter _                    = pure $ Response.OK StrMap.empty ""
+mockRouter { path } = Response.ok $ "/" <> String.joinWith "/" path
 
 serveSpec :: SpecHelpers.Test
 serveSpec = Spec.describe "serve" do

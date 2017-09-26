@@ -9,7 +9,10 @@ import Test.Spec.Runner as Runner
 import HTTPure.BodySpec as BodySpec
 import HTTPure.HeadersSpec as HeadersSpec
 import HTTPure.HTTPureMSpec as HTTPureMSpec
+import HTTPure.LookupSpec as LookupSpec
+import HTTPure.MethodSpec as MethodSpec
 import HTTPure.PathSpec as PathSpec
+import HTTPure.QuerySpec as QuerySpec
 import HTTPure.RequestSpec as RequestSpec
 import HTTPure.ResponseSpec as ResponseSpec
 import HTTPure.ServerSpec as ServerSpec
@@ -23,7 +26,10 @@ main = Runner.run [ Reporter.specReporter ] $ Spec.describe "HTTPure" do
   BodySpec.bodySpec
   HeadersSpec.headersSpec
   HTTPureMSpec.httpureMSpec
+  LookupSpec.lookupSpec
+  MethodSpec.methodSpec
   PathSpec.pathSpec
+  QuerySpec.querySpec
   RequestSpec.requestSpec
   ResponseSpec.responseSpec
   ServerSpec.serverSpec

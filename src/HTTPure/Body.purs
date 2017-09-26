@@ -20,7 +20,7 @@ import HTTPure.HTTPureM as HTTPureM
 type Body = String
 
 -- | Extract the contents of the body of the HTTP Request.
-read :: forall e. HTTP.Request -> Aff.Aff (HTTPureM.HTTPureEffects e) String
+read :: forall e. HTTP.Request -> Aff.Aff (HTTPureM.HTTPureEffects e) Body
 read request = Aff.makeAff \_ success -> do
   let stream = HTTP.requestAsStream request
   buf <- ST.newSTRef ""
