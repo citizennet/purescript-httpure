@@ -8,6 +8,7 @@ import Prelude
 import Data.Array as Array
 import Data.Maybe as Maybe
 import Data.Monoid as Monoid
+import Data.StrMap as StrMap
 
 -- | Types that implement the Lookup class can be looked up by some key to
 -- | retrieve some value. For instance, you could have an implementation for
@@ -24,3 +25,9 @@ infixl 8 lookup as !!
 -- | return a Maybe. If the index is out of bounds, the return value is mempty.
 instance lookupArray :: Monoid.Monoid m => Lookup (Array m) m Int where
   lookup arr = Maybe.fromMaybe Monoid.mempty <<< Array.index arr
+
+-- | A default instance of Lookup for a StrMap of some type of Monoid. If the
+-- | key does not exist in the StrMap, then the return value is mempty.
+instance lookupStrMap :: Monoid.Monoid m =>
+                         Lookup (StrMap.StrMap m) m String where
+  lookup strMap = Maybe.fromMaybe Monoid.mempty <<< flip StrMap.lookup strMap

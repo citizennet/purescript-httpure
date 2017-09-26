@@ -23,7 +23,7 @@ fromHTTPRequestSpec = Spec.describe "fromHTTPRequest" do
     mock.path ?= [ "test" ]
   Spec.it "contains the correct query" do
     mock <- mockRequest
-    mock.query ?= StrMap.empty
+    mock.query ?= StrMap.singleton "a" "b"
   Spec.it "contains the correct headers" do
     mock <- mockRequest
     mock.headers ?= Headers.headers mockHeaders
