@@ -74,7 +74,8 @@ example:
 	ls -1 $(EXAMPLESPATH) | cat -n
 	read -rp " > " out; \
 	out=$$(echo $$out | sed 's/[^0-9]*//g'); \
-	$(MAKE) example EXAMPLE=$$([ $$out ] && ls -1 $(EXAMPLESPATH) | sed "$${out}q;d")
+	$(MAKE) example \
+	  EXAMPLE=$$([ $$out ] && ls -1 $(EXAMPLESPATH) | sed "$${out}q;d")
 else
 example: $(BUILD) $(EXAMPLE_INDEX)
 	$(NODE) $(EXAMPLE_INDEX)

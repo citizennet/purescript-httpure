@@ -3,7 +3,6 @@ module HelloWorld where
 import Prelude
 
 import Control.Monad.Eff.Console as Console
-import Data.StrMap as StrMap
 import HTTPure as HTTPure
 
 -- | Serve the example server on this port
@@ -16,7 +15,7 @@ portS = show port
 
 -- | Say 'hello world!' when run
 sayHello :: forall e. HTTPure.Request -> HTTPure.ResponseM e
-sayHello _ = pure $ HTTPure.OK StrMap.empty "hello world!"
+sayHello _ = HTTPure.ok "hello world!"
 
 -- | Boot up the server
 main :: forall e. HTTPure.ServerM (console :: Console.CONSOLE | e)

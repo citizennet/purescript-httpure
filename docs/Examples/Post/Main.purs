@@ -3,7 +3,6 @@ module Post where
 import Prelude
 
 import Control.Monad.Eff.Console as Console
-import Data.StrMap as StrMap
 import HTTPure as HTTPure
 
 -- | Serve the example server on this port
@@ -16,8 +15,8 @@ portS = show port
 
 -- | Route to the correct handler
 router :: forall e. HTTPure.Request -> HTTPure.ResponseM e
-router (HTTPure.Post _ _ body) = pure $ HTTPure.OK StrMap.empty body
-router _                       = pure $ HTTPure.NotFound StrMap.empty
+router { body, method: HTTPure.Post } = HTTPure.ok body
+router _                              = HTTPure.notFound
 
 -- | Boot up the server
 main :: forall e. HTTPure.ServerM (console :: Console.CONSOLE | e)

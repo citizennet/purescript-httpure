@@ -37,7 +37,7 @@ main :: HTTPure.ServerM (console :: Console.CONSOLE)
 main =
   HTTPure.serve 8080 router $ Console.log "Server now up on port 8080"
   where
-    router _ = pure $ HTTPure.OK StrMap.empty "hello world!"
+    router _ = HTTPure.ok "hello world!"
 ```
 
 ## Documentation

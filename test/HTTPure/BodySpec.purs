@@ -3,7 +3,6 @@ module HTTPure.BodySpec where
 import Prelude
 
 import Control.Monad.Eff.Class as EffClass
-import Data.StrMap as StrMap
 import Test.Spec as Spec
 
 import HTTPure.Body as Body
@@ -13,9 +12,8 @@ import HTTPure.SpecHelpers ((?=))
 
 readSpec :: SpecHelpers.Test
 readSpec = Spec.describe "read" do
-  Spec.it "returns the body of the Request" do
-    let req = SpecHelpers.mockRequest "GET" "" "test" StrMap.empty
-    request <- EffClass.liftEff req
+  Spec.it "is the body of the Request" do
+    request <- SpecHelpers.mockRequest "GET" "" "test" []
     body <- Body.read request
     body ?= "test"
 

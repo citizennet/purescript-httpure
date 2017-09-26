@@ -20,7 +20,9 @@
     "purescript-prelude": "^3.0.0",
     "purescript-aff": "^3.1.0",
     "purescript-node-fs": "^4.0.0",
-    "purescript-node-http": "^4.1.0"
+    "purescript-node-http": "^4.1.0",
+    "purescript-strings": "^3.3.0",
+    "purescript-foldable-traversable": "^3.6.0"
   },
   "devDependencies": {
     "purescript-psci-support": "^3.0.0",

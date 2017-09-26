@@ -3,8 +3,9 @@ module Headers where
 import Prelude
 
 import Control.Monad.Eff.Console as Console
-import Data.StrMap as StrMap
+import Data.Tuple as Tuple
 import HTTPure as HTTPure
+import HTTPure ((!!))
 
 -- | Serve the example server on this port
 port :: Int
@@ -14,16 +15,13 @@ port = 8082
 portS :: String
 portS = show port
 
--- | Read X-Input back to the body and set the X-Example header
-sayHello :: HTTPure.Headers -> HTTPure.Response
-sayHello = HTTPure.OK responseHeaders <<< flip HTTPure.lookup "X-Input"
-  where
-    responseHeaders = StrMap.singleton "X-Example" "hello world!"
+-- | The headers that will be included in every response.
+responseHeaders :: HTTPure.Headers
+responseHeaders = HTTPure.headers [Tuple.Tuple "X-Example" "hello world!"]
 
 -- | Route to the correct handler
 router :: forall e. HTTPure.Request -> HTTPure.ResponseM e
-router (HTTPure.Get headers _) = pure $ sayHello headers
-router _                       = pure $ HTTPure.NotFound StrMap.empty
+router { headers } = HTTPure.ok' responseHeaders $ headers !! "X-Input"
 
 -- | Boot up the server
 main :: forall e. HTTPure.ServerM (console :: Console.CONSOLE | e)

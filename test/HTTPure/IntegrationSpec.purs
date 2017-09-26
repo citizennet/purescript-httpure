@@ -12,6 +12,7 @@ import HTTPure.SpecHelpers ((?=))
 import Headers as Headers
 import HelloWorld as HelloWorld
 import MultiRoute as MultiRoute
+import PathSegments as PathSegments
 import Post as Post
 import SSL as SSL
 
@@ -40,6 +41,15 @@ multiRouteSpec = Spec.it "runs the multi route example" do
   goodbye ?= "goodbye"
   where port = MultiRoute.port
 
+pathSegmentsSpec :: SpecHelpers.Test
+pathSegmentsSpec = Spec.it "runs the path segments example" do
+  EffClass.liftEff PathSegments.main
+  foo <- SpecHelpers.get port StrMap.empty "/segment/foo"
+  foo ?= "foo"
+  somebars <- SpecHelpers.get port StrMap.empty "/some/bars"
+  somebars?= "[\"some\",\"bars\"]"
+  where port = PathSegments.port
+
 postSpec :: SpecHelpers.Test
 postSpec = Spec.it "runs the post example" do
   EffClass.liftEff Post.main
@@ -59,5 +69,6 @@ integrationSpec = Spec.describe "Integration" do
   headersSpec
   helloWorldSpec
   multiRouteSpec
+  pathSegmentsSpec
   postSpec
   sslSpec

@@ -1,6 +1,6 @@
 "use strict";
 
-exports.mockRequest = function(method) {
+exports.mockRequestImpl = function(method) {
   return function(url) {
     return function(body) {
       return function(headers) {

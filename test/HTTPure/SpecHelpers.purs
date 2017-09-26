@@ -4,12 +4,14 @@ import Prelude
 
 import Control.Monad.Aff as Aff
 import Control.Monad.Eff as Eff
+import Control.Monad.Eff.Class as EffClass
 import Control.Monad.Eff.Exception as Exception
 import Control.Monad.ST as ST
 import Data.Maybe as Maybe
 import Data.Options ((:=))
 import Data.String as StringUtil
 import Data.StrMap as StrMap
+import Data.Tuple as Tuple
 import Node.Encoding as Encoding
 import Node.FS as FS
 import Node.HTTP as HTTP
@@ -137,13 +139,23 @@ getHeader port headers path header =
 foreign import data MOCK_REQUEST :: Eff.Effect
 
 -- | Mock an HTTP Request object
-foreign import mockRequest ::
+foreign import mockRequestImpl ::
   forall e.
   String ->
   String ->
   String ->
   StrMap.StrMap String ->
   Eff.Eff (mockRequest :: MOCK_REQUEST | e) HTTP.Request
+
+-- | Mock an HTTP Request object
+mockRequest :: forall e.
+               String ->
+               String ->
+               String ->
+               Array (Tuple.Tuple String String) ->
+               Aff.Aff (mockRequest :: MOCK_REQUEST | e) HTTP.Request
+mockRequest method url body =
+  EffClass.liftEff <<< mockRequestImpl method url body <<< StrMap.fromFoldable
 
 -- | An effect encapsulating creating a mock response object
 foreign import data MOCK_RESPONSE :: Eff.Effect
