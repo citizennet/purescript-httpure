@@ -78,10 +78,10 @@ import Prelude
 import Control.Monad.Eff as Eff
 import Node.HTTP as HTTP
 
--- | The Status type enumerates all valid HTTP response status codes.
+-- | The `Status` type enumerates all valid HTTP response status codes.
 type Status = Int
 
--- | Write a status to a given HTTP Response.
+-- | Write a status to a given HTTP `Response`.
 write :: forall e.
          HTTP.Response ->
          Status ->

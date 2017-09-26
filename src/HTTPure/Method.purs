@@ -20,12 +20,12 @@ data Method
   | Trace
   | Patch
 
--- | If two Methods are the same constructor, they are equal.
+-- | If two `Methods` are the same constructor, they are equal.
 derive instance generic :: Generic.Generic Method
 instance eq :: Eq.Eq Method where
   eq = Generic.gEq
 
--- | Convert a constructor to a string.
+-- | Convert a constructor to a `String`.
 instance show :: Show.Show Method where
   show Get = "Get"
   show Post = "Post"
@@ -37,7 +37,7 @@ instance show :: Show.Show Method where
   show Trace = "Trace"
   show Patch = "Patch"
 
--- | Take an HTTP Request and return the Method for that request.
+-- | Take an HTTP `Request` and extract the `Method` for that request.
 read :: HTTP.Request -> Method
 read request = case HTTP.requestMethod request of
   "POST"    -> Post

@@ -10,6 +10,9 @@ BOWER := bower
 NODE := node
 NPM := npm
 
+# Options to pass to pulp when building
+BUILD_OPTIONS := -- --stash --censor-lib --strict
+
 # Package manifest files
 BOWERJSON := bower.json
 
@@ -47,7 +50,7 @@ $(BUILD): $(COMPONENTS) $(SOURCES)
 	$(PULP) build \
 	  --src-path $(SRCPATH) \
 	  --build-path $(BUILD) \
-	  -- --stash --censor-lib --strict
+	  $(BUILD_OPTIONS)
 	touch $(BUILD)
 build: $(BUILD)
 
@@ -89,7 +92,7 @@ test: $(BUILD) $(TESTSOURCES) $(EXAMPLESOURCES)
 	  --include $(EXAMPLESPATH) \
 	  --build-path $(BUILD) \
 	  --main $(TESTMAIN) \
-	  -- --stash --censor-lib --strict
+	  $(BUILD_OPTIONS)
 
 # Launch a repl with all modules loaded
 repl: $(COMPONENTS) $(SOURCES) $(TESTSOURCES) $(EXAMPLESOURCES)

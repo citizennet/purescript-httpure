@@ -7,14 +7,24 @@
 
 A purescript HTTP server framework.
 
+HTTPure is:
+
+- Well-tested (see our [tests](./test))
+- Well-documented (see our [documentation](./docs))
+- Built to take advantage of PureScript language features for flexible and
+  extensible routing
+- Pure (no `set`, `get`, `use`, etc)
+
 ## Status
 
-This project is currently an early-stage work in progress. It is not
-production-ready yet. You can track what's left before it gets production-ready
-by looking at
-our [roadmap](https://github.com/cprussin/purescript-httpure/projects). If you'd
-like to help us get there quicker, please contribute! To get started, check
-our [contributing guide](Contributing.md).
+This project is currently fairly stable, but has not reached it's 1.0 release
+yet. You can track what's left before it gets there by looking at our
+[roadmap](https://github.com/cprussin/purescript-httpure/projects). The API
+signatures are _mostly_ stable, but are subject to change before the 1.0 release
+if there's a good reason to change them.
+
+If you'd like to help us get to 1.0 quicker, please contribute! To get started,
+check our [contributing guide](Contributing.md).
 
 ## Installation
 
@@ -27,10 +37,9 @@ bower install --save purescript-httpure
 ```purescript
 module Main where
 
-import Prelude (pure, ($))
+import Prelude (($))
 
 import Control.Monad.Eff.Console as Console
-import Data.StrMap as StrMap
 import HTTPure as HTTPure
 
 main :: HTTPure.ServerM (console :: Console.CONSOLE)
