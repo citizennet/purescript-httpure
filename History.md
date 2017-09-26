@@ -1,5 +1,5 @@
-unreleased
-==========
+0.4.0 / 2017-09-26
+==================
 - Major refactor for simpler APIs
 - Lookup typeclass and `!!` operator
 - Support for inspecting and routing on path segments
