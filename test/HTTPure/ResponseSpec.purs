@@ -50,7 +50,7 @@ responseFunctionSpec = Spec.describe "response" do
     case resp of (Response.Response _ _ body) -> body ?= "test"
   where
     mockHeaders = Headers.headers [ Tuple.Tuple "Test" "test" ]
-    mockResponse = EffClass.liftEff $ Response.response 123 mockHeaders "test"
+    mockResponse = Response.response 123 mockHeaders "test"
 
 response'Spec :: SpecHelpers.Test
 response'Spec = Spec.describe "response'" do
@@ -65,7 +65,7 @@ response'Spec = Spec.describe "response'" do
     case resp of (Response.Response _ _ body) -> body ?= ""
   where
     mockHeaders = Headers.headers [ Tuple.Tuple "Test" "test" ]
-    mockResponse = EffClass.liftEff $ Response.response' 123 mockHeaders
+    mockResponse = Response.response' 123 mockHeaders
 
 responseSpec :: SpecHelpers.Test
 responseSpec = Spec.describe "Response" do

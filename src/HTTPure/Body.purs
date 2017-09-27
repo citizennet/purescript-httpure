@@ -13,14 +13,14 @@ import Node.Encoding as Encoding
 import Node.HTTP as HTTP
 import Node.Stream as Stream
 
-import HTTPure.HTTPureM as HTTPureM
+import HTTPure.HTTPureEffects as HTTPureEffects
 
 -- | The `Body` type is just sugar for a `String`, that will be sent or received
 -- | in the HTTP body.
 type Body = String
 
 -- | Extract the contents of the body of the HTTP `Request`.
-read :: forall e. HTTP.Request -> Aff.Aff (HTTPureM.HTTPureEffects e) Body
+read :: forall e. HTTP.Request -> Aff.Aff (HTTPureEffects.HTTPureEffects e) Body
 read request = Aff.makeAff \_ success -> do
   let stream = HTTP.requestAsStream request
   buf <- ST.newSTRef ""
