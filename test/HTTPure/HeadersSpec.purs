@@ -59,6 +59,35 @@ eqSpec = Spec.describe "eq" do
         , Tuple.Tuple "Test2" "test2"
         ]
 
+appendSpec :: SpecHelpers.Test
+appendSpec = Spec.describe "append" do
+  Spec.describe "when there are multiple keys" do
+    Spec.it "appends the headers correctly" do
+      mockHeaders1 <> mockHeaders2 ?= mockHeaders3
+  Spec.describe "when there is a duplicated key" do
+    Spec.it "uses the last appended value" do
+      mockHeadersDupe1 <> mockHeadersDupe2 ?= mockHeadersDupe2
+  where
+    mockHeadersDupe1 = Headers.headers [ Tuple.Tuple "Test" "foo" ]
+    mockHeadersDupe2 = Headers.headers [ Tuple.Tuple "Test" "bar" ]
+    mockHeaders1 =
+      Headers.headers
+        [ Tuple.Tuple "Test1" "test1"
+        , Tuple.Tuple "Test2" "test2"
+        ]
+    mockHeaders2 =
+      Headers.headers
+        [ Tuple.Tuple "Test3" "test3"
+        , Tuple.Tuple "Test4" "test4"
+        ]
+    mockHeaders3 =
+      Headers.headers
+        [ Tuple.Tuple "Test1" "test1"
+        , Tuple.Tuple "Test2" "test2"
+        , Tuple.Tuple "Test3" "test3"
+        , Tuple.Tuple "Test4" "test4"
+        ]
+
 readSpec :: SpecHelpers.Test
 readSpec = Spec.describe "read" do
   Spec.describe "with no headers" do
@@ -85,5 +114,6 @@ headersSpec = Spec.describe "Headers" do
   lookupSpec
   showSpec
   eqSpec
+  appendSpec
   readSpec
   writeSpec

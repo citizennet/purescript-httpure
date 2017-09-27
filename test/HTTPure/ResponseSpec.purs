@@ -35,19 +35,19 @@ sendSpec = Spec.describe "send" do
     body ?= "test"
   where
     mockHeaders = Headers.headers [ Tuple.Tuple "Test" "test" ]
-    mockResponse = Response.Response 123 mockHeaders "test"
+    mockResponse = { status: 123, headers: mockHeaders, body: "test" }
 
 responseFunctionSpec :: SpecHelpers.Test
 responseFunctionSpec = Spec.describe "response" do
   Spec.it "has the right status" do
     resp <- mockResponse
-    case resp of (Response.Response status _ _) -> status ?= 123
+    resp.status ?= 123
   Spec.it "has the right headers" do
     resp <- mockResponse
-    case resp of (Response.Response _ headers _) -> headers ?= mockHeaders
+    resp.headers ?= mockHeaders
   Spec.it "has the right body" do
     resp <- mockResponse
-    case resp of (Response.Response _ _ body) -> body ?= "test"
+    resp.body ?= "test"
   where
     mockHeaders = Headers.headers [ Tuple.Tuple "Test" "test" ]
     mockResponse = Response.response 123 mockHeaders "test"
@@ -56,13 +56,13 @@ response'Spec :: SpecHelpers.Test
 response'Spec = Spec.describe "response'" do
   Spec.it "has the right status" do
     resp <- mockResponse
-    case resp of (Response.Response status _ _) -> status ?= 123
+    resp.status ?= 123
   Spec.it "has the right headers" do
     resp <- mockResponse
-    case resp of (Response.Response _ headers _) -> headers ?= mockHeaders
+    resp.headers ?= mockHeaders
   Spec.it "has an empty body" do
     resp <- mockResponse
-    case resp of (Response.Response _ _ body) -> body ?= ""
+    resp.body ?= ""
   where
     mockHeaders = Headers.headers [ Tuple.Tuple "Test" "test" ]
     mockResponse = Response.response' 123 mockHeaders

@@ -37,5 +37,5 @@ fromHTTPRequest request = do
     , path: Path.read request
     , query: Query.read request
     , headers: Headers.read request
-    , body: body
+    , body
     }
