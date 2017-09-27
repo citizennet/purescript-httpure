@@ -8,7 +8,7 @@ import Test.Spec.Runner as Runner
 
 import HTTPure.BodySpec as BodySpec
 import HTTPure.HeadersSpec as HeadersSpec
-import HTTPure.HTTPureMSpec as HTTPureMSpec
+import HTTPure.HTTPureEffectsSpec as HTTPureEffectsSpec
 import HTTPure.LookupSpec as LookupSpec
 import HTTPure.MethodSpec as MethodSpec
 import HTTPure.PathSpec as PathSpec
@@ -25,7 +25,7 @@ main :: SpecHelpers.TestSuite
 main = Runner.run [ Reporter.specReporter ] $ Spec.describe "HTTPure" do
   BodySpec.bodySpec
   HeadersSpec.headersSpec
-  HTTPureMSpec.httpureMSpec
+  HTTPureEffectsSpec.httpureEffectsSpec
   LookupSpec.lookupSpec
   MethodSpec.methodSpec
   PathSpec.pathSpec

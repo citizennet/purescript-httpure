@@ -8,6 +8,7 @@ module HTTPure.Server
 import Prelude
 
 import Control.Monad.Aff as Aff
+import Control.Monad.Eff as Eff
 import Control.Monad.Eff.Class as EffClass
 import Data.Maybe as Maybe
 import Data.Options ((:=))
@@ -17,14 +18,14 @@ import Node.FS.Sync as FSSync
 import Node.HTTP as HTTP
 import Node.HTTP.Secure as HTTPS
 
-import HTTPure.HTTPureM as HTTPureM
+import HTTPure.HTTPureEffects as HTTPureEffects
 import HTTPure.Request as Request
 import HTTPure.Response as Response
 
 -- | The `ServerM` type simply conveniently wraps up an HTTPure monad that
 -- | returns a `Unit`. This type is the return type of the HTTPure serve and
 -- | related methods.
-type ServerM e = HTTPureM.HTTPureM e Unit
+type ServerM e = Eff.Eff (HTTPureEffects.HTTPureEffects e) Unit
 
 -- | The `SecureServerM` type is the same as the `ServerM` type, but it includes
 -- | effects for working with the filesystem (to load the key and certificate).
@@ -42,11 +43,11 @@ handleRequest :: forall e.
 handleRequest router request response =
   void $ Aff.runAff (\_ -> pure unit) (\_ -> pure unit) do
     req <- Request.fromHTTPRequest request
-    EffClass.liftEff $ router req >>= Response.send response
+    router req >>= Response.send response >>> EffClass.liftEff
 
 -- | Given a `ListenOptions` object, a function mapping `Request` to
--- | `ResponseM`, and an `HTTPureM` containing effects to run on boot, creates
--- | and runs a HTTPure server without SSL.
+-- | `ResponseM`, and a `ServerM` containing effects to run on boot, creates and
+-- | runs a HTTPure server without SSL.
 bootHTTP :: forall e.
             HTTP.ListenOptions ->
             (Request.Request -> Response.ResponseM e) ->
@@ -57,9 +58,9 @@ bootHTTP options router onStarted =
     HTTP.listen server options onStarted
 
 -- | Given a `ListenOptions` object, a path to a cert file, a path to a private
--- | key file, a function mapping `Request` to `ResponseM`, and an `HTTPureM`
--- | containing effects to run on boot, creates and runs a HTTPure server with
--- | SSL.
+-- | key file, a function mapping `Request` to `ResponseM`, and a
+-- | `SecureServerM` containing effects to run on boot, creates and runs a
+-- | HTTPure server with SSL.
 bootHTTPS :: forall e.
              HTTP.ListenOptions ->
              String ->
@@ -87,8 +88,8 @@ listenOptions port =
 
 -- | Create and start a server. This is the main entry point for HTTPure. Takes
 -- | a port number on which to listen, a function mapping `Request` to
--- | `ResponseM`, and an `HTTPureM` containing effects to run after the server
--- | has booted (usually logging). Returns an `HTTPureM` containing the server's
+-- | `ResponseM`, and a `ServerM` containing effects to run after the server has
+-- | booted (usually logging). Returns an `ServerM` containing the server's
 -- | effects.
 serve :: forall e.
          Int ->

@@ -77,17 +77,19 @@ module HTTPure.Response
 
 import Prelude
 
+import Control.Monad.Eff as Eff
+import Control.Monad.Aff as Aff
 import Node.HTTP as HTTP
 
 import HTTPure.Body as Body
 import HTTPure.Headers as Headers
-import HTTPure.HTTPureM as HTTPureM
+import HTTPure.HTTPureEffects as HTTPureEffects
 import HTTPure.Status as Status
 
 -- | The `ResponseM` type simply conveniently wraps up an HTTPure monad that
 -- | returns a response. This type is the return type of all router/route
 -- | methods.
-type ResponseM e = HTTPureM.HTTPureM e Response
+type ResponseM e = Aff.Aff (HTTPureEffects.HTTPureEffects e) Response
 
 -- | A `Response` is a status code, headers, and a body.
 data Response = Response Status.Status Headers.Headers Body.Body
@@ -95,7 +97,10 @@ data Response = Response Status.Status Headers.Headers Body.Body
 -- | Given an HTTP `Response` and a HTTPure `Response`, this method will return
 -- | a monad encapsulating writing the HTTPure `Response` to the HTTP `Response`
 -- | and closing the HTTP `Response`.
-send :: forall e. HTTP.Response -> Response -> HTTPureM.HTTPureM e Unit
+send :: forall e.
+        HTTP.Response ->
+        Response ->
+        Eff.Eff (HTTPureEffects.HTTPureEffects e) Unit
 send httpresponse (Response status headers body) = do
   Status.write httpresponse $ status
   Headers.write httpresponse $ headers

@@ -27,6 +27,7 @@
   "devDependencies": {
     "purescript-psci-support": "^3.0.0",
     "purescript-spec": "^1.0.0",
-    "purescript-unsafe-coerce": "^3.0.0"
+    "purescript-unsafe-coerce": "^3.0.0",
+    "purescript-node-fs-aff": "^4.0.0"
   }
 }

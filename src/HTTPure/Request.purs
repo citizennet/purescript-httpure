@@ -10,7 +10,7 @@ import Node.HTTP as HTTP
 
 import HTTPure.Body as Body
 import HTTPure.Headers as Headers
-import HTTPure.HTTPureM as HTTPureM
+import HTTPure.HTTPureEffects as HTTPureEffects
 import HTTPure.Method as Method
 import HTTPure.Path as Path
 import HTTPure.Query as Query
@@ -29,7 +29,7 @@ type Request =
 -- | `Request` object.
 fromHTTPRequest :: forall e.
                    HTTP.Request ->
-                   Aff.Aff (HTTPureM.HTTPureEffects e) Request
+                   Aff.Aff (HTTPureEffects.HTTPureEffects e) Request
 fromHTTPRequest request = do
   body <- Body.read request
   pure $

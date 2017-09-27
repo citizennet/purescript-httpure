@@ -9,6 +9,7 @@ import Test.Spec as Spec
 import HTTPure.SpecHelpers as SpecHelpers
 import HTTPure.SpecHelpers ((?=))
 
+import AsyncResponse as AsyncResponse
 import Headers as Headers
 import HelloWorld as HelloWorld
 import MultiRoute as MultiRoute
@@ -16,6 +17,13 @@ import PathSegments as PathSegments
 import QueryParameters as QueryParameters
 import Post as Post
 import SSL as SSL
+
+asyncResponseSpec :: SpecHelpers.Test
+asyncResponseSpec = Spec.it "runs the async response example" do
+  EffClass.liftEff AsyncResponse.main
+  response <- SpecHelpers.get port StrMap.empty "/"
+  response ?= "hello world!"
+  where port = AsyncResponse.port
 
 headersSpec :: SpecHelpers.Test
 headersSpec = Spec.it "runs the headers example" do
@@ -80,6 +88,7 @@ sslSpec = Spec.it "runs the ssl example" do
 
 integrationSpec :: SpecHelpers.Test
 integrationSpec = Spec.describe "Integration" do
+  asyncResponseSpec
   headersSpec
   helloWorldSpec
   multiRouteSpec
