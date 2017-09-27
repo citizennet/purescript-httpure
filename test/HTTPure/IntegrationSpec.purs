@@ -12,6 +12,7 @@ import HTTPure.SpecHelpers ((?=))
 import AsyncResponse as AsyncResponse
 import Headers as Headers
 import HelloWorld as HelloWorld
+import Middleware as Middleware
 import MultiRoute as MultiRoute
 import PathSegments as PathSegments
 import QueryParameters as QueryParameters
@@ -40,6 +41,19 @@ helloWorldSpec = Spec.it "runs the hello world example" do
   response <- SpecHelpers.get port StrMap.empty "/"
   response ?= "hello world!"
   where port = HelloWorld.port
+
+middlewareSpec :: SpecHelpers.Test
+middlewareSpec = Spec.it "runs the middleware example" do
+  EffClass.liftEff Middleware.main
+  header <- SpecHelpers.getHeader port StrMap.empty "/" "X-Middleware"
+  header ?= "router"
+  body <- SpecHelpers.get port StrMap.empty "/"
+  body ?= "hello"
+  header' <- SpecHelpers.getHeader port StrMap.empty "/middleware" "X-Middleware"
+  header' ?= "middleware"
+  body' <- SpecHelpers.get port StrMap.empty "/middleware"
+  body' ?= "Middleware!"
+  where port = Middleware.port
 
 multiRouteSpec :: SpecHelpers.Test
 multiRouteSpec = Spec.it "runs the multi route example" do
@@ -91,6 +105,7 @@ integrationSpec = Spec.describe "Integration" do
   asyncResponseSpec
   headersSpec
   helloWorldSpec
+  middlewareSpec
   multiRouteSpec
   pathSegmentsSpec
   queryParametersSpec

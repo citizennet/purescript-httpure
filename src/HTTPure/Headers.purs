@@ -39,6 +39,10 @@ instance showHeaders :: Show Headers where
 instance eqHeaders :: Eq Headers where
   eq (Headers a) (Headers b) = eq a b
 
+-- | Allow one `Headers` objects to be appended to another.
+instance semigroupHeaders :: Semigroup Headers where
+  append (Headers a) (Headers b) = Headers $ StrMap.union b a
+
 -- | Get the headers out of a HTTP `Request` object.
 read :: HTTP.Request -> Headers
 read = HTTP.requestHeaders >>> Headers

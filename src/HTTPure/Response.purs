@@ -1,5 +1,5 @@
 module HTTPure.Response
-  ( Response(..)
+  ( Response
   , ResponseM
   , send
   , response, response'
@@ -92,7 +92,11 @@ import HTTPure.Status as Status
 type ResponseM e = Aff.Aff (HTTPureEffects.HTTPureEffects e) Response
 
 -- | A `Response` is a status code, headers, and a body.
-data Response = Response Status.Status Headers.Headers Body.Body
+type Response =
+  { status :: Status.Status
+  , headers :: Headers.Headers
+  , body :: Body.Body
+  }
 
 -- | Given an HTTP `Response` and a HTTPure `Response`, this method will return
 -- | a monad encapsulating writing the HTTPure `Response` to the HTTP `Response`
@@ -101,7 +105,7 @@ send :: forall e.
         HTTP.Response ->
         Response ->
         Eff.Eff (HTTPureEffects.HTTPureEffects e) Unit
-send httpresponse (Response status headers body) = do
+send httpresponse { status, headers, body } = do
   Status.write httpresponse $ status
   Headers.write httpresponse $ headers
   Body.write httpresponse $ body
@@ -113,7 +117,7 @@ response :: forall e.
             Headers.Headers ->
             Body.Body ->
             ResponseM e
-response status headers body = pure $ Response status headers body
+response status headers body = pure $ { status, headers, body }
 
 -- | The same as `response` but without a body.
 response' :: forall e. Status.Status -> Headers.Headers -> ResponseM e
