@@ -1,6 +1,8 @@
 module HTTPure.Headers
   ( Headers
+  , empty
   , headers
+  , header
   , read
   , write
   ) where
@@ -56,6 +58,14 @@ write :: forall e.
 write response (Headers headers') = void $
   TraversableWithIndex.traverseWithIndex (HTTP.setHeader response) headers'
 
+-- | Return a `Headers` containing nothing.
+empty :: Headers
+empty = Headers StrMap.empty
+
 -- | Convert an `Array` of `Tuples` of 2 `Strings` to a `Headers` object.
 headers :: Array (Tuple.Tuple String String) -> Headers
 headers = StrMap.fromFoldable >>> Headers
+
+-- | Create a singleton header from a key-value pair.
+header :: String -> String -> Headers
+header key = StrMap.singleton key >>> Headers

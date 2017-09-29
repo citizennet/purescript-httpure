@@ -3,8 +3,6 @@ module HTTPure.ResponseSpec where
 import Prelude
 
 import Control.Monad.Eff.Class as EffClass
-import Data.Tuple as Tuple
-
 import Test.Spec as Spec
 
 import HTTPure.Headers as Headers
@@ -34,7 +32,7 @@ sendSpec = Spec.describe "send" do
       pure $ SpecHelpers.getResponseBody httpResponse
     body ?= "test"
   where
-    mockHeaders = Headers.headers [ Tuple.Tuple "Test" "test" ]
+    mockHeaders = Headers.header "Test" "test"
     mockResponse = { status: 123, headers: mockHeaders, body: "test" }
 
 responseFunctionSpec :: SpecHelpers.Test
@@ -49,7 +47,7 @@ responseFunctionSpec = Spec.describe "response" do
     resp <- mockResponse
     resp.body ?= "test"
   where
-    mockHeaders = Headers.headers [ Tuple.Tuple "Test" "test" ]
+    mockHeaders = Headers.header "Test" "test"
     mockResponse = Response.response 123 mockHeaders "test"
 
 response'Spec :: SpecHelpers.Test
@@ -64,7 +62,7 @@ response'Spec = Spec.describe "response'" do
     resp <- mockResponse
     resp.body ?= ""
   where
-    mockHeaders = Headers.headers [ Tuple.Tuple "Test" "test" ]
+    mockHeaders = Headers.header "Test" "test"
     mockResponse = Response.response' 123 mockHeaders
 
 responseSpec :: SpecHelpers.Test

@@ -40,7 +40,7 @@ readSpec = Spec.describe "read" do
   Spec.describe "with complex params" do
     Spec.it "is the correct StrMap" do
       req <- SpecHelpers.mockRequest "" "/test?&&a&b=c&b=d&&&e=f&g=&" "" []
-      Query.read req ?=  expectedComplexResult
+      Query.read req ?= expectedComplexResult
   where
       expectedComplexResult =
         StrMap.fromFoldable
