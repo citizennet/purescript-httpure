@@ -8,7 +8,7 @@ module HTTPure
   , module HTTPure.Server
   ) where
 
-import HTTPure.Headers (Headers, headers)
+import HTTPure.Headers (Headers, empty, header, headers)
 import HTTPure.Lookup (lookup, (!!))
 import HTTPure.Method (Method(..))
 import HTTPure.Path (Path)
