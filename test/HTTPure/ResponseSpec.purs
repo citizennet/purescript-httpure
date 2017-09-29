@@ -38,6 +38,18 @@ sendSpec = Spec.describe "send" do
 responseFunctionSpec :: SpecHelpers.Test
 responseFunctionSpec = Spec.describe "response" do
   Spec.it "has the right status" do
+    resp <- Response.response 123 "test"
+    resp.status ?= 123
+  Spec.it "has empty headers" do
+    resp <- Response.response 123 "test"
+    resp.headers ?= Headers.empty
+  Spec.it "has the right body" do
+    resp <- Response.response 123 "test"
+    resp.body ?= "test"
+
+response'Spec :: SpecHelpers.Test
+response'Spec = Spec.describe "response'" do
+  Spec.it "has the right status" do
     resp <- mockResponse
     resp.status ?= 123
   Spec.it "has the right headers" do
@@ -48,10 +60,22 @@ responseFunctionSpec = Spec.describe "response" do
     resp.body ?= "test"
   where
     mockHeaders = Headers.header "Test" "test"
-    mockResponse = Response.response 123 mockHeaders "test"
+    mockResponse = Response.response' 123 mockHeaders "test"
 
-response'Spec :: SpecHelpers.Test
-response'Spec = Spec.describe "response'" do
+emptyResponseSpec :: SpecHelpers.Test
+emptyResponseSpec = Spec.describe "emptyResponse" do
+  Spec.it "has the right status" do
+    resp <- Response.emptyResponse 123
+    resp.status ?= 123
+  Spec.it "has empty headers" do
+    resp <- Response.emptyResponse 123
+    resp.headers ?= Headers.empty
+  Spec.it "has an empty body" do
+    resp <- Response.emptyResponse 123
+    resp.body ?= ""
+
+emptyResponse'Spec :: SpecHelpers.Test
+emptyResponse'Spec = Spec.describe "emptyResponse'" do
   Spec.it "has the right status" do
     resp <- mockResponse
     resp.status ?= 123
@@ -63,10 +87,12 @@ response'Spec = Spec.describe "response'" do
     resp.body ?= ""
   where
     mockHeaders = Headers.header "Test" "test"
-    mockResponse = Response.response' 123 mockHeaders
+    mockResponse = Response.emptyResponse' 123 mockHeaders
 
 responseSpec :: SpecHelpers.Test
 responseSpec = Spec.describe "Response" do
   sendSpec
   responseFunctionSpec
   response'Spec
+  emptyResponseSpec
+  emptyResponse'Spec

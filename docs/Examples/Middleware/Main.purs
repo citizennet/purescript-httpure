@@ -35,7 +35,7 @@ headerMiddleware :: forall e.
                     HTTPure.ResponseM e
 headerMiddleware router request = do
   response <- router request
-  HTTPure.response response.status (header <> response.headers) response.body
+  HTTPure.response' response.status (header <> response.headers) response.body
   where
     header = HTTPure.headers [ Tuple.Tuple "X-Middleware" "middleware" ]
 
