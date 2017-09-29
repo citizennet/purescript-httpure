@@ -1,11 +1,14 @@
 module HTTPure.Request
   ( Request
   , fromHTTPRequest
+  , fullPath
   ) where
 
 import Prelude
 
 import Control.Monad.Aff as Aff
+import Data.String as String
+import Data.StrMap as StrMap
 import Node.HTTP as HTTP
 
 import HTTPure.Body as Body
@@ -24,6 +27,18 @@ type Request =
   , headers :: Headers.Headers
   , body :: Body.Body
   }
+
+-- | Return the full resolved path, including query parameters. This may not
+-- | match the requested path--for instance, if there are empty path segments in
+-- | the request--but it is equivalent.
+fullPath :: Request -> String
+fullPath request = "/" <> path <> questionMark <> queryParams
+  where
+    path = String.joinWith "/" request.path
+    questionMark = if StrMap.isEmpty request.query then "" else "?"
+    queryParams = String.joinWith "&" queryParamsArr
+    queryParamsArr = StrMap.toArrayWithKey stringifyQueryParam request.query
+    stringifyQueryParam key value = key <> "=" <> value
 
 -- | Given an HTTP `Request` object, this method will convert it to an HTTPure
 -- | `Request` object.
