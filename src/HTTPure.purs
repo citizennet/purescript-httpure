@@ -16,6 +16,7 @@ import HTTPure.Request (Request)
 import HTTPure.Response
   ( ResponseM
   , response, response'
+  , emptyResponse, emptyResponse'
 
   -- 1xx
   , continue, continue'
