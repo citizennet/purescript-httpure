@@ -21,10 +21,12 @@ loggingMiddleware :: forall e.
                      HTTPure.Request ->
                      HTTPure.ResponseM (console :: Console.CONSOLE | e)
 loggingMiddleware router request = do
-  EffClass.liftEff $ Console.log $ "Request starting for " <> show request.path
+  EffClass.liftEff $ Console.log $ "Request starting for " <> path
   response <- router request
-  EffClass.liftEff $ Console.log $ "Request ending for " <> show request.path
+  EffClass.liftEff $ Console.log $ "Request ending for " <> path
   pure response
+  where
+    path = HTTPure.fullPath request
 
 -- | A middleware that adds the X-Middleware header to the response, if it
 -- | wasn't already in the response
