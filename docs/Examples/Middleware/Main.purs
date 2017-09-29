@@ -4,7 +4,6 @@ import Prelude
 
 import Control.Monad.Eff.Class as EffClass
 import Control.Monad.Eff.Console as Console
-import Data.Tuple as Tuple
 import HTTPure as HTTPure
 
 -- | Serve the example server on this port
@@ -37,7 +36,7 @@ headerMiddleware router request = do
   response <- router request
   HTTPure.response' response.status (header <> response.headers) response.body
   where
-    header = HTTPure.headers [ Tuple.Tuple "X-Middleware" "middleware" ]
+    header = HTTPure.header "X-Middleware" "middleware"
 
 -- | A middleware that sends the body "Middleware!" instead of running the
 -- | router when requesting /middleware
@@ -50,8 +49,7 @@ pathMiddleware router request = router request
 
 -- | Say 'hello' when run, and add a default value to the X-Middleware header
 sayHello :: forall e. HTTPure.Request -> HTTPure.ResponseM e
-sayHello _ =
-  HTTPure.ok' (HTTPure.headers [ Tuple.Tuple "X-Middleware" "router" ]) "hello"
+sayHello _ = HTTPure.ok' (HTTPure.header "X-Middleware" "router") "hello"
 
 -- | Boot up the server
 main :: forall e. HTTPure.ServerM (console :: Console.CONSOLE | e)

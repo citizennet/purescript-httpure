@@ -3,7 +3,6 @@ module Headers where
 import Prelude
 
 import Control.Monad.Eff.Console as Console
-import Data.Tuple as Tuple
 import HTTPure as HTTPure
 import HTTPure ((!!))
 
@@ -17,7 +16,7 @@ portS = show port
 
 -- | The headers that will be included in every response.
 responseHeaders :: HTTPure.Headers
-responseHeaders = HTTPure.headers [Tuple.Tuple "X-Example" "hello world!"]
+responseHeaders = HTTPure.header "X-Example" "hello world!"
 
 -- | Route to the correct handler
 router :: forall e. HTTPure.Request -> HTTPure.ResponseM e
