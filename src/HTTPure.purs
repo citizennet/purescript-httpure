@@ -9,7 +9,7 @@ module HTTPure
   ) where
 
 import HTTPure.Headers (Headers, empty, header, headers)
-import HTTPure.Lookup (lookup, (!!))
+import HTTPure.Lookup (at, (!@), has, (!?), lookup, (!!))
 import HTTPure.Method (Method(..))
 import HTTPure.Path (Path)
 import HTTPure.Request (Request, fullPath)

@@ -4,7 +4,7 @@ import Prelude
 
 import Control.Monad.Eff.Console as Console
 import HTTPure as HTTPure
-import HTTPure ((!!))
+import HTTPure ((!@))
 
 -- | Serve the example server on this port
 port :: Int
@@ -17,7 +17,7 @@ portS = show port
 -- | Specify the routes
 router :: forall e. HTTPure.Request -> HTTPure.ResponseM e
 router { path }
-  | path !! 0 == "segment" = HTTPure.ok $ path !! 1
+  | path !@ 0 == "segment" = HTTPure.ok $ path !@ 1
   | otherwise              = HTTPure.ok $ show path
 
 -- | Boot up the server

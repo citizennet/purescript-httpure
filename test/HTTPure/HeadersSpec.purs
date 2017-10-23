@@ -3,6 +3,7 @@ module HTTPure.HeadersSpec where
 import Prelude
 
 import Control.Monad.Eff.Class as EffClass
+import Data.Maybe as Maybe
 import Data.Tuple as Tuple
 import Test.Spec as Spec
 
@@ -16,14 +17,14 @@ lookupSpec :: SpecHelpers.Test
 lookupSpec = Spec.describe "lookup" do
   Spec.describe "when the string is in the header set" do
     Spec.describe "when searching with lowercase" do
-      Spec.it "is the string" do
-        Headers.header "x-test" "test" !! "x-test" ?= "test"
+      Spec.it "is Just the string" do
+        Headers.header "x-test" "test" !! "x-test" ?= Maybe.Just "test"
     Spec.describe "when searching with uppercase" do
-      Spec.it "is the string" do
-        Headers.header "x-test" "test" !! "X-Test" ?= "test"
+      Spec.it "is Just the string" do
+        Headers.header "x-test" "test" !! "X-Test" ?= Maybe.Just "test"
   Spec.describe "when the string is not in the header set" do
-    Spec.it "is an empty string" do
-      Headers.empty !!  "X-Test" ?= ""
+    Spec.it "is Nothing" do
+      ((Headers.empty !! "X-Test") :: Maybe.Maybe String) ?= Maybe.Nothing
 
 showSpec :: SpecHelpers.Test
 showSpec = Spec.describe "show" do

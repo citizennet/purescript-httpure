@@ -4,7 +4,7 @@ import Prelude
 
 import Control.Monad.Eff.Console as Console
 import HTTPure as HTTPure
-import HTTPure ((!!))
+import HTTPure ((!@))
 
 -- | Serve the example server on this port
 port :: Int
@@ -20,7 +20,7 @@ responseHeaders = HTTPure.header "X-Example" "hello world!"
 
 -- | Route to the correct handler
 router :: forall e. HTTPure.Request -> HTTPure.ResponseM e
-router { headers } = HTTPure.ok' responseHeaders $ headers !! "X-Input"
+router { headers } = HTTPure.ok' responseHeaders $ headers !@ "X-Input"
 
 -- | Boot up the server
 main :: forall e. HTTPure.ServerM (console :: Console.CONSOLE | e)
