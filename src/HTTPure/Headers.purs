@@ -10,7 +10,6 @@ module HTTPure.Headers
 import Prelude
 
 import Control.Monad.Eff as Eff
-import Data.Maybe as Maybe
 import Data.String as StringUtil
 import Data.StrMap as StrMap
 import Data.TraversableWithIndex as TraversableWithIndex
@@ -18,31 +17,31 @@ import Data.Tuple as Tuple
 import Node.HTTP as HTTP
 
 import HTTPure.Lookup as Lookup
+import HTTPure.Lookup ((!!))
 
 -- | The `Headers` type is just sugar for a `StrMap` of `Strings` that
 -- | represents the set of headers in an HTTP request or response.
 newtype Headers = Headers (StrMap.StrMap String)
 
--- | Given a string, return the value of the matching header, or an empty string
--- | if no match exists. This search is case-insensitive.
-instance lookupHeaders :: Lookup.Lookup Headers String String where
-  lookup (Headers headers') =
-    Maybe.fromMaybe "" <<< flip StrMap.lookup headers' <<< StringUtil.toLower
+-- | Given a string, return a `Maybe` containing the value of the matching
+-- | header, if there is any.
+instance lookup :: Lookup.Lookup Headers String String where
+  lookup (Headers headers') key = headers' !! StringUtil.toLower key
 
 -- | Allow a `Headers` to be represented as a string. This string is formatted
 -- | in HTTP headers format.
-instance showHeaders :: Show Headers where
+instance show :: Show Headers where
   show (Headers headers') =
     StrMap.foldMap showField headers' <> "\n"
     where
       showField key value = key <> ": " <> value <> "\n"
 
 -- | Compare two `Headers` objects by comparing the underlying `StrMaps`.
-instance eqHeaders :: Eq Headers where
+instance eq :: Eq Headers where
   eq (Headers a) (Headers b) = eq a b
 
 -- | Allow one `Headers` objects to be appended to another.
-instance semigroupHeaders :: Semigroup Headers where
+instance semigroup :: Semigroup Headers where
   append (Headers a) (Headers b) = Headers $ StrMap.union b a
 
 -- | Get the headers out of a HTTP `Request` object.
