@@ -1,4 +1,4 @@
-module Post where
+module Examples.Post.Main where
 
 import Prelude
 

@@ -1,4 +1,4 @@
-module HTTPure.LookupSpec where
+module Test.HTTPure.LookupSpec where
 
 import Prelude
 
@@ -9,10 +9,10 @@ import Test.Spec as Spec
 
 import HTTPure.Lookup ((!!), (!@), (!?))
 
-import HTTPure.SpecHelpers as SpecHelpers
-import HTTPure.SpecHelpers ((?=))
+import Test.HTTPure.TestHelpers as TestHelpers
+import Test.HTTPure.TestHelpers ((?=))
 
-atSpec :: SpecHelpers.Test
+atSpec :: TestHelpers.Test
 atSpec = Spec.describe "at" do
   Spec.describe "when the lookup returns a Just" do
     Spec.it "is the value inside the Just" do
@@ -21,7 +21,7 @@ atSpec = Spec.describe "at" do
     Spec.it "is mempty" do
       [ "one", "two", "three" ] !@ 4 ?= ""
 
-hasSpec :: SpecHelpers.Test
+hasSpec :: TestHelpers.Test
 hasSpec = Spec.describe "has" do
   Spec.describe "when the lookup returns a Just" do
     Spec.it "is true" do
@@ -30,7 +30,7 @@ hasSpec = Spec.describe "has" do
     Spec.it "is false" do
       [ "one", "two", "three" ] !? 4 ?= false
 
-lookupArraySpec :: SpecHelpers.Test
+lookupArraySpec :: TestHelpers.Test
 lookupArraySpec = Spec.describe "lookupArray" do
   Spec.describe "when the index is in bounds" do
     Spec.it "is Just the value at the index" do
@@ -39,7 +39,7 @@ lookupArraySpec = Spec.describe "lookupArray" do
     Spec.it "is Nothing" do
       (([ "one", "two", "three" ] !! 4) :: Maybe.Maybe String) ?= Maybe.Nothing
 
-lookupStrMapSpec :: SpecHelpers.Test
+lookupStrMapSpec :: TestHelpers.Test
 lookupStrMapSpec = Spec.describe "lookupStrMap" do
   Spec.describe "when the key is in the StrMap" do
     Spec.it "is Just the value at the given key" do
@@ -50,7 +50,7 @@ lookupStrMapSpec = Spec.describe "lookupStrMap" do
   where
     mockStrMap = StrMap.singleton "foo" "bar"
 
-lookupSpec :: SpecHelpers.Test
+lookupSpec :: TestHelpers.Test
 lookupSpec = Spec.describe "Lookup" do
   atSpec
   hasSpec

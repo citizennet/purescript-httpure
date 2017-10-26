@@ -1,4 +1,4 @@
-module Headers where
+module Examples.Headers.Main where
 
 import Prelude
 

@@ -1,4 +1,4 @@
-module HTTPure.RequestSpec where
+module Test.HTTPure.RequestSpec where
 
 import Prelude
 
@@ -10,10 +10,10 @@ import HTTPure.Headers as Headers
 import HTTPure.Method as Method
 import HTTPure.Request as Request
 
-import HTTPure.SpecHelpers as SpecHelpers
-import HTTPure.SpecHelpers ((?=))
+import Test.HTTPure.TestHelpers as TestHelpers
+import Test.HTTPure.TestHelpers ((?=))
 
-fromHTTPRequestSpec :: SpecHelpers.Test
+fromHTTPRequestSpec :: TestHelpers.Test
 fromHTTPRequestSpec = Spec.describe "fromHTTPRequest" do
   Spec.it "contains the correct method" do
     mock <- mockRequest
@@ -33,10 +33,10 @@ fromHTTPRequestSpec = Spec.describe "fromHTTPRequest" do
   where
     mockHeaders = [ Tuple.Tuple "Test" "test" ]
     mockHTTPRequest =
-      SpecHelpers.mockRequest "POST" "/test?a=b" "body" mockHeaders
+      TestHelpers.mockRequest "POST" "/test?a=b" "body" mockHeaders
     mockRequest = mockHTTPRequest >>= Request.fromHTTPRequest
 
-fullPathSpec :: SpecHelpers.Test
+fullPathSpec :: TestHelpers.Test
 fullPathSpec = Spec.describe "fullPath" do
   Spec.describe "without query parameters" do
     Spec.it "is correct" do
@@ -63,10 +63,10 @@ fullPathSpec = Spec.describe "fullPath" do
       mock <- mockRequest "/foo///bar/?&a=b&&c"
       Request.fullPath mock ?= "/foo/bar?a=b&c=true"
   where
-    mockHTTPRequest path = SpecHelpers.mockRequest "POST" path "body" []
+    mockHTTPRequest path = TestHelpers.mockRequest "POST" path "body" []
     mockRequest path = mockHTTPRequest path >>= Request.fromHTTPRequest
 
-requestSpec :: SpecHelpers.Test
+requestSpec :: TestHelpers.Test
 requestSpec = Spec.describe "Request" do
   fromHTTPRequestSpec
   fullPathSpec

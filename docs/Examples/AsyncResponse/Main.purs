@@ -1,4 +1,4 @@
-module AsyncResponse where
+module Examples.AsyncResponse.Main where
 
 import Prelude
 

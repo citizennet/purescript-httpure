@@ -1,4 +1,4 @@
-module HTTPure.SpecHelpers where
+module Test.HTTPure.TestHelpers where
 
 import Prelude
 

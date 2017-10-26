@@ -1,4 +1,4 @@
-module HTTPure.StatusSpec where
+module Test.HTTPure.StatusSpec where
 
 import Prelude
 
@@ -7,18 +7,18 @@ import Test.Spec as Spec
 
 import HTTPure.Status as Status
 
-import HTTPure.SpecHelpers as SpecHelpers
-import HTTPure.SpecHelpers ((?=))
+import Test.HTTPure.TestHelpers as TestHelpers
+import Test.HTTPure.TestHelpers ((?=))
 
-writeSpec :: SpecHelpers.Test
+writeSpec :: TestHelpers.Test
 writeSpec = Spec.describe "write" do
   Spec.it "writes the given status code" do
     status <- EffClass.liftEff do
-      mock <- SpecHelpers.mockResponse
+      mock <- TestHelpers.mockResponse
       Status.write mock 123
-      pure $ SpecHelpers.getResponseStatus mock
+      pure $ TestHelpers.getResponseStatus mock
     status ?= 123
 
-statusSpec :: SpecHelpers.Test
+statusSpec :: TestHelpers.Test
 statusSpec = Spec.describe "Status" do
   writeSpec

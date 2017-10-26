@@ -38,9 +38,6 @@ SOURCES := $(SRCPATH)/**/*
 TESTSOURCES := $(TESTPATH)/**/*
 EXAMPLESOURCES := $(EXAMPLESPATH)/**/*
 
-# This is the module name for the entry point for the test suite
-TESTMAIN := HTTPure.HTTPureSpec
-
 # Install bower components
 $(COMPONENTS): $(BOWERJSON)
 	$(BOWER) install
@@ -65,7 +62,7 @@ $(EXAMPLE_INDEX): $(OUTPUT_EXAMPLE) $(BUILD) $(EXAMPLEPATH)/Main.purs
 	  --src-path $(EXAMPLEPATH) \
 	  --include $(SRCPATH) \
 	  --build-path $(BUILD) \
-	  --main $(EXAMPLE) \
+	  --main Examples.$(EXAMPLE).Main \
 	  --to $(EXAMPLE_INDEX)
 
 # Run the example specified by the environment variable EXAMPLE
@@ -91,7 +88,6 @@ test: $(BUILD) $(TESTSOURCES) $(EXAMPLESOURCES)
 	  --test-path $(TESTPATH) \
 	  --include $(EXAMPLESPATH) \
 	  --build-path $(BUILD) \
-	  --main $(TESTMAIN) \
 	  $(BUILD_OPTIONS)
 
 # Launch a repl with all modules loaded

@@ -1,4 +1,4 @@
-module HTTPure.ServerSpec where
+module Test.HTTPure.ServerSpec where
 
 import Prelude
 
@@ -12,25 +12,25 @@ import HTTPure.Request as Request
 import HTTPure.Response as Response
 import HTTPure.Server as Server
 
-import HTTPure.SpecHelpers as SpecHelpers
-import HTTPure.SpecHelpers ((?=))
+import Test.HTTPure.TestHelpers as TestHelpers
+import Test.HTTPure.TestHelpers ((?=))
 
 mockRouter :: forall e. Request.Request -> Response.ResponseM e
 mockRouter { path } = Response.ok $ "/" <> String.joinWith "/" path
 
-serveSpec :: SpecHelpers.Test
+serveSpec :: TestHelpers.Test
 serveSpec = Spec.describe "serve" do
   Spec.it "boots a server on the given port" do
     EffClass.liftEff $ Server.serve 7901 mockRouter $ pure unit
-    out <- SpecHelpers.get 7901 StrMap.empty "/test"
+    out <- TestHelpers.get 7901 StrMap.empty "/test"
     out ?= "/test"
 
-serve'Spec :: SpecHelpers.Test
+serve'Spec :: TestHelpers.Test
 serve'Spec = Spec.describe "serve" do
   Spec.describe "with valid key and cert files" do
     Spec.it "boots a server on the given port" do
       EffClass.liftEff $ Server.serve' 7902 cert key mockRouter $ pure unit
-      out <- SpecHelpers.get' 7902 StrMap.empty "/test"
+      out <- TestHelpers.get' 7902 StrMap.empty "/test"
       out ?= "/test"
   Spec.describe "with invalid key and cert files" do
     Spec.it "throws" do
@@ -40,7 +40,7 @@ serve'Spec = Spec.describe "serve" do
     cert = "./test/Mocks/Certificate.cer"
     key = "./test/Mocks/Key.key"
 
-serverSpec :: SpecHelpers.Test
+serverSpec :: TestHelpers.Test
 serverSpec = Spec.describe "Server" do
   serveSpec
   serve'Spec

@@ -1,4 +1,4 @@
-module HTTPure.MethodSpec where
+module Test.HTTPure.MethodSpec where
 
 import Prelude
 
@@ -6,10 +6,10 @@ import Test.Spec as Spec
 
 import HTTPure.Method as Method
 
-import HTTPure.SpecHelpers as SpecHelpers
-import HTTPure.SpecHelpers ((?=))
+import Test.HTTPure.TestHelpers as TestHelpers
+import Test.HTTPure.TestHelpers ((?=))
 
-showSpec :: SpecHelpers.Test
+showSpec :: TestHelpers.Test
 showSpec = Spec.describe "show" do
   Spec.describe "with a Get" do
     Spec.it "is 'Get'" do
@@ -39,14 +39,14 @@ showSpec = Spec.describe "show" do
     Spec.it "is 'Patch'" do
       show Method.Patch ?= "Patch"
 
-readSpec :: SpecHelpers.Test
+readSpec :: TestHelpers.Test
 readSpec = Spec.describe "read" do
   Spec.describe "with a 'GET' Request" do
     Spec.it "is Get" do
-      request <- SpecHelpers.mockRequest "GET" "" "" []
+      request <- TestHelpers.mockRequest "GET" "" "" []
       Method.read request ?= Method.Get
 
-methodSpec :: SpecHelpers.Test
+methodSpec :: TestHelpers.Test
 methodSpec = Spec.describe "Method" do
   showSpec
   readSpec
