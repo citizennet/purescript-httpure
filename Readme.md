@@ -24,7 +24,7 @@ signatures are _mostly_ stable, but are subject to change before the 1.0 release
 if there's a good reason to change them.
 
 If you'd like to help us get to 1.0 quicker, please contribute! To get started,
-check our [contributing guide](Contributing.md).
+check our [contributing guide](./Contributing.md).
 
 ## Installation
 
@@ -54,10 +54,12 @@ main =
 Module documentation is published
 on [Pursuit](http://pursuit.purescript.org/packages/purescript-httpure).
 
+You can also take a look at [our guides](./docs).
+
 ## Examples
 
-HTTPure ships with a number of [examples](docs/Examples). To run an example, in
-the project root, run:
+HTTPure ships with a number of [examples](./docs/Examples). To run an example,
+in the project root, run:
 
 ```bash
 make example EXAMPLE=<Example Name>
@@ -85,8 +87,8 @@ HTTPure is written and maintained
 by [Connor Prussin](https://connor.prussin.net).
 
 We are open to accepting contributions! Please see
-the [contributing guide](Contributing.md).
+the [contributing guide](./Contributing.md).
 
 ## License
 
-[MIT](License)
+[MIT](./License)
