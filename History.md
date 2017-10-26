@@ -1,3 +1,15 @@
+0.5.0 / 2017-10-25
+==================
+- Make ResponseM an `Aff` instead of `Eff`
+- Add helpers and instances for working with headers (`Semigroup` instance,
+  `HTTPure.header`, `HTTPure.empty`, etc)
+- Clean up patterns for response helpers so all helpers are consistent
+- Add `HTTPure.fullPath` function
+- Extend `Lookup` typeclass -- make `!!` return `Maybe` types and add `!?` and
+  `!@` operators.
+- Add examples and guidelines for working with middlewares
+- Add guides
+
 0.4.0 / 2017-09-26
 ==================
 - Major refactor for simpler APIs
