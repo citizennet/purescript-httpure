@@ -9,7 +9,7 @@ A purescript HTTP server framework.
 
 HTTPure is:
 
-- Well-tested (see our [tests](./test))
+- Well-tested (see our [tests](./test/Test))
 - Well-documented (see our [documentation](./docs))
 - Built to take advantage of PureScript language features for flexible and
   extensible routing

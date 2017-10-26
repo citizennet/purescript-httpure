@@ -46,7 +46,8 @@ under [Documentation/Examples](./docs/Examples).
 
 All examples should have corresponding integration tests, to ensure that
 examples we promote remain functional. If you plan to contribute examples,
-please take a look at [IntegrationSpec.purs](./test/HTTPure/IntegrationSpec.purs).
+please take a look at
+[IntegrationSpec.purs](./test/Test/HTTPure/IntegrationSpec.purs).
 
 ### Code
 
