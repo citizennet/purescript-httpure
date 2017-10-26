@@ -1,4 +1,4 @@
-module HTTPure.BodySpec where
+module Test.HTTPure.BodySpec where
 
 import Prelude
 
@@ -7,26 +7,26 @@ import Test.Spec as Spec
 
 import HTTPure.Body as Body
 
-import HTTPure.SpecHelpers as SpecHelpers
-import HTTPure.SpecHelpers ((?=))
+import Test.HTTPure.TestHelpers as TestHelpers
+import Test.HTTPure.TestHelpers ((?=))
 
-readSpec :: SpecHelpers.Test
+readSpec :: TestHelpers.Test
 readSpec = Spec.describe "read" do
   Spec.it "is the body of the Request" do
-    request <- SpecHelpers.mockRequest "GET" "" "test" []
+    request <- TestHelpers.mockRequest "GET" "" "test" []
     body <- Body.read request
     body ?= "test"
 
-writeSpec :: SpecHelpers.Test
+writeSpec :: TestHelpers.Test
 writeSpec = Spec.describe "write" do
   Spec.it "writes the string to the Response body" do
     body <- EffClass.liftEff do
-      resp <- SpecHelpers.mockResponse
+      resp <- TestHelpers.mockResponse
       Body.write resp "test"
-      pure $ SpecHelpers.getResponseBody resp
+      pure $ TestHelpers.getResponseBody resp
     body ?= "test"
 
-bodySpec :: SpecHelpers.Test
+bodySpec :: TestHelpers.Test
 bodySpec = Spec.describe "Body" do
   readSpec
   writeSpec

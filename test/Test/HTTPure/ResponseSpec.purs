@@ -1,4 +1,4 @@
-module HTTPure.ResponseSpec where
+module Test.HTTPure.ResponseSpec where
 
 import Prelude
 
@@ -8,34 +8,34 @@ import Test.Spec as Spec
 import HTTPure.Headers as Headers
 import HTTPure.Response as Response
 
-import HTTPure.SpecHelpers as SpecHelpers
-import HTTPure.SpecHelpers ((?=))
+import Test.HTTPure.TestHelpers as TestHelpers
+import Test.HTTPure.TestHelpers ((?=))
 
-sendSpec :: SpecHelpers.Test
+sendSpec :: TestHelpers.Test
 sendSpec = Spec.describe "send" do
   Spec.it "writes the headers" do
     header <- EffClass.liftEff do
-      httpResponse <- SpecHelpers.mockResponse
+      httpResponse <- TestHelpers.mockResponse
       Response.send httpResponse mockResponse
-      pure $ SpecHelpers.getResponseHeader "Test" httpResponse
+      pure $ TestHelpers.getResponseHeader "Test" httpResponse
     header ?= "test"
   Spec.it "writes the status" do
     status <- EffClass.liftEff do
-      httpResponse <- SpecHelpers.mockResponse
+      httpResponse <- TestHelpers.mockResponse
       Response.send httpResponse mockResponse
-      pure $ SpecHelpers.getResponseStatus httpResponse
+      pure $ TestHelpers.getResponseStatus httpResponse
     status ?= 123
   Spec.it "writes the body" do
     body <- EffClass.liftEff do
-      httpResponse <- SpecHelpers.mockResponse
+      httpResponse <- TestHelpers.mockResponse
       Response.send httpResponse mockResponse
-      pure $ SpecHelpers.getResponseBody httpResponse
+      pure $ TestHelpers.getResponseBody httpResponse
     body ?= "test"
   where
     mockHeaders = Headers.header "Test" "test"
     mockResponse = { status: 123, headers: mockHeaders, body: "test" }
 
-responseFunctionSpec :: SpecHelpers.Test
+responseFunctionSpec :: TestHelpers.Test
 responseFunctionSpec = Spec.describe "response" do
   Spec.it "has the right status" do
     resp <- Response.response 123 "test"
@@ -47,7 +47,7 @@ responseFunctionSpec = Spec.describe "response" do
     resp <- Response.response 123 "test"
     resp.body ?= "test"
 
-response'Spec :: SpecHelpers.Test
+response'Spec :: TestHelpers.Test
 response'Spec = Spec.describe "response'" do
   Spec.it "has the right status" do
     resp <- mockResponse
@@ -62,7 +62,7 @@ response'Spec = Spec.describe "response'" do
     mockHeaders = Headers.header "Test" "test"
     mockResponse = Response.response' 123 mockHeaders "test"
 
-emptyResponseSpec :: SpecHelpers.Test
+emptyResponseSpec :: TestHelpers.Test
 emptyResponseSpec = Spec.describe "emptyResponse" do
   Spec.it "has the right status" do
     resp <- Response.emptyResponse 123
@@ -74,7 +74,7 @@ emptyResponseSpec = Spec.describe "emptyResponse" do
     resp <- Response.emptyResponse 123
     resp.body ?= ""
 
-emptyResponse'Spec :: SpecHelpers.Test
+emptyResponse'Spec :: TestHelpers.Test
 emptyResponse'Spec = Spec.describe "emptyResponse'" do
   Spec.it "has the right status" do
     resp <- mockResponse
@@ -89,7 +89,7 @@ emptyResponse'Spec = Spec.describe "emptyResponse'" do
     mockHeaders = Headers.header "Test" "test"
     mockResponse = Response.emptyResponse' 123 mockHeaders
 
-responseSpec :: SpecHelpers.Test
+responseSpec :: TestHelpers.Test
 responseSpec = Spec.describe "Response" do
   sendSpec
   responseFunctionSpec

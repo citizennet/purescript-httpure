@@ -1,4 +1,4 @@
-module QueryParameters where
+module Examples.QueryParameters.Main where
 
 import Prelude
 

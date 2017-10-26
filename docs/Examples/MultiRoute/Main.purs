@@ -1,4 +1,4 @@
-module MultiRoute where
+module Examples.MultiRoute.Main where
 
 import Prelude
 

@@ -1,4 +1,4 @@
-module PathSegments where
+module Examples.PathSegments.Main where
 
 import Prelude
 

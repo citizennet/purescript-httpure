@@ -1,4 +1,4 @@
-module SSL where
+module Examples.SSL.Main where
 
 import Prelude
 

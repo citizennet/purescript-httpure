@@ -1,4 +1,4 @@
-module HTTPure.HeadersSpec where
+module Test.HTTPure.HeadersSpec where
 
 import Prelude
 
@@ -10,10 +10,10 @@ import Test.Spec as Spec
 import HTTPure.Headers as Headers
 import HTTPure.Lookup ((!!))
 
-import HTTPure.SpecHelpers as SpecHelpers
-import HTTPure.SpecHelpers ((?=))
+import Test.HTTPure.TestHelpers as TestHelpers
+import Test.HTTPure.TestHelpers ((?=))
 
-lookupSpec :: SpecHelpers.Test
+lookupSpec :: TestHelpers.Test
 lookupSpec = Spec.describe "lookup" do
   Spec.describe "when the string is in the header set" do
     Spec.describe "when searching with lowercase" do
@@ -26,13 +26,13 @@ lookupSpec = Spec.describe "lookup" do
     Spec.it "is Nothing" do
       ((Headers.empty !! "X-Test") :: Maybe.Maybe String) ?= Maybe.Nothing
 
-showSpec :: SpecHelpers.Test
+showSpec :: TestHelpers.Test
 showSpec = Spec.describe "show" do
   Spec.it "is a string representing the headers in HTTP format" do
     let mock = Headers.header "Test1" "1" <> Headers.header "Test2" "2"
     show mock ?= "Test1: 1\nTest2: 2\n\n"
 
-eqSpec :: SpecHelpers.Test
+eqSpec :: TestHelpers.Test
 eqSpec = Spec.describe "eq" do
   Spec.describe "when the two Headers contain the same keys and values" do
     Spec.it "is true" do
@@ -48,7 +48,7 @@ eqSpec = Spec.describe "eq" do
       let mock = Headers.header "Test1" "1" <> Headers.header "Test2" "2"
       Headers.header "Test1" "1" == mock ?= false
 
-appendSpec :: SpecHelpers.Test
+appendSpec :: TestHelpers.Test
 appendSpec = Spec.describe "append" do
   Spec.describe "when there are multiple keys" do
     Spec.it "appends the headers correctly" do
@@ -66,38 +66,38 @@ appendSpec = Spec.describe "append" do
       let mock = Headers.header "Test" "foo" <> Headers.header "Test" "bar"
       mock ?= Headers.header "Test" "bar"
 
-readSpec :: SpecHelpers.Test
+readSpec :: TestHelpers.Test
 readSpec = Spec.describe "read" do
   Spec.describe "with no headers" do
     Spec.it "is an empty StrMap" do
-      request <- SpecHelpers.mockRequest "" "" "" []
+      request <- TestHelpers.mockRequest "" "" "" []
       Headers.read request ?= Headers.empty
   Spec.describe "with headers" do
     Spec.it "is an StrMap with the contents of the headers" do
       let testHeader = [Tuple.Tuple "X-Test" "test"]
-      request <- SpecHelpers.mockRequest "" "" "" testHeader
+      request <- TestHelpers.mockRequest "" "" "" testHeader
       Headers.read request ?= Headers.headers testHeader
 
-writeSpec :: SpecHelpers.Test
+writeSpec :: TestHelpers.Test
 writeSpec = Spec.describe "write" do
   Spec.it "writes the headers to the response" do
     header <- EffClass.liftEff do
-      mock <- SpecHelpers.mockResponse
+      mock <- TestHelpers.mockResponse
       Headers.write mock $ Headers.header "X-Test" "test"
-      pure $ SpecHelpers.getResponseHeader "X-Test" mock
+      pure $ TestHelpers.getResponseHeader "X-Test" mock
     header ?= "test"
 
-emptySpec :: SpecHelpers.Test
+emptySpec :: TestHelpers.Test
 emptySpec = Spec.describe "empty" do
   Spec.it "is a empty StrMap in an empty Headers" do
     show Headers.empty ?= "\n"
 
-headerSpec :: SpecHelpers.Test
+headerSpec :: TestHelpers.Test
 headerSpec = Spec.describe "header" do
   Spec.it "creates a singleton Headers" do
     show (Headers.header "X-Test" "test") ?= "X-Test: test\n\n"
 
-headersFunctionSpec :: SpecHelpers.Test
+headersFunctionSpec :: TestHelpers.Test
 headersFunctionSpec = Spec.describe "headers" do
   Spec.it "is equivalent to using Headers.header with <>" do
     test ?= expected
@@ -109,7 +109,7 @@ headersFunctionSpec = Spec.describe "headers" do
         ]
     expected = Headers.header "X-Test-1" "1" <> Headers.header "X-Test-2" "2"
 
-headersSpec :: SpecHelpers.Test
+headersSpec :: TestHelpers.Test
 headersSpec = Spec.describe "Headers" do
   lookupSpec
   showSpec

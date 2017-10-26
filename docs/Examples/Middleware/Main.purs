@@ -1,4 +1,4 @@
-module Middleware where
+module Examples.Middleware.Main where
 
 import Prelude
 
