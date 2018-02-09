@@ -59,9 +59,10 @@ serve' options router onStarted =
   HTTP.createServer (handleRequest router) >>= \server ->
     HTTP.listen server options onStarted
 
--- | Given a `ListenOptions` object and a `HTTP.ListenOptions` object, a
--- | function mapping `Request` to `ResponseM`, and a `SecureServerM` containing
--- | effects to run on boot, creates and runs a HTTPure server with SSL.
+-- | Given a `Options HTTPS.SSLOptions` object and a `HTTP.ListenOptions`
+-- | object, a function mapping `Request` to `ResponseM`, and a `SecureServerM`
+-- | containing effects to run on boot, creates and runs a HTTPure server with
+-- | SSL.
 serveSecure' :: forall e.
                 Options HTTPS.SSLOptions ->
                 HTTP.ListenOptions ->
