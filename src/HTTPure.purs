@@ -88,4 +88,11 @@ import HTTPure.Response
   , notExtended, notExtended'
   , networkAuthenticationRequired, networkAuthenticationRequired'
   )
-import HTTPure.Server (SecureServerM, ServerM, serve, serve')
+import HTTPure.Server
+  ( SecureServerM
+  , ServerM
+  , serve
+  , serve'
+  , serveSecure
+  , serveSecure'
+  )

@@ -3,6 +3,8 @@ module HTTPure.Server
   , SecureServerM
   , serve
   , serve'
+  , serveSecure
+  , serveSecure'
   ) where
 
 import Prelude
@@ -11,7 +13,7 @@ import Control.Monad.Aff as Aff
 import Control.Monad.Eff as Eff
 import Control.Monad.Eff.Class as EffClass
 import Data.Maybe as Maybe
-import Data.Options ((:=))
+import Data.Options ((:=), Options)
 import Node.Encoding as Encoding
 import Node.FS as FS
 import Node.FS.Sync as FSSync
@@ -48,12 +50,12 @@ handleRequest router request response =
 -- | Given a `ListenOptions` object, a function mapping `Request` to
 -- | `ResponseM`, and a `ServerM` containing effects to run on boot, creates and
 -- | runs a HTTPure server without SSL.
-bootHTTP :: forall e.
-            HTTP.ListenOptions ->
-            (Request.Request -> Response.ResponseM e) ->
-            ServerM e ->
-            ServerM e
-bootHTTP options router onStarted =
+serve' :: forall e.
+          HTTP.ListenOptions ->
+          (Request.Request -> Response.ResponseM e) ->
+          ServerM e ->
+          ServerM e
+serve' options router onStarted =
   HTTP.createServer (handleRequest router) >>= \server ->
     HTTP.listen server options onStarted
 
@@ -61,22 +63,15 @@ bootHTTP options router onStarted =
 -- | key file, a function mapping `Request` to `ResponseM`, and a
 -- | `SecureServerM` containing effects to run on boot, creates and runs a
 -- | HTTPure server with SSL.
-bootHTTPS :: forall e.
-             HTTP.ListenOptions ->
-             String ->
-             String ->
-             (Request.Request -> Response.ResponseM  (fs :: FS.FS | e)) ->
-             SecureServerM e ->
-             SecureServerM e
-bootHTTPS options cert key router onStarted = do
-  cert' <- FSSync.readTextFile Encoding.UTF8 cert
-  key' <- FSSync.readTextFile Encoding.UTF8 key
-  server <- HTTPS.createServer (sslOpts key' cert') (handleRequest router)
-  HTTP.listen server options onStarted
-  where
-    sslOpts key' cert' =
-      HTTPS.key  := HTTPS.keyString  key' <>
-      HTTPS.cert := HTTPS.certString cert'
+serveSecure' :: forall e.
+                Options HTTPS.SSLOptions ->
+                HTTP.ListenOptions ->
+                (Request.Request -> Response.ResponseM  (fs :: FS.FS | e)) ->
+                SecureServerM e ->
+                SecureServerM e
+serveSecure' sslOptions options router onStarted =
+  HTTPS.createServer sslOptions (handleRequest router) >>= \server ->
+    HTTP.listen server options onStarted
 
 -- | Given a port number, return a `HTTP.ListenOptions` `Record`.
 listenOptions :: Int -> HTTP.ListenOptions
@@ -96,7 +91,7 @@ serve :: forall e.
          (Request.Request -> Response.ResponseM e) ->
          ServerM e ->
          ServerM e
-serve = bootHTTP <<< listenOptions
+serve = serve' <<< listenOptions
 
 -- | Create and start an SSL server. This method is the same as `serve`, but
 -- | takes additional SSL arguments.  The arguments in order are:
@@ -105,11 +100,18 @@ serve = bootHTTP <<< listenOptions
 -- | 3. A path to a private key file
 -- | 4. A handler method which maps `Request` to `ResponseM`
 -- | 5. A callback to call when the server is up
-serve' :: forall e.
-          Int ->
-          String ->
-          String ->
-          (Request.Request -> Response.ResponseM (fs :: FS.FS | e)) ->
-          SecureServerM e ->
-          SecureServerM e
-serve' = bootHTTPS <<< listenOptions
+serveSecure :: forall e.
+               Int ->
+               String ->
+               String ->
+               (Request.Request -> Response.ResponseM (fs :: FS.FS | e)) ->
+               SecureServerM e ->
+               SecureServerM e
+serveSecure port cert key router onStarted = do
+  cert' <- FSSync.readTextFile Encoding.UTF8 cert
+  key' <- FSSync.readTextFile Encoding.UTF8 key
+  serveSecure' (sslOpts key' cert') (listenOptions port) router onStarted
+  where
+    sslOpts key' cert' =
+      HTTPS.key  := HTTPS.keyString  key' <>
+      HTTPS.cert := HTTPS.certString cert'

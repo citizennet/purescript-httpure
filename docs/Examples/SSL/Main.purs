@@ -27,7 +27,7 @@ sayHello _ = HTTPure.ok "hello world!"
 
 -- | Boot up the server
 main :: forall e. HTTPure.SecureServerM (console :: Console.CONSOLE | e)
-main = HTTPure.serve' port cert key sayHello do
+main = HTTPure.serveSecure port cert key sayHello do
   Console.log $ " ┌───────────────────────────────────────────┐"
   Console.log $ " │ Server now up on port " <> portS <> "                │"
   Console.log $ " │                                           │"
