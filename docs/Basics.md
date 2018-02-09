@@ -4,9 +4,9 @@ This guide is a brief overview of the basics of creating a HTTPure server.
 
 ## Creating a Server
 
-To create a server, use `HTTPure.serve` (no SSL) or `HTTPure.serve'` (SSL). Both
-of these functions take a port number, a router function, and an `Eff` that will
-run once the server has booted. The signature of the router function is:
+To create a server, use `HTTPure.serve` (no SSL) or `HTTPure.serveSecure` (SSL).
+Both of these functions take a port number, a router function, and an `Eff` that
+will run once the server has booted. The signature of the router function is:
 
 ```purescript
 forall e. HTTPure.Request -> HTTPure.ResponseM e
@@ -25,18 +25,33 @@ You can create an HTTPure server without SSL using `HTTPure.serve`:
 main = HTTPure.serve 8080 router $ Console.log "Server up"
 ```
 
+You can also create a server using a custom `HTTP.ListenOptions` `Record`:
+
+```purescript
+main = HTTPure.serve' customOptions router $ Console.log "Server up"
+```
+
 Most of the [examples](./Examples), besides [the SSL Example](./Examples/SSL),
 use this method to create the server.
 
 ## SSL
 
-You can create an SSL-enabled HTTPure server using `HTTPure.serve'`, which has
-the same signature as `HTTPure.serve` except that it additionally takes a path
-to a cert file and a path to a key file after the port number:
+You can create an SSL-enabled HTTPure server using `HTTPure.serveSecure`, which
+has the same signature as `HTTPure.serve` except that it additionally takes a
+path to a cert file and a path to a key file after the port number:
 
 ```purescript
 main =
-  HTTPure.serve 8080 "./Certificate.cer" "./Key.key" router $
+  HTTPure.serveSecure 8080 "./Certificate.cer" "./Key.key" router $
+    Console.log "Server up"
+```
+
+You can also create a server using a `HTTP.ListenOptions` and a `Options
+HTTPS.SSLOptions`:
+
+```purescript
+main =
+  HTTPure.serveSecure' customSSLOptions customOptions router $
     Console.log "Server up"
 ```
 
