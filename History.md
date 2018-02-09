@@ -1,3 +1,7 @@
+0.6.0 / 2018-02-08
+==================
+- Rename `serve'` to `serveSecure`, add `serve'` and `serveSecure'`.
+
 0.5.0 / 2017-10-25
 ==================
 - Make ResponseM an `Aff` instead of `Eff`
