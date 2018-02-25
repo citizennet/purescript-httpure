@@ -49,8 +49,8 @@ middlewareSpec = Spec.it "runs the middleware example" do
   header ?= "router"
   body <- TestHelpers.get port StrMap.empty "/"
   body ?= "hello"
-  header <- TestHelpers.getHeader port StrMap.empty "/middleware" "X-Middleware"
-  header ?= "middleware"
+  header' <- TestHelpers.getHeader port StrMap.empty "/middleware" "X-Middleware"
+  header' ?= "middleware"
   body' <- TestHelpers.get port StrMap.empty "/middleware"
   body' ?= "Middleware!"
   where port = Middleware.port
