@@ -7,6 +7,7 @@ import Control.Monad.Eff as Eff
 import Control.Monad.Eff.Class as EffClass
 import Control.Monad.Eff.Exception as Exception
 import Control.Monad.ST as ST
+import Data.Either as Either
 import Data.Maybe as Maybe
 import Data.Options ((:=))
 import Data.String as StringUtil
@@ -58,11 +59,12 @@ request :: forall e.
            String ->
            String ->
            Aff.Aff (http :: HTTP.HTTP | e) HTTPClient.Response
-request secure port method headers path body = Aff.makeAff \_ success -> void do
-  req <- HTTPClient.request options success
+request secure port method headers path body = Aff.makeAff \done -> do
+  req <- HTTPClient.request options $ Either.Right >>> done
   let stream = HTTPClient.requestAsStream req
   _ <- Stream.writeString stream Encoding.UTF8 body $ pure unit
   Stream.end stream $ pure unit
+  pure Aff.nonCanceler
   where
     options =
       HTTPClient.protocol := (if secure then "https:" else "http:") <>
@@ -82,11 +84,12 @@ concat buf new = void $ ST.modifySTRef buf ((<>) new)
 -- | Convert a request to an Aff containing the string with the response body.
 toString :: forall e.
             HTTPClient.Response -> Aff.Aff (HTTPRequestEffects e) String
-toString response = Aff.makeAff \_ success -> do
+toString response = Aff.makeAff \done -> do
   let stream = HTTPClient.responseAsStream response
   buf <- ST.newSTRef ""
   Stream.onDataString stream Encoding.UTF8 $ concat buf
-  Stream.onEnd stream $ ST.readSTRef buf >>= success
+  Stream.onEnd stream $ ST.readSTRef buf >>= Either.Right >>> done
+  pure $ Aff.nonCanceler
 
 -- | Run an HTTP GET with the given url and return an Aff that contains the
 -- | string with the response body.

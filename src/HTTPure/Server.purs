@@ -43,7 +43,7 @@ handleRequest :: forall e.
                  HTTP.Response ->
                  ServerM e
 handleRequest router request response =
-  void $ Aff.runAff (\_ -> pure unit) (\_ -> pure unit) do
+  void $ Aff.runAff (\_ -> pure unit) do
     req <- Request.fromHTTPRequest request
     router req >>= Response.send response >>> EffClass.liftEff
 

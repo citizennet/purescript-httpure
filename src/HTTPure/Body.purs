@@ -6,6 +6,7 @@ module HTTPure.Body
 
 import Prelude
 
+import Data.Either as Either
 import Control.Monad.Aff as Aff
 import Control.Monad.Eff as Eff
 import Control.Monad.ST as ST
@@ -21,12 +22,13 @@ type Body = String
 
 -- | Extract the contents of the body of the HTTP `Request`.
 read :: forall e. HTTP.Request -> Aff.Aff (HTTPureEffects.HTTPureEffects e) Body
-read request = Aff.makeAff \_ success -> do
+read request = Aff.makeAff \done -> do
   let stream = HTTP.requestAsStream request
   buf <- ST.newSTRef ""
   Stream.onDataString stream Encoding.UTF8 \str ->
     void $ ST.modifySTRef buf ((<>) str)
-  Stream.onEnd stream $ ST.readSTRef buf >>= success
+  Stream.onEnd stream $ ST.readSTRef buf >>= Either.Right >>> done
+  pure $ Aff.nonCanceler
 
 -- | Write a `Body` to the given HTTP `Response` and close it.
 write :: forall e. HTTP.Response -> Body -> Eff.Eff (http :: HTTP.HTTP | e) Unit
