@@ -22,17 +22,20 @@ guide](./Middleware.md).
 You can create an HTTPure server without SSL using `HTTPure.serve`:
 
 ```purescript
+main :: forall e. HTTPure.ServerM (console :: Console.CONSOLE | e)
 main = HTTPure.serve 8080 router $ Console.log "Server up"
-```
-
-You can also create a server using a custom `HTTP.ListenOptions` `Record`:
-
-```purescript
-main = HTTPure.serve' customOptions router $ Console.log "Server up"
 ```
 
 Most of the [examples](./Examples), besides [the SSL Example](./Examples/SSL),
 use this method to create the server.
+
+You can also create a server using a custom
+`[HTTP.ListenOptions](http://bit.ly/2G42rLd)` value:
+
+```purescript
+main :: forall e. HTTPure.ServerM (console :: Console.CONSOLE | e)
+main = HTTPure.serve' customOptions router $ Console.log "Server up"
+```
 
 ## SSL
 
@@ -41,19 +44,21 @@ has the same signature as `HTTPure.serve` except that it additionally takes a
 path to a cert file and a path to a key file after the port number:
 
 ```purescript
+main :: forall e. HTTPure.SecureServerM (console :: Console.CONSOLE | e)
 main =
   HTTPure.serveSecure 8080 "./Certificate.cer" "./Key.key" router $
     Console.log "Server up"
 ```
 
-You can also create a server using a `HTTP.ListenOptions` and a `Options
-HTTPS.SSLOptions`:
+You can look at [the SSL Example](./Examples/SSL/Main.purs), which uses this
+method to create the server.
+
+You can also create a server using a
+`[HTTP.ListenOptions](http://bit.ly/2G42rLd)` and a `Options
+[HTTPS.SSLOptions](http://bit.ly/2G3Aljr)`:
 
 ```purescript
+main :: forall e. HTTPure.SecureServerM (console :: Console.CONSOLE | e)
 main =
   HTTPure.serveSecure' customSSLOptions customOptions router $
     Console.log "Server up"
-```
-
-You can look at [the SSL Example](./Examples/SSL/Main.purs), which uses this
-method to create the server.
