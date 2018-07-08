@@ -1,3 +1,12 @@
+unreleased
+==========
+- Add support for PureScript 0.12 (thanks @akheron)
+- Upgrade all dependencies (thanks @akheron)
+- Use Effect instead of Eff (thanks @akheron)
+- Use Foreign.Object instead of StrMap (thanks @akheron)
+- Use Effect.Ref instead of Control.Monad.ST (thanks @akheron)
+- Drop SecureServerM, it's the same as ServerM now (thanks @akheron)
+
 0.6.0 / 2018-02-08
 ==================
 - Rename `serve'` to `serveSecure`, add `serve'` and `serveSecure'`.
