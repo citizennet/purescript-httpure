@@ -12,7 +12,7 @@ The router function is called for each inbound request to the HTTPure server.
 Its signature is:
 
 ```purescript
-forall e. HTTPure.Request -> HTTPure.ResponseM e
+HTTPure.Request -> HTTPure.ResponseM
 ```
 
 So in HTTPure, routing is handled simply by the router being a pure function
@@ -41,12 +41,12 @@ a `Record` type that contains the following fields:
 - `path` - An `Array` of `String` path segments. A path segment is a nonempty
   string separated by a `"/"`. Empty segments are stripped out when HTTPure
   creates the `HTTPure.Request` record.
-- `query` - A `StrMap` of `String` values. Note that if you have any query
+- `query` - An `Object` of `String` values. Note that if you have any query
   parameters without values (for instance, a URL like `/foo?bar`), then the
-  value in the `StrMap` for that query parameter will be the empty `String`
+  value in the `Object` for that query parameter will be the empty `String`
   (`""`).
 - `headers` - A `HTTPure.Headers` object. The `HTTPure.Headers` newtype wraps
-  the `StrMap String` type and provides some typeclass instances that make more
+  the `Object String` type and provides some typeclass instances that make more
   sense when working with HTTP headers.
 - `body` - A `String` containing the contents of the request body, or an empty
   `String` if none was provided.
@@ -67,8 +67,8 @@ There are three instances defined in HTTPure:
    `Array.index`. Because the path is represented as an `Array` of `Strings`,
    this can be used to retrieve the nth path segment by doing something like
    `request.path !! n`.
-2. `Lookup (StrMap t) String t` - In this instance, `HTTPure.lookup` is a
-   flipped version of `StrMap.lookup`. Because the query is a `StrMap String`,
+2. `Lookup (Object t) String t` - In this instance, `HTTPure.lookup` is a
+   flipped version of `Object.lookup`. Because the query is a `Object String`,
    this instance can be used to retrieve the value of a query parameter by name,
    by doing something like `request.query !! "someparam"`.
 3. `Lookup Headers String String` - This is similar to the example in #2, except

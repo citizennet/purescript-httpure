@@ -14,9 +14,7 @@ build, compose, and consume different types of middleware.
 A middleware is a function with the signature:
 
 ```purescript
-forall e. (HTTPure.Request -> HTTPure.ResponseM e) ->
-          HTTPure.Request ->
-          HTTPure.ResponseM e
+(HTTPure.Request -> HTTPure.ResponseM) -> HTTPure.Request -> HTTPure.ResponseM
 ```
 
 Note that the first argument is just the signature for a router function. So
@@ -89,9 +87,9 @@ In other words, say you have the following HTTPure server:
 
 ```purescript
 middleware letter router request = do
-  EffClass.liftEff $ Console.log $ "Starting Middleware " <> letter
+  EffectClass.liftEffect $ Console.log $ "Starting Middleware " <> letter
   response <- router request
-  EffClass.liftEff $ Console.log $ "Ending Middleware " <> letter
+  EffectClass.liftEffect $ Console.log $ "Ending Middleware " <> letter
   pure response
 
 main = HTTPure.serve port composedRouter $ Console.log "Server is up!"

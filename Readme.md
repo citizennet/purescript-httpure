@@ -39,7 +39,7 @@ module Main where
 
 import Prelude (($))
 
-import Control.Monad.Eff.Console as Console
+import Effect.Console as Console
 import HTTPure as HTTPure
 
 main :: HTTPure.ServerM (console :: Console.CONSOLE)
