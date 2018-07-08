@@ -1,11 +1,11 @@
 0.7.0 / 2018-07-08
 ==================
-- Add support for PureScript 0.12 (thanks @akheron)
-- Upgrade all dependencies (thanks @akheron)
-- Use Effect instead of Eff (thanks @akheron)
-- Use Foreign.Object instead of StrMap (thanks @akheron)
-- Use Effect.Ref instead of Control.Monad.ST (thanks @akheron)
-- Drop SecureServerM, it's the same as ServerM now (thanks @akheron)
+- Add support for PureScript 0.12 (thanks **@akheron**)
+- Upgrade all dependencies (thanks **@akheron**)
+- Use `Effect` instead of `Eff` (thanks **@akheron**)
+- Use `Foreign.Object` instead of `StrMap` (thanks **@akheron**)
+- Use `Effect.Ref` instead of `Control.Monad.ST` (thanks **@akheron**)
+- Drop `SecureServerM`, it's the same as `ServerM` now (thanks **@akheron**)
 
 0.6.0 / 2018-02-08
 ==================
