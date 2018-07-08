@@ -89,8 +89,7 @@ import HTTPure.Response
   , networkAuthenticationRequired, networkAuthenticationRequired'
   )
 import HTTPure.Server
-  ( SecureServerM
-  , ServerM
+  ( ServerM
   , serve
   , serve'
   , serveSecure

@@ -2,7 +2,7 @@ module Test.HTTPure.ResponseSpec where
 
 import Prelude
 
-import Control.Monad.Eff.Class as EffClass
+import Effect.Class as EffectClass
 import Test.Spec as Spec
 
 import HTTPure.Headers as Headers
@@ -14,19 +14,19 @@ import Test.HTTPure.TestHelpers ((?=))
 sendSpec :: TestHelpers.Test
 sendSpec = Spec.describe "send" do
   Spec.it "writes the headers" do
-    header <- EffClass.liftEff do
+    header <- EffectClass.liftEffect do
       httpResponse <- TestHelpers.mockResponse
       Response.send httpResponse mockResponse
       pure $ TestHelpers.getResponseHeader "Test" httpResponse
     header ?= "test"
   Spec.it "writes the status" do
-    status <- EffClass.liftEff do
+    status <- EffectClass.liftEffect do
       httpResponse <- TestHelpers.mockResponse
       Response.send httpResponse mockResponse
       pure $ TestHelpers.getResponseStatus httpResponse
     status ?= 123
   Spec.it "writes the body" do
-    body <- EffClass.liftEff do
+    body <- EffectClass.liftEffect do
       httpResponse <- TestHelpers.mockResponse
       Response.send httpResponse mockResponse
       pure $ TestHelpers.getResponseBody httpResponse

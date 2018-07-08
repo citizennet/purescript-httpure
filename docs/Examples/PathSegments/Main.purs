@@ -2,7 +2,7 @@ module Examples.PathSegments.Main where
 
 import Prelude
 
-import Control.Monad.Eff.Console as Console
+import Effect.Console as Console
 import HTTPure as HTTPure
 import HTTPure ((!@))
 
@@ -15,13 +15,13 @@ portS :: String
 portS = show port
 
 -- | Specify the routes
-router :: forall e. HTTPure.Request -> HTTPure.ResponseM e
+router :: HTTPure.Request -> HTTPure.ResponseM
 router { path }
   | path !@ 0 == "segment" = HTTPure.ok $ path !@ 1
   | otherwise              = HTTPure.ok $ show path
 
 -- | Boot up the server
-main :: forall e. HTTPure.ServerM (console :: Console.CONSOLE | e)
+main :: HTTPure.ServerM
 main = HTTPure.serve port router do
   Console.log $ " ┌───────────────────────────────────────────────┐"
   Console.log $ " │ Server now up on port " <> portS <> "                    │"

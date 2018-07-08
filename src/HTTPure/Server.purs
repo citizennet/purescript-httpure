@@ -1,6 +1,5 @@
 module HTTPure.Server
   ( ServerM
-  , SecureServerM
   , serve
   , serve'
   , serveSecure
@@ -9,66 +8,57 @@ module HTTPure.Server
 
 import Prelude
 
-import Control.Monad.Aff as Aff
-import Control.Monad.Eff as Eff
-import Control.Monad.Eff.Class as EffClass
+import Effect as Effect
+import Effect.Aff as Aff
+import Effect.Class as EffectClass
 import Data.Maybe as Maybe
 import Data.Options ((:=), Options)
 import Node.Encoding as Encoding
-import Node.FS as FS
 import Node.FS.Sync as FSSync
 import Node.HTTP as HTTP
 import Node.HTTP.Secure as HTTPS
 
-import HTTPure.HTTPureEffects as HTTPureEffects
 import HTTPure.Request as Request
 import HTTPure.Response as Response
 
 -- | The `ServerM` type simply conveniently wraps up an HTTPure monad that
 -- | returns a `Unit`. This type is the return type of the HTTPure serve and
 -- | related methods.
-type ServerM e = Eff.Eff (HTTPureEffects.HTTPureEffects e) Unit
-
--- | The `SecureServerM` type is the same as the `ServerM` type, but it includes
--- | effects for working with the filesystem (to load the key and certificate).
-type SecureServerM e = ServerM (fs :: FS.FS | e)
+type ServerM = Effect.Effect Unit
 
 -- | This function takes a method which takes a `Request` and returns a
 -- | `ResponseM`, an HTTP `Request`, and an HTTP `Response`. It runs the
 -- | request, extracts the `Response` from the `ResponseM`, and sends the
 -- | `Response` to the HTTP `Response`.
-handleRequest :: forall e.
-                 (Request.Request -> Response.ResponseM e) ->
+handleRequest :: (Request.Request -> Response.ResponseM) ->
                  HTTP.Request ->
                  HTTP.Response ->
-                 ServerM e
+                 ServerM
 handleRequest router request response =
   void $ Aff.runAff (\_ -> pure unit) do
     req <- Request.fromHTTPRequest request
-    router req >>= Response.send response >>> EffClass.liftEff
+    router req >>= Response.send response >>> EffectClass.liftEffect
 
 -- | Given a `ListenOptions` object, a function mapping `Request` to
 -- | `ResponseM`, and a `ServerM` containing effects to run on boot, creates and
 -- | runs a HTTPure server without SSL.
-serve' :: forall e.
-          HTTP.ListenOptions ->
-          (Request.Request -> Response.ResponseM e) ->
-          ServerM e ->
-          ServerM e
+serve' :: HTTP.ListenOptions ->
+          (Request.Request -> Response.ResponseM) ->
+          ServerM ->
+          ServerM
 serve' options router onStarted =
   HTTP.createServer (handleRequest router) >>= \server ->
     HTTP.listen server options onStarted
 
 -- | Given a `Options HTTPS.SSLOptions` object and a `HTTP.ListenOptions`
--- | object, a function mapping `Request` to `ResponseM`, and a `SecureServerM`
+-- | object, a function mapping `Request` to `ResponseM`, and a `ServerM`
 -- | containing effects to run on boot, creates and runs a HTTPure server with
 -- | SSL.
-serveSecure' :: forall e.
-                Options HTTPS.SSLOptions ->
+serveSecure' :: Options HTTPS.SSLOptions ->
                 HTTP.ListenOptions ->
-                (Request.Request -> Response.ResponseM  (fs :: FS.FS | e)) ->
-                SecureServerM e ->
-                SecureServerM e
+                (Request.Request -> Response.ResponseM) ->
+                ServerM ->
+                ServerM
 serveSecure' sslOptions options router onStarted =
   HTTPS.createServer sslOptions (handleRequest router) >>= \server ->
     HTTP.listen server options onStarted
@@ -86,11 +76,10 @@ listenOptions port =
 -- | `ResponseM`, and a `ServerM` containing effects to run after the server has
 -- | booted (usually logging). Returns an `ServerM` containing the server's
 -- | effects.
-serve :: forall e.
-         Int ->
-         (Request.Request -> Response.ResponseM e) ->
-         ServerM e ->
-         ServerM e
+serve :: Int ->
+         (Request.Request -> Response.ResponseM) ->
+         ServerM ->
+         ServerM
 serve = serve' <<< listenOptions
 
 -- | Create and start an SSL server. This method is the same as `serve`, but
@@ -100,13 +89,12 @@ serve = serve' <<< listenOptions
 -- | 3. A path to a private key file
 -- | 4. A handler method which maps `Request` to `ResponseM`
 -- | 5. A callback to call when the server is up
-serveSecure :: forall e.
-               Int ->
+serveSecure :: Int ->
                String ->
                String ->
-               (Request.Request -> Response.ResponseM (fs :: FS.FS | e)) ->
-               SecureServerM e ->
-               SecureServerM e
+               (Request.Request -> Response.ResponseM) ->
+               ServerM ->
+               ServerM
 serveSecure port cert key router onStarted = do
   cert' <- FSSync.readTextFile Encoding.UTF8 cert
   key' <- FSSync.readTextFile Encoding.UTF8 key

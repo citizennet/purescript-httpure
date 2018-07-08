@@ -2,7 +2,7 @@ module Examples.SSL.Main where
 
 import Prelude
 
-import Control.Monad.Eff.Console as Console
+import Effect.Console as Console
 import HTTPure as HTTPure
 
 -- | Serve the example server on this port
@@ -22,11 +22,11 @@ key :: String
 key = "./docs/Examples/SSL/Key.key"
 
 -- | Say 'hello world!' when run
-sayHello :: forall e. HTTPure.Request -> HTTPure.ResponseM e
+sayHello :: HTTPure.Request -> HTTPure.ResponseM
 sayHello _ = HTTPure.ok "hello world!"
 
 -- | Boot up the server
-main :: forall e. HTTPure.SecureServerM (console :: Console.CONSOLE | e)
+main :: HTTPure.ServerM
 main = HTTPure.serveSecure port cert key sayHello do
   Console.log $ " ┌───────────────────────────────────────────┐"
   Console.log $ " │ Server now up on port " <> portS <> "                │"

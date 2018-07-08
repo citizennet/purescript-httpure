@@ -2,7 +2,7 @@ module Examples.QueryParameters.Main where
 
 import Prelude
 
-import Control.Monad.Eff.Console as Console
+import Effect.Console as Console
 import HTTPure as HTTPure
 import HTTPure ((!@), (!?))
 
@@ -15,14 +15,14 @@ portS :: String
 portS = show port
 
 -- | Specify the routes
-router :: forall e. HTTPure.Request -> HTTPure.ResponseM e
+router :: HTTPure.Request -> HTTPure.ResponseM
 router { query }
   | query !? "foo"           = HTTPure.ok "foo"
   | query !@ "bar" == "test" = HTTPure.ok "bar"
   | otherwise                = HTTPure.ok $ query !@ "baz"
 
 -- | Boot up the server
-main :: forall e. HTTPure.ServerM (console :: Console.CONSOLE | e)
+main :: HTTPure.ServerM
 main = HTTPure.serve port router do
   Console.log $ " ┌────────────────────────────────────────┐"
   Console.log $ " │ Server now up on port " <> portS <> "             │"

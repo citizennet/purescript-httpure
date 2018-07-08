@@ -2,7 +2,7 @@ module Test.HTTPure.BodySpec where
 
 import Prelude
 
-import Control.Monad.Eff.Class as EffClass
+import Effect.Class as EffectClass
 import Test.Spec as Spec
 
 import HTTPure.Body as Body
@@ -20,7 +20,7 @@ readSpec = Spec.describe "read" do
 writeSpec :: TestHelpers.Test
 writeSpec = Spec.describe "write" do
   Spec.it "writes the string to the Response body" do
-    body <- EffClass.liftEff do
+    body <- EffectClass.liftEffect do
       resp <- TestHelpers.mockResponse
       Body.write resp "test"
       pure $ TestHelpers.getResponseBody resp

@@ -3,7 +3,7 @@ module Test.HTTPure.LookupSpec where
 import Prelude
 
 import Data.Maybe as Maybe
-import Data.StrMap as StrMap
+import Foreign.Object as Object
 
 import Test.Spec as Spec
 
@@ -39,20 +39,20 @@ lookupArraySpec = Spec.describe "lookupArray" do
     Spec.it "is Nothing" do
       (([ "one", "two", "three" ] !! 4) :: Maybe.Maybe String) ?= Maybe.Nothing
 
-lookupStrMapSpec :: TestHelpers.Test
-lookupStrMapSpec = Spec.describe "lookupStrMap" do
-  Spec.describe "when the key is in the StrMap" do
+lookupMapSpec :: TestHelpers.Test
+lookupMapSpec = Spec.describe "lookupMap" do
+  Spec.describe "when the key is in the Map" do
     Spec.it "is Just the value at the given key" do
-      mockStrMap !! "foo" ?= Maybe.Just "bar"
-  Spec.describe "when the key is not in the StrMap" do
+      mockMap !! "foo" ?= Maybe.Just "bar"
+  Spec.describe "when the key is not in the Map" do
     Spec.it "is Nothing" do
-      ((mockStrMap !! "baz") :: Maybe.Maybe String) ?= Maybe.Nothing
+      ((mockMap !! "baz") :: Maybe.Maybe String) ?= Maybe.Nothing
   where
-    mockStrMap = StrMap.singleton "foo" "bar"
+    mockMap = Object.singleton "foo" "bar"
 
 lookupSpec :: TestHelpers.Test
 lookupSpec = Spec.describe "Lookup" do
   atSpec
   hasSpec
   lookupArraySpec
-  lookupStrMapSpec
+  lookupMapSpec

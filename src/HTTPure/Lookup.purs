@@ -10,7 +10,7 @@ import Prelude
 import Data.Array as Array
 import Data.Maybe as Maybe
 import Data.Monoid as Monoid
-import Data.StrMap as StrMap
+import Foreign.Object as Object
 
 -- | Types that implement the `Lookup` class can be looked up by some key to
 -- | retrieve some value. For instance, you could have an implementation for
@@ -32,11 +32,11 @@ infixl 8 lookup as !!
 instance lookupArray :: Lookup (Array t) Int t where
   lookup = Array.index
 
--- | The instance of `Lookup` for a `StrMap` just uses `StrMap.lookup` (but
--- | flipped, because `StrMap.lookup` expects the key first, which would end up
+-- | The instance of `Lookup` for a `Object` just uses `Object.lookup` (but
+-- | flipped, because `Object.lookup` expects the key first, which would end up
 -- | with a really weird API for `!!`).
-instance lookupStrMap :: Lookup (StrMap.StrMap t) String t where
-  lookup = flip StrMap.lookup
+instance lookupObject :: Lookup (Object.Object t) String t where
+  lookup = flip Object.lookup
 
 -- | This simple helper works on any `Lookup` instance where the return type is
 -- | a `Monoid`, and is the same as `lookup` except that it returns a `t`
