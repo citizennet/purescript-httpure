@@ -2,7 +2,7 @@ module Test.HTTPure.StatusSpec where
 
 import Prelude
 
-import Control.Monad.Eff.Class as EffClass
+import Effect.Class as EffectClass
 import Test.Spec as Spec
 
 import HTTPure.Status as Status
@@ -13,7 +13,7 @@ import Test.HTTPure.TestHelpers ((?=))
 writeSpec :: TestHelpers.Test
 writeSpec = Spec.describe "write" do
   Spec.it "writes the given status code" do
-    status <- EffClass.liftEff do
+    status <- EffectClass.liftEffect do
       mock <- TestHelpers.mockResponse
       Status.write mock 123
       pure $ TestHelpers.getResponseStatus mock

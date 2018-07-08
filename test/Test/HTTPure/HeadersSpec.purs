@@ -2,7 +2,7 @@ module Test.HTTPure.HeadersSpec where
 
 import Prelude
 
-import Control.Monad.Eff.Class as EffClass
+import Effect.Class as EffectClass
 import Data.Maybe as Maybe
 import Data.Tuple as Tuple
 import Test.Spec as Spec
@@ -69,11 +69,11 @@ appendSpec = Spec.describe "append" do
 readSpec :: TestHelpers.Test
 readSpec = Spec.describe "read" do
   Spec.describe "with no headers" do
-    Spec.it "is an empty StrMap" do
+    Spec.it "is an empty Map" do
       request <- TestHelpers.mockRequest "" "" "" []
       Headers.read request ?= Headers.empty
   Spec.describe "with headers" do
-    Spec.it "is an StrMap with the contents of the headers" do
+    Spec.it "is a Map with the contents of the headers" do
       let testHeader = [Tuple.Tuple "X-Test" "test"]
       request <- TestHelpers.mockRequest "" "" "" testHeader
       Headers.read request ?= Headers.headers testHeader
@@ -81,7 +81,7 @@ readSpec = Spec.describe "read" do
 writeSpec :: TestHelpers.Test
 writeSpec = Spec.describe "write" do
   Spec.it "writes the headers to the response" do
-    header <- EffClass.liftEff do
+    header <- EffectClass.liftEffect do
       mock <- TestHelpers.mockResponse
       Headers.write mock $ Headers.header "X-Test" "test"
       pure $ TestHelpers.getResponseHeader "X-Test" mock
@@ -89,7 +89,7 @@ writeSpec = Spec.describe "write" do
 
 emptySpec :: TestHelpers.Test
 emptySpec = Spec.describe "empty" do
-  Spec.it "is a empty StrMap in an empty Headers" do
+  Spec.it "is an empty Map in an empty Headers" do
     show Headers.empty ?= "\n"
 
 headerSpec :: TestHelpers.Test

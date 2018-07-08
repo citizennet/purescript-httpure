@@ -2,8 +2,8 @@ module Examples.Middleware.Main where
 
 import Prelude
 
-import Control.Monad.Eff.Class as EffClass
-import Control.Monad.Eff.Console as Console
+import Effect.Class as EffectClass
+import Effect.Console as Console
 import HTTPure as HTTPure
 
 -- | Serve the example server on this port
@@ -15,25 +15,22 @@ portS :: String
 portS = show port
 
 -- | A middleware that logs at the beginning and end of each request
-loggingMiddleware :: forall e.
-                     (HTTPure.Request ->
-                      HTTPure.ResponseM (console :: Console.CONSOLE | e)) ->
+loggingMiddleware :: (HTTPure.Request -> HTTPure.ResponseM) ->
                      HTTPure.Request ->
-                     HTTPure.ResponseM (console :: Console.CONSOLE | e)
+                     HTTPure.ResponseM
 loggingMiddleware router request = do
-  EffClass.liftEff $ Console.log $ "Request starting for " <> path
+  EffectClass.liftEffect $ Console.log $ "Request starting for " <> path
   response <- router request
-  EffClass.liftEff $ Console.log $ "Request ending for " <> path
+  EffectClass.liftEffect $ Console.log $ "Request ending for " <> path
   pure response
   where
     path = HTTPure.fullPath request
 
 -- | A middleware that adds the X-Middleware header to the response, if it
 -- | wasn't already in the response
-headerMiddleware :: forall e.
-                    (HTTPure.Request -> HTTPure.ResponseM e) ->
+headerMiddleware :: (HTTPure.Request -> HTTPure.ResponseM) ->
                     HTTPure.Request ->
-                    HTTPure.ResponseM e
+                    HTTPure.ResponseM
 headerMiddleware router request = do
   response <- router request
   HTTPure.response' response.status (header <> response.headers) response.body
@@ -42,19 +39,18 @@ headerMiddleware router request = do
 
 -- | A middleware that sends the body "Middleware!" instead of running the
 -- | router when requesting /middleware
-pathMiddleware :: forall e.
-                  (HTTPure.Request -> HTTPure.ResponseM e) ->
+pathMiddleware :: (HTTPure.Request -> HTTPure.ResponseM) ->
                   HTTPure.Request ->
-                  HTTPure.ResponseM e
+                  HTTPure.ResponseM
 pathMiddleware _ { path: [ "middleware" ] } = HTTPure.ok "Middleware!"
 pathMiddleware router request = router request
 
 -- | Say 'hello' when run, and add a default value to the X-Middleware header
-sayHello :: forall e. HTTPure.Request -> HTTPure.ResponseM e
+sayHello :: HTTPure.Request -> HTTPure.ResponseM
 sayHello _ = HTTPure.ok' (HTTPure.header "X-Middleware" "router") "hello"
 
 -- | Boot up the server
-main :: forall e. HTTPure.ServerM (console :: Console.CONSOLE | e)
+main :: HTTPure.ServerM
 main = HTTPure.serve port (middlewares sayHello) do
   Console.log $ " ┌───────────────────────────────────────┐"
   Console.log $ " │ Server now up on port " <> portS <> "            │"

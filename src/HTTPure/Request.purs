@@ -6,14 +6,13 @@ module HTTPure.Request
 
 import Prelude
 
-import Control.Monad.Aff as Aff
+import Effect.Aff as Aff
 import Data.String as String
-import Data.StrMap as StrMap
+import Foreign.Object as Object
 import Node.HTTP as HTTP
 
 import HTTPure.Body as Body
 import HTTPure.Headers as Headers
-import HTTPure.HTTPureEffects as HTTPureEffects
 import HTTPure.Method as Method
 import HTTPure.Path as Path
 import HTTPure.Query as Query
@@ -35,16 +34,14 @@ fullPath :: Request -> String
 fullPath request = "/" <> path <> questionMark <> queryParams
   where
     path = String.joinWith "/" request.path
-    questionMark = if StrMap.isEmpty request.query then "" else "?"
+    questionMark = if Object.isEmpty request.query then "" else "?"
     queryParams = String.joinWith "&" queryParamsArr
-    queryParamsArr = StrMap.toArrayWithKey stringifyQueryParam request.query
+    queryParamsArr = Object.toArrayWithKey stringifyQueryParam request.query
     stringifyQueryParam key value = key <> "=" <> value
 
 -- | Given an HTTP `Request` object, this method will convert it to an HTTPure
 -- | `Request` object.
-fromHTTPRequest :: forall e.
-                   HTTP.Request ->
-                   Aff.Aff (HTTPureEffects.HTTPureEffects e) Request
+fromHTTPRequest :: HTTP.Request -> Aff.Aff Request
 fromHTTPRequest request = do
   body <- Body.read request
   pure $

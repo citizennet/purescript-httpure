@@ -3,10 +3,8 @@ module HTTPure.Method
   , read
   ) where
 
-import Data.Eq as Eq
-import Data.Generic as Generic
+import Prelude
 import Node.HTTP as HTTP
-import Data.Show as Show
 
 -- | These are the HTTP methods that HTTPure understands.
 data Method
@@ -21,12 +19,10 @@ data Method
   | Patch
 
 -- | If two `Methods` are the same constructor, they are equal.
-derive instance generic :: Generic.Generic Method
-instance eq :: Eq.Eq Method where
-  eq = Generic.gEq
+derive instance eqMethod :: Eq Method
 
 -- | Convert a constructor to a `String`.
-instance show :: Show.Show Method where
+instance showMethod :: Show Method where
   show Get = "Get"
   show Post = "Post"
   show Put = "Put"

@@ -78,19 +78,18 @@ module HTTPure.Response
 
 import Prelude
 
-import Control.Monad.Eff as Eff
-import Control.Monad.Aff as Aff
+import Effect as Effect
+import Effect.Aff as Aff
 import Node.HTTP as HTTP
 
 import HTTPure.Body as Body
 import HTTPure.Headers as Headers
-import HTTPure.HTTPureEffects as HTTPureEffects
 import HTTPure.Status as Status
 
 -- | The `ResponseM` type simply conveniently wraps up an HTTPure monad that
 -- | returns a response. This type is the return type of all router/route
 -- | methods.
-type ResponseM e = Aff.Aff (HTTPureEffects.HTTPureEffects e) Response
+type ResponseM = Aff.Aff Response
 
 -- | A `Response` is a status code, headers, and a body.
 type Response =
@@ -102,10 +101,7 @@ type Response =
 -- | Given an HTTP `Response` and a HTTPure `Response`, this method will return
 -- | a monad encapsulating writing the HTTPure `Response` to the HTTP `Response`
 -- | and closing the HTTP `Response`.
-send :: forall e.
-        HTTP.Response ->
-        Response ->
-        Eff.Eff (HTTPureEffects.HTTPureEffects e) Unit
+send :: HTTP.Response -> Response -> Effect.Effect Unit
 send httpresponse { status, headers, body } = do
   Status.write httpresponse $ status
   Headers.write httpresponse $ headers
@@ -113,23 +109,22 @@ send httpresponse { status, headers, body } = do
 
 -- | For custom response statuses or providing a body for response codes that
 -- | don't typically send one.
-response :: forall e. Status.Status -> Body.Body -> ResponseM e
+response :: Status.Status -> Body.Body -> ResponseM
 response status = response' status Headers.empty
 
 -- | The same as `response` but with headers.
-response' :: forall e.
-             Status.Status ->
+response' :: Status.Status ->
              Headers.Headers ->
              Body.Body ->
-             ResponseM e
+             ResponseM
 response' status headers body = pure $ { status, headers, body }
 
 -- | The same as `response` but without a body.
-emptyResponse :: forall e. Status.Status -> ResponseM e
+emptyResponse :: Status.Status -> ResponseM
 emptyResponse status = emptyResponse' status Headers.empty
 
 -- | The same as `emptyResponse` but with headers.
-emptyResponse' :: forall e. Status.Status -> Headers.Headers -> ResponseM e
+emptyResponse' :: Status.Status -> Headers.Headers -> ResponseM
 emptyResponse' status headers = response' status headers ""
 
 ---------
@@ -137,27 +132,27 @@ emptyResponse' status headers = response' status headers ""
 ---------
 
 -- | 100
-continue :: forall e. ResponseM e
+continue :: ResponseM
 continue = continue' Headers.empty
 
 -- | 100 with headers
-continue' :: forall e. Headers.Headers -> ResponseM e
+continue' :: Headers.Headers -> ResponseM
 continue' = emptyResponse' Status.continue
 
 -- | 101
-switchingProtocols :: forall e. ResponseM e
+switchingProtocols :: ResponseM
 switchingProtocols = switchingProtocols' Headers.empty
 
 -- | 101 with headers
-switchingProtocols' :: forall e. Headers.Headers -> ResponseM e
+switchingProtocols' :: Headers.Headers -> ResponseM
 switchingProtocols' = emptyResponse' Status.switchingProtocols
 
 -- | 102
-processing :: forall e. ResponseM e
+processing :: ResponseM
 processing = processing' Headers.empty
 
 -- | 102 with headers
-processing' :: forall e. Headers.Headers -> ResponseM e
+processing' :: Headers.Headers -> ResponseM
 processing' = emptyResponse' Status.processing
 
 ---------
@@ -165,86 +160,85 @@ processing' = emptyResponse' Status.processing
 ---------
 
 -- | 200
-ok :: forall e. Body.Body -> ResponseM e
+ok :: Body.Body -> ResponseM
 ok = ok' Headers.empty
 
 -- | 200 with headers
-ok' :: forall e. Headers.Headers -> Body.Body -> ResponseM e
+ok' :: Headers.Headers -> Body.Body -> ResponseM
 ok' = response' Status.ok
 
 -- | 201
-created :: forall e. ResponseM e
+created :: ResponseM
 created = created' Headers.empty
 
 -- | 201 with headers
-created' :: forall e. Headers.Headers -> ResponseM e
+created' :: Headers.Headers -> ResponseM
 created' = emptyResponse' Status.created
 
 -- | 202
-accepted :: forall e. ResponseM e
+accepted :: ResponseM
 accepted = accepted' Headers.empty
 
 -- | 202 with headers
-accepted' :: forall e. Headers.Headers -> ResponseM e
+accepted' :: Headers.Headers -> ResponseM
 accepted' = emptyResponse' Status.accepted
 
 -- | 203
-nonAuthoritativeInformation :: forall e. Body.Body -> ResponseM e
+nonAuthoritativeInformation :: Body.Body -> ResponseM
 nonAuthoritativeInformation = nonAuthoritativeInformation' Headers.empty
 
 -- | 203 with headers
-nonAuthoritativeInformation' :: forall e.
-                                Headers.Headers ->
+nonAuthoritativeInformation' :: Headers.Headers ->
                                 Body.Body ->
-                                ResponseM e
+                                ResponseM
 nonAuthoritativeInformation' = response' Status.nonAuthoritativeInformation
 
 -- | 204
-noContent :: forall e. ResponseM e
+noContent :: ResponseM
 noContent = noContent' Headers.empty
 
 -- | 204 with headers
-noContent' :: forall e. Headers.Headers -> ResponseM e
+noContent' :: Headers.Headers -> ResponseM
 noContent' = emptyResponse' Status.noContent
 
 -- | 205
-resetContent :: forall e. ResponseM e
+resetContent :: ResponseM
 resetContent = resetContent' Headers.empty
 
 -- | 205 with headers
-resetContent' :: forall e. Headers.Headers -> ResponseM e
+resetContent' :: Headers.Headers -> ResponseM
 resetContent' = emptyResponse' Status.resetContent
 
 -- | 206
-partialContent :: forall e. Body.Body -> ResponseM e
+partialContent :: Body.Body -> ResponseM
 partialContent = partialContent' Headers.empty
 
 -- | 206 with headers
-partialContent' :: forall e. Headers.Headers -> Body.Body -> ResponseM e
+partialContent' :: Headers.Headers -> Body.Body -> ResponseM
 partialContent' = response' Status.partialContent
 
 -- | 207
-multiStatus :: forall e. Body.Body -> ResponseM e
+multiStatus :: Body.Body -> ResponseM
 multiStatus = multiStatus' Headers.empty
 
 -- | 207 with headers
-multiStatus' :: forall e. Headers.Headers -> Body.Body -> ResponseM e
+multiStatus' :: Headers.Headers -> Body.Body -> ResponseM
 multiStatus' = response' Status.multiStatus
 
 -- | 208
-alreadyReported :: forall e. ResponseM e
+alreadyReported :: ResponseM
 alreadyReported = alreadyReported' Headers.empty
 
 -- | 208 with headers
-alreadyReported' :: forall e. Headers.Headers -> ResponseM e
+alreadyReported' :: Headers.Headers -> ResponseM
 alreadyReported' = emptyResponse' Status.alreadyReported
 
 -- | 226
-iMUsed :: forall e. Body.Body -> ResponseM e
+iMUsed :: Body.Body -> ResponseM
 iMUsed = iMUsed' Headers.empty
 
 -- | 226 with headers
-iMUsed' :: forall e. Headers.Headers -> Body.Body -> ResponseM e
+iMUsed' :: Headers.Headers -> Body.Body -> ResponseM
 iMUsed' = response' Status.iMUsed
 
 ---------
@@ -252,67 +246,67 @@ iMUsed' = response' Status.iMUsed
 ---------
 
 -- | 300
-multipleChoices :: forall e. Body.Body -> ResponseM e
+multipleChoices :: Body.Body -> ResponseM
 multipleChoices = multipleChoices' Headers.empty
 
 -- | 300 with headers
-multipleChoices' :: forall e. Headers.Headers -> Body.Body -> ResponseM e
+multipleChoices' :: Headers.Headers -> Body.Body -> ResponseM
 multipleChoices' = response' Status.multipleChoices
 
 -- | 301
-movedPermanently :: forall e. Body.Body -> ResponseM e
+movedPermanently :: Body.Body -> ResponseM
 movedPermanently = movedPermanently' Headers.empty
 
 -- | 301 with headers
-movedPermanently' :: forall e. Headers.Headers -> Body.Body -> ResponseM e
+movedPermanently' :: Headers.Headers -> Body.Body -> ResponseM
 movedPermanently' = response' Status.movedPermanently
 
 -- | 302
-found :: forall e. Body.Body -> ResponseM e
+found :: Body.Body -> ResponseM
 found = found' Headers.empty
 
 -- | 302 with headers
-found' :: forall e. Headers.Headers -> Body.Body -> ResponseM e
+found' :: Headers.Headers -> Body.Body -> ResponseM
 found' = response' Status.found
 
 -- | 303
-seeOther :: forall e. Body.Body -> ResponseM e
+seeOther :: Body.Body -> ResponseM
 seeOther = seeOther' Headers.empty
 
 -- | 303 with headers
-seeOther' :: forall e. Headers.Headers -> Body.Body -> ResponseM e
+seeOther' :: Headers.Headers -> Body.Body -> ResponseM
 seeOther' = response' Status.seeOther
 
 -- | 304
-notModified :: forall e. ResponseM e
+notModified :: ResponseM
 notModified = notModified' Headers.empty
 
 -- | 304 with headers
-notModified' :: forall e. Headers.Headers -> ResponseM e
+notModified' :: Headers.Headers -> ResponseM
 notModified' = emptyResponse' Status.notModified
 
 -- | 305
-useProxy :: forall e. Body.Body -> ResponseM e
+useProxy :: Body.Body -> ResponseM
 useProxy = useProxy' Headers.empty
 
 -- | 305 with headers
-useProxy' :: forall e. Headers.Headers -> Body.Body -> ResponseM e
+useProxy' :: Headers.Headers -> Body.Body -> ResponseM
 useProxy' = response' Status.useProxy
 
 -- | 307
-temporaryRedirect :: forall e. Body.Body -> ResponseM e
+temporaryRedirect :: Body.Body -> ResponseM
 temporaryRedirect = temporaryRedirect' Headers.empty
 
 -- | 307 with headers
-temporaryRedirect' :: forall e. Headers.Headers -> Body.Body -> ResponseM e
+temporaryRedirect' :: Headers.Headers -> Body.Body -> ResponseM
 temporaryRedirect' = response' Status.temporaryRedirect
 
 -- | 308
-permanentRedirect :: forall e. Body.Body -> ResponseM e
+permanentRedirect :: Body.Body -> ResponseM
 permanentRedirect = permanentRedirect' Headers.empty
 
 -- | 308 with headers
-permanentRedirect' :: forall e. Headers.Headers -> Body.Body -> ResponseM e
+permanentRedirect' :: Headers.Headers -> Body.Body -> ResponseM
 permanentRedirect' = response' Status.permanentRedirect
 
 
@@ -321,227 +315,227 @@ permanentRedirect' = response' Status.permanentRedirect
 ---------
 
 -- | 400
-badRequest :: forall e. Body.Body -> ResponseM e
+badRequest :: Body.Body -> ResponseM
 badRequest = badRequest' Headers.empty
 
 -- | 400 with headers
-badRequest' :: forall e. Headers.Headers -> Body.Body -> ResponseM e
+badRequest' :: Headers.Headers -> Body.Body -> ResponseM
 badRequest' = response' Status.badRequest
 
 -- | 401
-unauthorized :: forall e. ResponseM e
+unauthorized :: ResponseM
 unauthorized = unauthorized' Headers.empty
 
 -- | 401 with headers
-unauthorized' :: forall e. Headers.Headers -> ResponseM e
+unauthorized' :: Headers.Headers -> ResponseM
 unauthorized' = emptyResponse' Status.unauthorized
 
 -- | 402
-paymentRequired :: forall e. ResponseM e
+paymentRequired :: ResponseM
 paymentRequired = paymentRequired' Headers.empty
 
 -- | 402 with headers
-paymentRequired' :: forall e. Headers.Headers -> ResponseM e
+paymentRequired' :: Headers.Headers -> ResponseM
 paymentRequired' = emptyResponse' Status.paymentRequired
 
 -- | 403
-forbidden :: forall e. ResponseM e
+forbidden :: ResponseM
 forbidden = forbidden' Headers.empty
 
 -- | 403 with headers
-forbidden' :: forall e. Headers.Headers -> ResponseM e
+forbidden' :: Headers.Headers -> ResponseM
 forbidden' = emptyResponse' Status.forbidden
 
 -- | 404
-notFound :: forall e. ResponseM e
+notFound :: ResponseM
 notFound = notFound' Headers.empty
 
 -- | 404 with headers
-notFound' :: forall e. Headers.Headers -> ResponseM e
+notFound' :: Headers.Headers -> ResponseM
 notFound' = emptyResponse' Status.notFound
 
 -- | 405
-methodNotAllowed :: forall e. ResponseM e
+methodNotAllowed :: ResponseM
 methodNotAllowed = methodNotAllowed' Headers.empty
 
 -- | 405 with headers
-methodNotAllowed' :: forall e. Headers.Headers -> ResponseM e
+methodNotAllowed' :: Headers.Headers -> ResponseM
 methodNotAllowed' = emptyResponse' Status.methodNotAllowed
 
 -- | 406
-notAcceptable :: forall e. ResponseM e
+notAcceptable :: ResponseM
 notAcceptable = notAcceptable' Headers.empty
 
 -- | 406 with headers
-notAcceptable' :: forall e. Headers.Headers -> ResponseM e
+notAcceptable' :: Headers.Headers -> ResponseM
 notAcceptable' = emptyResponse' Status.notAcceptable
 
 -- | 407
-proxyAuthenticationRequired :: forall e. ResponseM e
+proxyAuthenticationRequired :: ResponseM
 proxyAuthenticationRequired = proxyAuthenticationRequired' Headers.empty
 
 -- | 407 with headers
-proxyAuthenticationRequired' :: forall e. Headers.Headers -> ResponseM e
+proxyAuthenticationRequired' :: Headers.Headers -> ResponseM
 proxyAuthenticationRequired' = emptyResponse' Status.proxyAuthenticationRequired
 
 -- | 408
-requestTimeout :: forall e. ResponseM e
+requestTimeout :: ResponseM
 requestTimeout = requestTimeout' Headers.empty
 
 -- | 408 with headers
-requestTimeout' :: forall e. Headers.Headers -> ResponseM e
+requestTimeout' :: Headers.Headers -> ResponseM
 requestTimeout' = emptyResponse' Status.requestTimeout
 
 -- | 409
-conflict :: forall e. Body.Body -> ResponseM e
+conflict :: Body.Body -> ResponseM
 conflict = conflict' Headers.empty
 
 -- | 409 with headers
-conflict' :: forall e. Headers.Headers -> Body.Body -> ResponseM e
+conflict' :: Headers.Headers -> Body.Body -> ResponseM
 conflict' = response' Status.conflict
 
 -- | 410
-gone :: forall e. ResponseM e
+gone :: ResponseM
 gone = gone' Headers.empty
 
 -- | 410 with headers
-gone' :: forall e. Headers.Headers -> ResponseM e
+gone' :: Headers.Headers -> ResponseM
 gone' = emptyResponse' Status.gone
 
 -- | 411
-lengthRequired :: forall e. ResponseM e
+lengthRequired :: ResponseM
 lengthRequired = lengthRequired' Headers.empty
 
 -- | 411 with headers
-lengthRequired' :: forall e. Headers.Headers -> ResponseM e
+lengthRequired' :: Headers.Headers -> ResponseM
 lengthRequired' = emptyResponse' Status.lengthRequired
 
 -- | 412
-preconditionFailed :: forall e. ResponseM e
+preconditionFailed :: ResponseM
 preconditionFailed = preconditionFailed' Headers.empty
 
 -- | 412 with headers
-preconditionFailed' :: forall e. Headers.Headers -> ResponseM e
+preconditionFailed' :: Headers.Headers -> ResponseM
 preconditionFailed' = emptyResponse' Status.preconditionFailed
 
 -- | 413
-payloadTooLarge :: forall e. ResponseM e
+payloadTooLarge :: ResponseM
 payloadTooLarge = payloadTooLarge' Headers.empty
 
 -- | 413 with headers
-payloadTooLarge' :: forall e. Headers.Headers -> ResponseM e
+payloadTooLarge' :: Headers.Headers -> ResponseM
 payloadTooLarge' = emptyResponse' Status.payloadTooLarge
 
 -- | 414
-uRITooLong :: forall e. ResponseM e
+uRITooLong :: ResponseM
 uRITooLong = uRITooLong' Headers.empty
 
 -- | 414 with headers
-uRITooLong' :: forall e. Headers.Headers -> ResponseM e
+uRITooLong' :: Headers.Headers -> ResponseM
 uRITooLong' = emptyResponse' Status.uRITooLong
 
 -- | 415
-unsupportedMediaType :: forall e. ResponseM e
+unsupportedMediaType :: ResponseM
 unsupportedMediaType = unsupportedMediaType' Headers.empty
 
 -- | 415 with headers
-unsupportedMediaType' :: forall e. Headers.Headers -> ResponseM e
+unsupportedMediaType' :: Headers.Headers -> ResponseM
 unsupportedMediaType' = emptyResponse' Status.unsupportedMediaType
 
 -- | 416
-rangeNotSatisfiable :: forall e. ResponseM e
+rangeNotSatisfiable :: ResponseM
 rangeNotSatisfiable = rangeNotSatisfiable' Headers.empty
 
 -- | 416 with headers
-rangeNotSatisfiable' :: forall e. Headers.Headers -> ResponseM e
+rangeNotSatisfiable' :: Headers.Headers -> ResponseM
 rangeNotSatisfiable' = emptyResponse' Status.rangeNotSatisfiable
 
 -- | 417
-expectationFailed :: forall e. ResponseM e
+expectationFailed :: ResponseM
 expectationFailed = expectationFailed' Headers.empty
 
 -- | 417 with headers
-expectationFailed' :: forall e. Headers.Headers -> ResponseM e
+expectationFailed' :: Headers.Headers -> ResponseM
 expectationFailed' = emptyResponse' Status.expectationFailed
 
 -- | 418
-imATeapot :: forall e. ResponseM e
+imATeapot :: ResponseM
 imATeapot = imATeapot' Headers.empty
 
 -- | 418 with headers
-imATeapot' :: forall e. Headers.Headers -> ResponseM e
+imATeapot' :: Headers.Headers -> ResponseM
 imATeapot' = emptyResponse' Status.imATeapot
 
 -- | 421
-misdirectedRequest :: forall e. ResponseM e
+misdirectedRequest :: ResponseM
 misdirectedRequest = misdirectedRequest' Headers.empty
 
 -- | 421 with headers
-misdirectedRequest' :: forall e. Headers.Headers -> ResponseM e
+misdirectedRequest' :: Headers.Headers -> ResponseM
 misdirectedRequest' = emptyResponse' Status.misdirectedRequest
 
 -- | 422
-unprocessableEntity :: forall e. ResponseM e
+unprocessableEntity :: ResponseM
 unprocessableEntity = unprocessableEntity' Headers.empty
 
 -- | 422 with headers
-unprocessableEntity' :: forall e. Headers.Headers -> ResponseM e
+unprocessableEntity' :: Headers.Headers -> ResponseM
 unprocessableEntity' = emptyResponse' Status.unprocessableEntity
 
 -- | 423
-locked :: forall e. ResponseM e
+locked :: ResponseM
 locked = locked' Headers.empty
 
 -- | 423 with headers
-locked' :: forall e. Headers.Headers -> ResponseM e
+locked' :: Headers.Headers -> ResponseM
 locked' = emptyResponse' Status.locked
 
 -- | 424
-failedDependency :: forall e. ResponseM e
+failedDependency :: ResponseM
 failedDependency = failedDependency' Headers.empty
 
 -- | 424 with headers
-failedDependency' :: forall e. Headers.Headers -> ResponseM e
+failedDependency' :: Headers.Headers -> ResponseM
 failedDependency' = emptyResponse' Status.failedDependency
 
 -- | 426
-upgradeRequired :: forall e. ResponseM e
+upgradeRequired :: ResponseM
 upgradeRequired = upgradeRequired' Headers.empty
 
 -- | 426 with headers
-upgradeRequired' :: forall e. Headers.Headers -> ResponseM e
+upgradeRequired' :: Headers.Headers -> ResponseM
 upgradeRequired' = emptyResponse' Status.upgradeRequired
 
 -- | 428
-preconditionRequired :: forall e. ResponseM e
+preconditionRequired :: ResponseM
 preconditionRequired = preconditionRequired' Headers.empty
 
 -- | 428 with headers
-preconditionRequired' :: forall e. Headers.Headers -> ResponseM e
+preconditionRequired' :: Headers.Headers -> ResponseM
 preconditionRequired' = emptyResponse' Status.preconditionRequired
 
 -- | 429
-tooManyRequests :: forall e. ResponseM e
+tooManyRequests :: ResponseM
 tooManyRequests = tooManyRequests' Headers.empty
 
 -- | 429 with headers
-tooManyRequests' :: forall e. Headers.Headers -> ResponseM e
+tooManyRequests' :: Headers.Headers -> ResponseM
 tooManyRequests' = emptyResponse' Status.tooManyRequests
 
 -- | 431
-requestHeaderFieldsTooLarge :: forall e. ResponseM e
+requestHeaderFieldsTooLarge :: ResponseM
 requestHeaderFieldsTooLarge = requestHeaderFieldsTooLarge' Headers.empty
 
 -- | 431 with headers
-requestHeaderFieldsTooLarge' :: forall e. Headers.Headers -> ResponseM e
+requestHeaderFieldsTooLarge' :: Headers.Headers -> ResponseM
 requestHeaderFieldsTooLarge' = emptyResponse' Status.requestHeaderFieldsTooLarge
 
 -- | 451
-unavailableForLegalReasons :: forall e. ResponseM e
+unavailableForLegalReasons :: ResponseM
 unavailableForLegalReasons = unavailableForLegalReasons' Headers.empty
 
 -- | 451 with headers
-unavailableForLegalReasons' :: forall e. Headers.Headers -> ResponseM e
+unavailableForLegalReasons' :: Headers.Headers -> ResponseM
 unavailableForLegalReasons' = emptyResponse' Status.unavailableForLegalReasons
 
 ---------
@@ -549,90 +543,90 @@ unavailableForLegalReasons' = emptyResponse' Status.unavailableForLegalReasons
 ---------
 
 -- | 500
-internalServerError :: forall e. Body.Body -> ResponseM e
+internalServerError :: Body.Body -> ResponseM
 internalServerError = internalServerError' Headers.empty
 
 -- | 500 with headers
-internalServerError' :: forall e. Headers.Headers -> Body.Body -> ResponseM e
+internalServerError' :: Headers.Headers -> Body.Body -> ResponseM
 internalServerError' = response' Status.internalServerError
 
 -- | 501
-notImplemented :: forall e. ResponseM e
+notImplemented :: ResponseM
 notImplemented = notImplemented' Headers.empty
 
 -- | 501 with headers
-notImplemented' :: forall e. Headers.Headers -> ResponseM e
+notImplemented' :: Headers.Headers -> ResponseM
 notImplemented' = emptyResponse' Status.notImplemented
 
 -- | 502
-badGateway :: forall e. ResponseM e
+badGateway :: ResponseM
 badGateway = badGateway' Headers.empty
 
 -- | 502 with headers
-badGateway' :: forall e. Headers.Headers -> ResponseM e
+badGateway' :: Headers.Headers -> ResponseM
 badGateway' = emptyResponse' Status.badGateway
 
 -- | 503
-serviceUnavailable :: forall e. ResponseM e
+serviceUnavailable :: ResponseM
 serviceUnavailable = serviceUnavailable' Headers.empty
 
 -- | 503 with headers
-serviceUnavailable' :: forall e. Headers.Headers -> ResponseM e
+serviceUnavailable' :: Headers.Headers -> ResponseM
 serviceUnavailable' = emptyResponse' Status.serviceUnavailable
 
 -- | 504
-gatewayTimeout :: forall e. ResponseM e
+gatewayTimeout :: ResponseM
 gatewayTimeout = gatewayTimeout' Headers.empty
 
 -- | 504 with headers
-gatewayTimeout' :: forall e. Headers.Headers -> ResponseM e
+gatewayTimeout' :: Headers.Headers -> ResponseM
 gatewayTimeout' = emptyResponse' Status.gatewayTimeout
 
 -- | 505
-hTTPVersionNotSupported :: forall e. ResponseM e
+hTTPVersionNotSupported :: ResponseM
 hTTPVersionNotSupported = hTTPVersionNotSupported' Headers.empty
 
 -- | 505 with headers
-hTTPVersionNotSupported' :: forall e. Headers.Headers -> ResponseM e
+hTTPVersionNotSupported' :: Headers.Headers -> ResponseM
 hTTPVersionNotSupported' = emptyResponse' Status.hTTPVersionNotSupported
 
 -- | 506
-variantAlsoNegotiates :: forall e. ResponseM e
+variantAlsoNegotiates :: ResponseM
 variantAlsoNegotiates = variantAlsoNegotiates' Headers.empty
 
 -- | 506 with headers
-variantAlsoNegotiates' :: forall e. Headers.Headers -> ResponseM e
+variantAlsoNegotiates' :: Headers.Headers -> ResponseM
 variantAlsoNegotiates' = emptyResponse' Status.variantAlsoNegotiates
 
 -- | 507
-insufficientStorage :: forall e. ResponseM e
+insufficientStorage :: ResponseM
 insufficientStorage = insufficientStorage' Headers.empty
 
 -- | 507 with headers
-insufficientStorage' :: forall e. Headers.Headers -> ResponseM e
+insufficientStorage' :: Headers.Headers -> ResponseM
 insufficientStorage' = emptyResponse' Status.insufficientStorage
 
 -- | 508
-loopDetected :: forall e. ResponseM e
+loopDetected :: ResponseM
 loopDetected = loopDetected' Headers.empty
 
 -- | 508 with headers
-loopDetected' :: forall e. Headers.Headers -> ResponseM e
+loopDetected' :: Headers.Headers -> ResponseM
 loopDetected' = emptyResponse' Status.loopDetected
 
 -- | 510
-notExtended :: forall e. ResponseM e
+notExtended :: ResponseM
 notExtended = notExtended' Headers.empty
 
 -- | 510 with headers
-notExtended' :: forall e. Headers.Headers -> ResponseM e
+notExtended' :: Headers.Headers -> ResponseM
 notExtended' = emptyResponse' Status.notExtended
 
 -- | 511
-networkAuthenticationRequired :: forall e. ResponseM e
+networkAuthenticationRequired :: ResponseM
 networkAuthenticationRequired = networkAuthenticationRequired' Headers.empty
 
 -- | 511 with headers
-networkAuthenticationRequired' :: forall e. Headers.Headers -> ResponseM e
+networkAuthenticationRequired' :: Headers.Headers -> ResponseM
 networkAuthenticationRequired' =
   emptyResponse' Status.networkAuthenticationRequired

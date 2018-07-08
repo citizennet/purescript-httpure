@@ -3,7 +3,7 @@ module Test.HTTPure.RequestSpec where
 import Prelude
 
 import Data.Tuple as Tuple
-import Data.StrMap as StrMap
+import Foreign.Object as Object
 import Test.Spec as Spec
 
 import HTTPure.Headers as Headers
@@ -23,7 +23,7 @@ fromHTTPRequestSpec = Spec.describe "fromHTTPRequest" do
     mock.path ?= [ "test" ]
   Spec.it "contains the correct query" do
     mock <- mockRequest
-    mock.query ?= StrMap.singleton "a" "b"
+    mock.query ?= Object.singleton "a" "b"
   Spec.it "contains the correct headers" do
     mock <- mockRequest
     mock.headers ?= Headers.headers mockHeaders
