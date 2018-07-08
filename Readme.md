@@ -42,7 +42,7 @@ import Prelude (($))
 import Effect.Console as Console
 import HTTPure as HTTPure
 
-main :: HTTPure.ServerM (console :: Console.CONSOLE)
+main :: HTTPure.ServerM
 main =
   HTTPure.serve 8080 router $ Console.log "Server now up on port 8080"
   where
