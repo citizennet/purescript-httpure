@@ -1,5 +1,5 @@
-unreleased
-==========
+0.7.0 / 2018-07-08
+==================
 - Add support for PureScript 0.12 (thanks @akheron)
 - Upgrade all dependencies (thanks @akheron)
 - Use Effect instead of Eff (thanks @akheron)
