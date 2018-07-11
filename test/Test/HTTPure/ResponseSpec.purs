@@ -19,6 +19,12 @@ sendSpec = Spec.describe "send" do
       Response.send httpResponse mockResponse
       pure $ TestHelpers.getResponseHeader "Test" httpResponse
     header ?= "test"
+  Spec.it "sets the Content-Length header" do
+    header <- EffectClass.liftEffect do
+      httpResponse <- TestHelpers.mockResponse
+      Response.send httpResponse mockResponse
+      pure $ TestHelpers.getResponseHeader "Content-Length" httpResponse
+    header ?= "4"
   Spec.it "writes the status" do
     status <- EffectClass.liftEffect do
       httpResponse <- TestHelpers.mockResponse
