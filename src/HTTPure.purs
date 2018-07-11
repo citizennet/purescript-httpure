@@ -14,7 +14,8 @@ import HTTPure.Method (Method(..))
 import HTTPure.Path (Path)
 import HTTPure.Request (Request, fullPath)
 import HTTPure.Response
-  ( ResponseM
+  ( Response
+  , ResponseM
   , response, response'
   , emptyResponse, emptyResponse'
 
