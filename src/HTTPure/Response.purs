@@ -78,6 +78,7 @@ module HTTPure.Response
 
 import Prelude
 
+import Data.String as String
 import Effect as Effect
 import Effect.Aff as Aff
 import Node.HTTP as HTTP
@@ -104,8 +105,10 @@ type Response =
 send :: HTTP.Response -> Response -> Effect.Effect Unit
 send httpresponse { status, headers, body } = do
   Status.write httpresponse $ status
-  Headers.write httpresponse $ headers
+  Headers.write httpresponse $ headers <> contentLength
   Body.write httpresponse $ body
+  where
+    contentLength = Headers.header "Content-Length" $ show $ String.length body
 
 -- | For custom response statuses or providing a body for response codes that
 -- | don't typically send one.
