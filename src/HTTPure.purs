@@ -3,15 +3,18 @@ module HTTPure
   , module HTTPure.Lookup
   , module HTTPure.Method
   , module HTTPure.Path
+  , module HTTPure.Query
   , module HTTPure.Request
   , module HTTPure.Response
   , module HTTPure.Server
+  , module HTTPure.Status
   ) where
 
 import HTTPure.Headers (Headers, empty, header, headers)
 import HTTPure.Lookup (at, (!@), has, (!?), lookup, (!!))
 import HTTPure.Method (Method(..))
 import HTTPure.Path (Path)
+import HTTPure.Query (Query)
 import HTTPure.Request (Request, fullPath)
 import HTTPure.Response
   ( Response
@@ -96,3 +99,4 @@ import HTTPure.Server
   , serveSecure
   , serveSecure'
   )
+import HTTPure.Status (Status)
