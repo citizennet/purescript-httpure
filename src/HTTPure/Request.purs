@@ -24,7 +24,7 @@ type Request =
   , path :: Path.Path
   , query :: Query.Query
   , headers :: Headers.Headers
-  , body :: Body.Body
+  , body :: String
   }
 
 -- | Return the full resolved path, including query parameters. This may not

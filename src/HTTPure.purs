@@ -20,6 +20,7 @@ import HTTPure.Response
   ( Response
   , ResponseM
   , response, response'
+  , binaryResponse, binaryResponse'
   , emptyResponse, emptyResponse'
 
   -- 1xx
