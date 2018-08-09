@@ -84,7 +84,8 @@ the [contributing guide](Contributing.md).
 ## People
 
 HTTPure is written and maintained
-by [Connor Prussin](https://connor.prussin.net).
+by [Connor Prussin](https://connor.prussin.net) and [Petri
+Lehtinen](http://www.digip.org/).
 
 We are open to accepting contributions! Please see
 the [contributing guide](./Contributing.md).
