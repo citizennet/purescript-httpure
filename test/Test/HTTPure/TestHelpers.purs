@@ -6,12 +6,15 @@ import Effect as Effect
 import Effect.Aff as Aff
 import Effect.Class as EffectClass
 import Effect.Ref as Ref
+import Data.Array as Array
 import Data.Either as Either
+import Data.List as List
 import Data.Maybe as Maybe
 import Data.Options ((:=))
 import Data.String as StringUtil
 import Data.Tuple as Tuple
 import Foreign.Object as Object
+import Node.Buffer as Buffer
 import Node.Encoding as Encoding
 import Node.HTTP as HTTP
 import Node.HTTP.Client as HTTPClient
@@ -53,19 +56,23 @@ request secure port method headers path body = Aff.makeAff \done -> do
       HTTPClient.headers  := HTTPClient.RequestHeaders headers <>
       HTTPClient.rejectUnauthorized := false
 
--- | Given an ST String buffer and a new string, concatenate that new string
--- | onto the ST buffer.
-concat :: Ref.Ref String -> String -> Effect.Effect Unit
-concat buf new = void $ Ref.modify ((<>) new) buf
+-- | Convert a request to an Aff containing the `Buffer with the response body.
+toBuffer :: HTTPClient.Response -> Aff.Aff Buffer.Buffer
+toBuffer response = Aff.makeAff \done -> do
+  let stream = HTTPClient.responseAsStream response
+  chunks <- Ref.new List.Nil
+  Stream.onData stream $ \new -> Ref.modify_ (List.Cons new) chunks
+  Stream.onEnd stream $
+    Ref.read chunks
+    >>= List.reverse >>> Array.fromFoldable >>> Buffer.concat
+    >>= Either.Right >>> done
+  pure $ Aff.nonCanceler
 
 -- | Convert a request to an Aff containing the string with the response body.
 toString :: HTTPClient.Response -> Aff.Aff String
-toString response = Aff.makeAff \done -> do
-  let stream = HTTPClient.responseAsStream response
-  buf <- Ref.new ""
-  Stream.onDataString stream Encoding.UTF8 $ concat buf
-  Stream.onEnd stream $ Ref.read buf >>= Either.Right >>> done
-  pure $ Aff.nonCanceler
+toString resp = do
+  buf <- toBuffer resp
+  EffectClass.liftEffect $ Buffer.toString Encoding.UTF8 buf
 
 -- | Run an HTTP GET with the given url and return an Aff that contains the
 -- | string with the response body.
@@ -74,6 +81,14 @@ get :: Int ->
        String ->
        Aff.Aff String
 get port headers path = request false port "GET" headers path "" >>= toString
+
+-- | Like `get` but return a response body in a `Buffer`
+getBinary :: Int ->
+             Object.Object String ->
+             String ->
+             Aff.Aff Buffer.Buffer
+getBinary port headers path =
+  request false port "GET" headers path "" >>= toBuffer
 
 -- | Run an HTTPS GET with the given url and return an Aff that contains the
 -- | string with the response body.

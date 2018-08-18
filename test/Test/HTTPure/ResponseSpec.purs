@@ -2,12 +2,11 @@ module Test.HTTPure.ResponseSpec where
 
 import Prelude
 
-import Effect.Aff as Aff
 import Effect.Class as EffectClass
 import Node.Buffer as Buffer
 import Node.Encoding as Encoding
-import Partial.Unsafe as Unsafe
 import Test.Spec as Spec
+import Test.Spec.Assertions as Assertions
 
 import HTTPure.Body as Body
 import HTTPure.Headers as Headers
@@ -15,17 +14,6 @@ import HTTPure.Response as Response
 
 import Test.HTTPure.TestHelpers as TestHelpers
 import Test.HTTPure.TestHelpers ((?=))
-
--- | Assert that a response body equals the given string
-bodyShouldEqual :: Body.Body -> String -> Aff.Aff Unit
-bodyShouldEqual body str =
-  if Body.isString body
-  then Unsafe.unsafePartial Body.fromString body ?= str
-  else do
-    bodyAsStr <-
-      EffectClass.liftEffect $ Buffer.toString Encoding.UTF8 $
-        Unsafe.unsafePartial Body.fromBinary body
-    bodyAsStr ?= str
 
 sendSpec :: TestHelpers.Test
 sendSpec = Spec.describe "send" do
@@ -58,7 +46,7 @@ sendSpec = Spec.describe "send" do
     mockResponse =
       { status: 123
       , headers: mockHeaders
-      , body: Body.string "test"
+      , body: Body.StringBody "test"
       }
 
 responseFunctionSpec :: TestHelpers.Test
@@ -71,8 +59,9 @@ responseFunctionSpec = Spec.describe "response" do
     resp.headers ?= Headers.empty
   Spec.it "has the right body" do
     resp <- Response.response 123 "test"
-    Body.isString resp.body ?= true
-    bodyShouldEqual resp.body "test"
+    case resp.body of
+      Body.StringBody str -> str ?= "test"
+      _ -> Assertions.fail "String body expected"
 
 response'Spec :: TestHelpers.Test
 response'Spec = Spec.describe "response'" do
@@ -84,8 +73,9 @@ response'Spec = Spec.describe "response'" do
     resp.headers ?= mockHeaders
   Spec.it "has the right body" do
     resp <- mockResponse
-    Body.isString resp.body ?= true
-    bodyShouldEqual resp.body "test"
+    case resp.body of
+      Body.StringBody str -> str ?= "test"
+      _ -> Assertions.fail "String body expected"
   where
     mockHeaders = Headers.header "Test" "test"
     mockResponse = Response.response' 123 mockHeaders "test"
@@ -103,8 +93,11 @@ binaryResponseSpec = Spec.describe "binaryResponse" do
   Spec.it "has the right body" do
     body <- EffectClass.liftEffect $ Buffer.fromString "test" Encoding.UTF8
     resp <- Response.binaryResponse 123 body
-    Body.isBinary resp.body ?= true
-    bodyShouldEqual resp.body "test"
+    case resp.body of
+      Body.BinaryBody bin -> do
+        str <- EffectClass.liftEffect $ Buffer.toString Encoding.UTF8 bin
+        str ?= "test"
+      _ -> Assertions.fail "Binary body expected"
 
 binaryResponse'Spec :: TestHelpers.Test
 binaryResponse'Spec = Spec.describe "binaryResponse'" do
@@ -119,8 +112,11 @@ binaryResponse'Spec = Spec.describe "binaryResponse'" do
   Spec.it "has the right body" do
     body <- EffectClass.liftEffect $ Buffer.fromString "test" Encoding.UTF8
     resp <- mockResponse body
-    Body.isBinary resp.body ?= true
-    bodyShouldEqual resp.body "test"
+    case resp.body of
+      Body.BinaryBody bin -> do
+        str <- EffectClass.liftEffect $ Buffer.toString Encoding.UTF8 bin
+        str ?= "test"
+      _ -> Assertions.fail "Binary body expected"
   where
     mockHeaders = Headers.header "Test" "test"
     mockResponse = Response.binaryResponse' 123 mockHeaders
@@ -135,8 +131,9 @@ emptyResponseSpec = Spec.describe "emptyResponse" do
     resp.headers ?= Headers.empty
   Spec.it "has an empty body" do
     resp <- Response.emptyResponse 123
-    Body.isString resp.body ?= true
-    bodyShouldEqual resp.body ""
+    case resp.body of
+      Body.StringBody str -> str ?= ""
+      _ -> Assertions.fail "String body expected"
 
 emptyResponse'Spec :: TestHelpers.Test
 emptyResponse'Spec = Spec.describe "emptyResponse'" do
@@ -148,8 +145,9 @@ emptyResponse'Spec = Spec.describe "emptyResponse'" do
     resp.headers ?= mockHeaders
   Spec.it "has an empty body" do
     resp <- mockResponse
-    Body.isString resp.body ?= true
-    bodyShouldEqual resp.body ""
+    case resp.body of
+      Body.StringBody str -> str ?= ""
+      _ -> Assertions.fail "String body expected"
   where
     mockHeaders = Headers.header "Test" "test"
     mockResponse = Response.emptyResponse' 123 mockHeaders

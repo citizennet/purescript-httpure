@@ -4,6 +4,8 @@ import Prelude
 
 import Effect.Class as EffectClass
 import Foreign.Object as Object
+import Node.Buffer as Buffer
+import Node.FS.Aff as FS
 import Test.Spec as Spec
 
 import Test.HTTPure.TestHelpers as TestHelpers
@@ -12,6 +14,7 @@ import Test.HTTPure.TestHelpers ((?=))
 import Examples.AsyncResponse.Main as AsyncResponse
 import Examples.Headers.Main as Headers
 import Examples.HelloWorld.Main as HelloWorld
+import Examples.Image.Main as Image
 import Examples.Middleware.Main as Middleware
 import Examples.MultiRoute.Main as MultiRoute
 import Examples.PathSegments.Main as PathSegments
@@ -41,6 +44,16 @@ helloWorldSpec = Spec.it "runs the hello world example" do
   response <- TestHelpers.get port Object.empty "/"
   response ?= "hello world!"
   where port = HelloWorld.port
+
+imageSpec :: TestHelpers.Test
+imageSpec = Spec.it "runs the image example" do
+  imageBuf <- FS.readFile Image.filePath
+  expected <- EffectClass.liftEffect $ Buffer.toArray imageBuf
+  EffectClass.liftEffect Image.main
+  responseBuf <- TestHelpers.getBinary port Object.empty "/"
+  response <- EffectClass.liftEffect $ Buffer.toArray responseBuf
+  response ?= expected
+  where port = Image.port
 
 middlewareSpec :: TestHelpers.Test
 middlewareSpec = Spec.it "runs the middleware example" do
@@ -105,6 +118,7 @@ integrationSpec = Spec.describe "Integration" do
   asyncResponseSpec
   headersSpec
   helloWorldSpec
+  imageSpec
   middlewareSpec
   multiRouteSpec
   pathSegmentsSpec

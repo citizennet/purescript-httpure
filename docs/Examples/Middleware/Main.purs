@@ -32,8 +32,8 @@ headerMiddleware :: (HTTPure.Request -> HTTPure.ResponseM) ->
                     HTTPure.Request ->
                     HTTPure.ResponseM
 headerMiddleware router request = do
-  { status, headers, body } <- router request
-  pure $ { status, headers: header <> headers, body}
+  response@{ headers } <- router request
+  pure $ response { headers = header <> headers }
   where
     header = HTTPure.header "X-Middleware" "middleware"
 

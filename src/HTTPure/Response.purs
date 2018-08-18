@@ -123,9 +123,9 @@ response' :: Status.Status ->
              String ->
              ResponseM
 response' status headers body =
-  pure $ { status, headers, body: Body.string body }
+  pure $ { status, headers, body: Body.StringBody body }
 
--- | Link `response`, but the response body is binary data.
+-- | Like `response`, but the response body is binary data.
 binaryResponse :: Status.Status -> Buffer.Buffer -> Aff.Aff Response
 binaryResponse status = binaryResponse' status Headers.empty
 
@@ -135,7 +135,7 @@ binaryResponse' :: Status.Status ->
                    Buffer.Buffer ->
                    Aff.Aff Response
 binaryResponse' status headers body
-  = pure $ { status, headers, body: Body.binary body }
+  = pure $ { status, headers, body: Body.BinaryBody body }
 
 -- | The same as `response` but without a body.
 emptyResponse :: Status.Status -> ResponseM
