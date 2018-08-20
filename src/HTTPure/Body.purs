@@ -1,25 +1,30 @@
 module HTTPure.Body
-  ( Body
+  ( Body(..)
   , read
   , write
+  , size
   ) where
 
 import Prelude
 
 import Data.Either as Either
+import Data.String as String
 import Effect as Effect
 import Effect.Aff as Aff
 import Effect.Ref as Ref
+import Node.Buffer as Buffer
 import Node.Encoding as Encoding
 import Node.HTTP as HTTP
 import Node.Stream as Stream
 
 -- | The `Body` type is just sugar for a `String`, that will be sent or received
 -- | in the HTTP body.
-type Body = String
+data Body
+  = StringBody String
+  | BinaryBody Buffer.Buffer
 
 -- | Extract the contents of the body of the HTTP `Request`.
-read :: HTTP.Request -> Aff.Aff Body
+read :: HTTP.Request -> Aff.Aff String
 read request = Aff.makeAff \done -> do
   let stream = HTTP.requestAsStream request
   buf <- Ref.new ""
@@ -31,7 +36,16 @@ read request = Aff.makeAff \done -> do
 -- | Write a `Body` to the given HTTP `Response` and close it.
 write :: HTTP.Response -> Body -> Effect.Effect Unit
 write response body = void do
-  _ <- Stream.writeString stream Encoding.UTF8 body $ pure unit
+  _ <- writeToStream $ pure unit
   Stream.end stream $ pure unit
   where
     stream = HTTP.responseAsStream response
+    writeToStream =
+      case body of
+        StringBody str -> Stream.writeString stream Encoding.UTF8 str
+        BinaryBody buf -> Stream.write stream buf
+
+-- | Get the size of the body in bytes
+size :: Body -> Effect.Effect Int
+size (StringBody body) = pure $ String.length body
+size (BinaryBody body) = Buffer.size body

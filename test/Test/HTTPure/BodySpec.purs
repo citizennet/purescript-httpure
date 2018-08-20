@@ -22,7 +22,7 @@ writeSpec = Spec.describe "write" do
   Spec.it "writes the string to the Response body" do
     body <- EffectClass.liftEffect do
       resp <- TestHelpers.mockResponse
-      Body.write resp "test"
+      Body.write resp $ Body.StringBody "test"
       pure $ TestHelpers.getResponseBody resp
     body ?= "test"
 
