@@ -1,3 +1,8 @@
+unreleased
+==========
+- Re-export `HTTPure.Query` and `HTTPure.Status` (thanks **@akheron**)
+- Support binary response body (thanks **@akheron**)
+
 0.7.0 / 2018-07-08
 ==================
 - Add support for PureScript 0.12 (thanks **@akheron**)
