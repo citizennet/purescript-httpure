@@ -3,6 +3,8 @@ module Test.HTTPure.BodySpec where
 import Prelude
 
 import Effect.Class as EffectClass
+import Node.Buffer as Buffer
+import Node.Encoding as Encoding
 import Test.Spec as Spec
 
 import HTTPure.Body as Body
@@ -17,6 +19,22 @@ readSpec = Spec.describe "read" do
     body <- Body.read request
     body ?= "test"
 
+sizeSpec :: TestHelpers.Test
+sizeSpec = Spec.describe "size" do
+  Spec.it "returns the correct size for ASCII string body" do
+    size <- EffectClass.liftEffect $ Body.size $ Body.StringBody "ascii"
+    size ?= 5
+
+  Spec.it "returns the correct size for UTF-8 string body" do
+    size <- EffectClass.liftEffect $ Body.size $ Body.StringBody "\x2603"  -- snowman
+    size ?= 3
+
+  Spec.it "returns the correct size for binary body" do
+    size <- EffectClass.liftEffect do
+      buf <- Buffer.fromString "foobar" Encoding.UTF8
+      Body.size $ Body.BinaryBody buf
+    size ?= 6
+
 writeSpec :: TestHelpers.Test
 writeSpec = Spec.describe "write" do
   Spec.it "writes the string to the Response body" do
@@ -29,4 +47,5 @@ writeSpec = Spec.describe "write" do
 bodySpec :: TestHelpers.Test
 bodySpec = Spec.describe "Body" do
   readSpec
+  sizeSpec
   writeSpec

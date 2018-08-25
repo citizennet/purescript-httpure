@@ -8,7 +8,6 @@ module HTTPure.Body
 import Prelude
 
 import Data.Either as Either
-import Data.String as String
 import Effect as Effect
 import Effect.Aff as Aff
 import Effect.Ref as Ref
@@ -47,5 +46,5 @@ write response body = void do
 
 -- | Get the size of the body in bytes
 size :: Body -> Effect.Effect Int
-size (StringBody body) = pure $ String.length body
+size (StringBody body) = Buffer.fromString body Encoding.UTF8 >>= Buffer.size
 size (BinaryBody body) = Buffer.size body
