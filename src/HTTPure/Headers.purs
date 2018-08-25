@@ -1,5 +1,5 @@
 module HTTPure.Headers
-  ( Headers
+  ( Headers(..)
   , empty
   , headers
   , header
@@ -11,6 +11,7 @@ import Prelude
 
 import Effect as Effect
 import Foreign.Object as Object
+import Data.Newtype as Newtype
 import Data.String as String
 import Data.TraversableWithIndex as TraversableWithIndex
 import Data.Tuple as Tuple
@@ -22,6 +23,7 @@ import HTTPure.Lookup ((!!))
 -- | The `Headers` type is just sugar for a `Object` of `Strings`
 -- | that represents the set of headers in an HTTP request or response.
 newtype Headers = Headers (Object.Object String)
+derive instance newtypeHeaders :: Newtype.Newtype Headers _
 
 -- | Given a string, return a `Maybe` containing the value of the matching
 -- | header, if there is any.
@@ -50,9 +52,7 @@ read = HTTP.requestHeaders >>> Headers
 
 -- | Given an HTTP `Response` and a `Headers` object, return an effect that will
 -- | write the `Headers` to the `Response`.
-write :: HTTP.Response ->
-         Headers ->
-         Effect.Effect Unit
+write :: HTTP.Response -> Headers -> Effect.Effect Unit
 write response (Headers headers') = void $
   TraversableWithIndex.traverseWithIndex (HTTP.setHeader response) headers'
 

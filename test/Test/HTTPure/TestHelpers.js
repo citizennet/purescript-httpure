@@ -32,6 +32,9 @@ exports.mockResponse = function() {
     },
 
     end: function() { },
+    emit: function() { },
+    on: function() { },
+    once: function() { },
 
     setHeader: function(header, val) {
       this.headers[header] = val;

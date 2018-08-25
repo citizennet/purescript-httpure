@@ -16,7 +16,7 @@ import Foreign.Object as Object
 -- | retrieve some value. For instance, you could have an implementation for
 -- | `String Int String` where `lookup s i` returns `Just` a `String` containing
 -- | the character in `s` at `i`, or `Nothing` if `i` is out of bounds.
-class Lookup c k r where
+class Lookup c k r | c -> r where
 
   -- | Given some type and a key on that type, extract some value that
   -- | corresponds to that key.

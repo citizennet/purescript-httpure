@@ -8,7 +8,6 @@ import Test.Spec.Runner as Runner
 
 import Test.HTTPure.BodySpec as BodySpec
 import Test.HTTPure.HeadersSpec as HeadersSpec
-import Test.HTTPure.HTTPureEffectsSpec as HTTPureEffectsSpec
 import Test.HTTPure.LookupSpec as LookupSpec
 import Test.HTTPure.MethodSpec as MethodSpec
 import Test.HTTPure.PathSpec as PathSpec
@@ -17,6 +16,7 @@ import Test.HTTPure.RequestSpec as RequestSpec
 import Test.HTTPure.ResponseSpec as ResponseSpec
 import Test.HTTPure.ServerSpec as ServerSpec
 import Test.HTTPure.StatusSpec as StatusSpec
+import Test.HTTPure.StreamableSpec as StreamableSpec
 import Test.HTTPure.IntegrationSpec as IntegrationSpec
 
 import Test.HTTPure.TestHelpers as TestHelpers
@@ -25,7 +25,6 @@ main :: TestHelpers.TestSuite
 main = Runner.run [ Reporter.specReporter ] $ Spec.describe "HTTPure" do
   BodySpec.bodySpec
   HeadersSpec.headersSpec
-  HTTPureEffectsSpec.httpureEffectsSpec
   LookupSpec.lookupSpec
   MethodSpec.methodSpec
   PathSpec.pathSpec
@@ -34,4 +33,5 @@ main = Runner.run [ Reporter.specReporter ] $ Spec.describe "HTTPure" do
   ResponseSpec.responseSpec
   ServerSpec.serverSpec
   StatusSpec.statusSpec
+  StreamableSpec.streamableSpec
   IntegrationSpec.integrationSpec
