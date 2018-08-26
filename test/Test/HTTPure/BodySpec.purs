@@ -22,19 +22,19 @@ readSpec = Spec.describe "read" do
 
 sizeSpec :: TestHelpers.Test
 sizeSpec = Spec.describe "size" do
-  Spec.it "returns the correct size for ASCII string body" do
-    size <- EffectClass.liftEffect $ Body.size "ascii"
-    size ?= Maybe.Just 5
-
-  Spec.it "returns the correct size for UTF-8 string body" do
-    size <- EffectClass.liftEffect $ Body.size "\x2603"  -- snowman
-    size ?= Maybe.Just 3
-
-  Spec.it "returns the correct size for binary body" do
-    size <- EffectClass.liftEffect do
-      buf <- Buffer.fromString "foobar" Encoding.UTF8
-      Body.size buf
-    size ?= Maybe.Just 6
+  Spec.describe "String" do
+    Spec.it "returns the correct size for ASCII string body" do
+      size <- EffectClass.liftEffect $ Body.size "ascii"
+      size ?= Maybe.Just 5
+    Spec.it "returns the correct size for UTF-8 string body" do
+      size <- EffectClass.liftEffect $ Body.size "\x2603"  -- snowman
+      size ?= Maybe.Just 3
+  Spec.describe "Buffer" do
+    Spec.it "returns the correct size for binary body" do
+      size <- EffectClass.liftEffect do
+        buf <- Buffer.fromString "foobar" Encoding.UTF8
+        Body.size buf
+      size ?= Maybe.Just 6
 
 writeSpec :: TestHelpers.Test
 writeSpec = Spec.describe "write" do
