@@ -2,13 +2,17 @@ module Test.HTTPure.ResponseSpec where
 
 import Prelude
 
+import Data.Either as Either
 import Data.Maybe as Maybe
+import Effect.Aff as Aff
 import Effect.Class as EffectClass
+import Node.Encoding as Encoding
+import Node.HTTP as HTTP
+import Node.Stream as Stream
 import Test.Spec as Spec
 
 import HTTPure.Headers as Headers
 import HTTPure.Response as Response
-import HTTPure.Streamable as Streamable
 
 import Test.HTTPure.TestHelpers as TestHelpers
 import Test.HTTPure.TestHelpers ((?=))
@@ -44,7 +48,12 @@ sendSpec = Spec.describe "send" do
     mockResponse _ =
       { status: 123
       , headers: mockHeaders
-      , body: Streamable.toStream "test"
+      , writeBody: \response -> Aff.makeAff \done -> do
+          stream <- pure $ HTTP.responseAsStream response
+          _ <- Stream.writeString stream Encoding.UTF8 "test" $ pure unit
+          _ <- Stream.end stream $ pure unit
+          done $ Either.Right unit
+          pure Aff.nonCanceler
       , size: Maybe.Just 4
       }
 
@@ -56,9 +65,15 @@ responseFunctionSpec = Spec.describe "response" do
   Spec.it "has empty headers" do
     resp <- Response.response 123 "test"
     resp.headers ?= Headers.empty
-  Spec.it "has the right body" do
+  Spec.it "has the right size" do
     resp <- Response.response 123 "test"
-    body <- TestHelpers.streamToString resp.body
+    resp.size ?= Maybe.Just 4
+  Spec.it "has the right writeBody function" do
+    body <- do
+      resp <- Response.response 123 "test"
+      httpResponse <- EffectClass.liftEffect $ TestHelpers.mockResponse
+      resp.writeBody httpResponse
+      pure $ TestHelpers.getResponseBody httpResponse
     body ?= "test"
 
 response'Spec :: TestHelpers.Test
@@ -69,9 +84,15 @@ response'Spec = Spec.describe "response'" do
   Spec.it "has the right headers" do
     resp <- mockResponse
     resp.headers ?= mockHeaders
-  Spec.it "has the right body" do
+  Spec.it "has the right size" do
     resp <- mockResponse
-    body <- TestHelpers.streamToString resp.body
+    resp.size ?= Maybe.Just 4
+  Spec.it "has the right writeBody function" do
+    body <- do
+      resp <- mockResponse
+      httpResponse <- EffectClass.liftEffect $ TestHelpers.mockResponse
+      resp.writeBody httpResponse
+      pure $ TestHelpers.getResponseBody httpResponse
     body ?= "test"
   where
     mockHeaders = Headers.header "Test" "test"
@@ -85,9 +106,15 @@ emptyResponseSpec = Spec.describe "emptyResponse" do
   Spec.it "has empty headers" do
     resp <- Response.emptyResponse 123
     resp.headers ?= Headers.empty
-  Spec.it "has an empty body" do
+  Spec.it "has the right size" do
     resp <- Response.emptyResponse 123
-    body <- TestHelpers.streamToString resp.body
+    resp.size ?= Maybe.Just 0
+  Spec.it "has the right writeBody function" do
+    body <- do
+      resp <- Response.emptyResponse 123
+      httpResponse <- EffectClass.liftEffect $ TestHelpers.mockResponse
+      resp.writeBody httpResponse
+      pure $ TestHelpers.getResponseBody httpResponse
     body ?= ""
 
 emptyResponse'Spec :: TestHelpers.Test
@@ -98,9 +125,15 @@ emptyResponse'Spec = Spec.describe "emptyResponse'" do
   Spec.it "has the right headers" do
     resp <- mockResponse
     resp.headers ?= mockHeaders
-  Spec.it "has an empty body" do
+  Spec.it "has the right size" do
     resp <- mockResponse
-    body <- TestHelpers.streamToString resp.body
+    resp.size ?= Maybe.Just 0
+  Spec.it "has the right writeBody function" do
+    body <- do
+      resp <- mockResponse
+      httpResponse <- EffectClass.liftEffect $ TestHelpers.mockResponse
+      resp.writeBody httpResponse
+      pure $ TestHelpers.getResponseBody httpResponse
     body ?= ""
   where
     mockHeaders = Headers.header "Test" "test"

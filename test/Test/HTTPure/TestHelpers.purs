@@ -56,15 +56,6 @@ request secure port method headers path body = Aff.makeAff \done -> do
       HTTPClient.headers  := HTTPClient.RequestHeaders headers <>
       HTTPClient.rejectUnauthorized := false
 
--- | Read parts of a stream to a string.
-streamToString :: Stream.Readable () -> Aff.Aff String
-streamToString stream = Aff.makeAff \done -> do
-  buf <- Ref.new ""
-  Stream.onDataString stream Encoding.UTF8 \str ->
-    void $ Ref.modify ((<>) str) buf
-  Stream.onEnd stream $ Ref.read buf >>= Either.Right >>> done
-  pure Aff.nonCanceler
-
 -- | Convert a request to an Aff containing the `Buffer with the response body.
 toBuffer :: HTTPClient.Response -> Aff.Aff Buffer.Buffer
 toBuffer response = Aff.makeAff \done -> do
@@ -152,8 +143,7 @@ mockRequest method url body =
   EffectClass.liftEffect <<< mockRequestImpl method url body <<< Object.fromFoldable
 
 -- | Mock an HTTP Response object
-foreign import mockResponse ::
-  Effect.Effect HTTP.Response
+foreign import mockResponse :: Effect.Effect HTTP.Response
 
 -- | Get the current body from an HTTP Response object (note this will only work
 -- | with an object returned from mockResponse).

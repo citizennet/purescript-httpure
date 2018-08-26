@@ -82,12 +82,10 @@ import Data.Maybe as Maybe
 import Effect.Aff as Aff
 import Effect.Class as EffectClass
 import Node.HTTP as HTTP
-import Node.Stream as Stream
 
 import HTTPure.Body as Body
 import HTTPure.Headers as Headers
 import HTTPure.Status as Status
-import HTTPure.Streamable as Streamable
 
 -- | The `ResponseM` type simply conveniently wraps up an HTTPure monad that
 -- | returns a response. This type is the return type of all router/route
@@ -98,7 +96,7 @@ type ResponseM = Aff.Aff Response
 type Response =
   { status :: Status.Status
   , headers :: Headers.Headers
-  , body :: Stream.Readable ()
+  , writeBody :: HTTP.Response -> Aff.Aff Unit
   , size :: Maybe.Maybe Int
   }
 
@@ -106,10 +104,10 @@ type Response =
 -- | a monad encapsulating writing the HTTPure `Response` to the HTTP `Response`
 -- | and closing the HTTP `Response`.
 send :: HTTP.Response -> Response -> Aff.Aff Unit
-send httpresponse { status, headers, body, size } = do
+send httpresponse { status, headers, writeBody, size } = do
   EffectClass.liftEffect $ Status.write httpresponse status
   EffectClass.liftEffect $ Headers.write httpresponse finalHeaders
-  Body.write httpresponse body
+  writeBody httpresponse
   where
     finalHeaders = headers <> contentLength size
     contentLength (Maybe.Just s) = Headers.header "Content-Length" $ show s
@@ -128,7 +126,7 @@ response' :: forall b. Body.Body b =>
              ResponseM
 response' status headers body = do
   size <- EffectClass.liftEffect $ Body.size body
-  pure $ { status , headers , size , body: Streamable.toStream body }
+  pure $ { status, headers, size, writeBody: Body.write body }
 
 -- | The same as `response` but without a body.
 emptyResponse :: Status.Status -> ResponseM

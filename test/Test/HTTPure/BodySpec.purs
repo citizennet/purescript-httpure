@@ -9,7 +9,6 @@ import Node.Encoding as Encoding
 import Test.Spec as Spec
 
 import HTTPure.Body as Body
-import HTTPure.Streamable as Streamable
 
 import Test.HTTPure.TestHelpers as TestHelpers
 import Test.HTTPure.TestHelpers ((?=))
@@ -39,12 +38,21 @@ sizeSpec = Spec.describe "size" do
 
 writeSpec :: TestHelpers.Test
 writeSpec = Spec.describe "write" do
-  Spec.it "writes the string to the Response body" do
-    body <- do
-      resp <- EffectClass.liftEffect TestHelpers.mockResponse
-      Body.write resp $ Streamable.toStream "test"
-      pure $ TestHelpers.getResponseBody resp
-    body ?= "test"
+  Spec.describe "String" do
+    Spec.it "writes the String to the Response body" do
+      body <- do
+        resp <- EffectClass.liftEffect TestHelpers.mockResponse
+        Body.write "test" resp
+        pure $ TestHelpers.getResponseBody resp
+      body ?= "test"
+  Spec.describe "Buffer" do
+    Spec.it "writes the Buffer to the Response body" do
+      body <- do
+        resp <- EffectClass.liftEffect TestHelpers.mockResponse
+        buf <- EffectClass.liftEffect $ Buffer.fromString "test" Encoding.UTF8
+        Body.write buf resp
+        pure $ TestHelpers.getResponseBody resp
+      body ?= "test"
 
 bodySpec :: TestHelpers.Test
 bodySpec = Spec.describe "Body" do

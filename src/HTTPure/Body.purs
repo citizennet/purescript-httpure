@@ -17,16 +17,29 @@ import Node.Encoding as Encoding
 import Node.HTTP as HTTP
 import Node.Stream as Stream
 
-import HTTPure.Streamable as Streamable
-
-class Streamable.Streamable b <= Body b where
+class Body b where
   size :: b -> Effect.Effect (Maybe.Maybe Int)
+  write :: b -> HTTP.Response -> Aff.Aff Unit
 
 instance bodyString :: Body String where
-  size s = Buffer.fromString s Encoding.UTF8 >>= size
+  size body = Buffer.fromString body Encoding.UTF8 >>= size
+  write body response = Aff.makeAff \done -> do
+    _ <- Stream.writeString stream Encoding.UTF8 body $ pure unit
+    _ <- Stream.end stream $ pure unit
+    done $ Either.Right unit
+    pure Aff.nonCanceler
+    where
+      stream = HTTP.responseAsStream response
 
 instance bodyBuffer :: Body Buffer.Buffer where
   size = Buffer.size >>> map Maybe.Just
+  write body response = Aff.makeAff \done -> do
+    _ <- Stream.write stream body $ pure unit
+    _ <- Stream.end stream $ pure unit
+    done $ Either.Right unit
+    pure Aff.nonCanceler
+    where
+      stream = HTTP.responseAsStream response
 
 -- | Extract the contents of the body of the HTTP `Request`.
 read :: HTTP.Request -> Aff.Aff String
@@ -36,11 +49,4 @@ read request = Aff.makeAff \done -> do
   Stream.onDataString stream Encoding.UTF8 \str ->
     void $ Ref.modify ((<>) str) buf
   Stream.onEnd stream $ Ref.read buf >>= Either.Right >>> done
-  pure Aff.nonCanceler
-
--- | Write a `Body` to the given HTTP `Response` and close it.
-write :: HTTP.Response -> Stream.Readable () -> Aff.Aff Unit
-write response body = Aff.makeAff \done -> do
-  _ <- Stream.pipe body $ HTTP.responseAsStream response
-  Stream.onEnd body $ done $ Either.Right unit
   pure Aff.nonCanceler
