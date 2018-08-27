@@ -30,23 +30,22 @@ hasSpec = Spec.describe "has" do
     Spec.it "is false" do
       [ "one", "two", "three" ] !? 4 ?= false
 
-lookupArraySpec :: TestHelpers.Test
-lookupArraySpec = Spec.describe "lookupArray" do
-  Spec.describe "when the index is in bounds" do
-    Spec.it "is Just the value at the index" do
-      [ "one", "two", "three" ] !! 1 ?= Maybe.Just "two"
-  Spec.describe "when the index is out of bounds" do
-    Spec.it "is Nothing" do
-      (([ "one", "two", "three" ] !! 4) :: Maybe.Maybe String) ?= Maybe.Nothing
-
-lookupMapSpec :: TestHelpers.Test
-lookupMapSpec = Spec.describe "lookupMap" do
-  Spec.describe "when the key is in the Map" do
-    Spec.it "is Just the value at the given key" do
-      mockMap !! "foo" ?= Maybe.Just "bar"
-  Spec.describe "when the key is not in the Map" do
-    Spec.it "is Nothing" do
-      ((mockMap !! "baz") :: Maybe.Maybe String) ?= Maybe.Nothing
+lookupFunctionSpec :: TestHelpers.Test
+lookupFunctionSpec = Spec.describe "lookup" do
+  Spec.describe "Array" do
+    Spec.describe "when the index is in bounds" do
+      Spec.it "is Just the value at the index" do
+        [ "one", "two", "three" ] !! 1 ?= Maybe.Just "two"
+    Spec.describe "when the index is out of bounds" do
+      Spec.it "is Nothing" do
+        (([ "one", "two", "three" ] !! 4) :: Maybe.Maybe String) ?= Maybe.Nothing
+  Spec.describe "Map" do
+    Spec.describe "when the key is in the Map" do
+      Spec.it "is Just the value at the given key" do
+        mockMap !! "foo" ?= Maybe.Just "bar"
+    Spec.describe "when the key is not in the Map" do
+      Spec.it "is Nothing" do
+        ((mockMap !! "baz") :: Maybe.Maybe String) ?= Maybe.Nothing
   where
     mockMap = Object.singleton "foo" "bar"
 
@@ -54,5 +53,4 @@ lookupSpec :: TestHelpers.Test
 lookupSpec = Spec.describe "Lookup" do
   atSpec
   hasSpec
-  lookupArraySpec
-  lookupMapSpec
+  lookupFunctionSpec

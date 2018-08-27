@@ -3,7 +3,6 @@ module HTTPure.Response
   , ResponseM
   , send
   , response, response'
-  , binaryResponse, binaryResponse'
   , emptyResponse, emptyResponse'
 
   -- 1xx
@@ -79,9 +78,9 @@ module HTTPure.Response
 
 import Prelude
 
-import Effect as Effect
+import Data.Maybe as Maybe
 import Effect.Aff as Aff
-import Node.Buffer as Buffer
+import Effect.Class as EffectClass
 import Node.HTTP as HTTP
 
 import HTTPure.Body as Body
@@ -97,45 +96,37 @@ type ResponseM = Aff.Aff Response
 type Response =
   { status :: Status.Status
   , headers :: Headers.Headers
-  , body :: Body.Body
+  , writeBody :: HTTP.Response -> Aff.Aff Unit
+  , size :: Maybe.Maybe Int
   }
 
 -- | Given an HTTP `Response` and a HTTPure `Response`, this method will return
 -- | a monad encapsulating writing the HTTPure `Response` to the HTTP `Response`
 -- | and closing the HTTP `Response`.
-send :: HTTP.Response -> Response -> Effect.Effect Unit
-send httpresponse { status, headers, body } = do
-  Status.write httpresponse $ status
-  size <- Body.size body
-  Headers.write httpresponse $ headers <> contentLength size
-  Body.write httpresponse $ body
+send :: HTTP.Response -> Response -> Aff.Aff Unit
+send httpresponse { status, headers, writeBody, size } = do
+  EffectClass.liftEffect $ Status.write httpresponse status
+  EffectClass.liftEffect $ Headers.write httpresponse finalHeaders
+  writeBody httpresponse
   where
-    contentLength size = Headers.header "Content-Length" $ show size
+    finalHeaders = headers <> contentLength size
+    contentLength (Maybe.Just s) = Headers.header "Content-Length" $ show s
+    contentLength Maybe.Nothing = Headers.empty
 
 -- | For custom response statuses or providing a body for response codes that
 -- | don't typically send one.
-response :: Status.Status -> String -> ResponseM
+response :: forall b. Body.Body b => Status.Status -> b -> ResponseM
 response status = response' status Headers.empty
 
 -- | The same as `response` but with headers.
-response' :: Status.Status ->
+response' :: forall b. Body.Body b =>
+             Status.Status ->
              Headers.Headers ->
-             String ->
+             b ->
              ResponseM
-response' status headers body =
-  pure $ { status, headers, body: Body.StringBody body }
-
--- | Like `response`, but the response body is binary data.
-binaryResponse :: Status.Status -> Buffer.Buffer -> Aff.Aff Response
-binaryResponse status = binaryResponse' status Headers.empty
-
--- | The same as `binaryResponse` but with headers.
-binaryResponse' :: Status.Status ->
-                   Headers.Headers ->
-                   Buffer.Buffer ->
-                   Aff.Aff Response
-binaryResponse' status headers body
-  = pure $ { status, headers, body: Body.BinaryBody body }
+response' status headers body = do
+  size <- EffectClass.liftEffect $ Body.size body
+  pure $ { status, headers, size, writeBody: Body.write body }
 
 -- | The same as `response` but without a body.
 emptyResponse :: Status.Status -> ResponseM
@@ -178,11 +169,11 @@ processing' = emptyResponse' Status.processing
 ---------
 
 -- | 200
-ok :: String -> ResponseM
+ok :: forall b. Body.Body b => b -> ResponseM
 ok = ok' Headers.empty
 
 -- | 200 with headers
-ok' :: Headers.Headers -> String -> ResponseM
+ok' :: forall b. Body.Body b => Headers.Headers -> b -> ResponseM
 ok' = response' Status.ok
 
 -- | 201
@@ -202,12 +193,13 @@ accepted' :: Headers.Headers -> ResponseM
 accepted' = emptyResponse' Status.accepted
 
 -- | 203
-nonAuthoritativeInformation :: String -> ResponseM
+nonAuthoritativeInformation :: forall b. Body.Body b => b -> ResponseM
 nonAuthoritativeInformation = nonAuthoritativeInformation' Headers.empty
 
 -- | 203 with headers
-nonAuthoritativeInformation' :: Headers.Headers ->
-                                String ->
+nonAuthoritativeInformation' :: forall b. Body.Body b =>
+                                Headers.Headers ->
+                                b ->
                                 ResponseM
 nonAuthoritativeInformation' = response' Status.nonAuthoritativeInformation
 
@@ -228,19 +220,19 @@ resetContent' :: Headers.Headers -> ResponseM
 resetContent' = emptyResponse' Status.resetContent
 
 -- | 206
-partialContent :: String -> ResponseM
+partialContent :: forall b. Body.Body b => b -> ResponseM
 partialContent = partialContent' Headers.empty
 
 -- | 206 with headers
-partialContent' :: Headers.Headers -> String -> ResponseM
+partialContent' :: forall b. Body.Body b => Headers.Headers -> b -> ResponseM
 partialContent' = response' Status.partialContent
 
 -- | 207
-multiStatus :: String -> ResponseM
+multiStatus :: forall b. Body.Body b => b -> ResponseM
 multiStatus = multiStatus' Headers.empty
 
 -- | 207 with headers
-multiStatus' :: Headers.Headers -> String -> ResponseM
+multiStatus' :: forall b. Body.Body b => Headers.Headers -> b -> ResponseM
 multiStatus' = response' Status.multiStatus
 
 -- | 208
@@ -252,11 +244,11 @@ alreadyReported' :: Headers.Headers -> ResponseM
 alreadyReported' = emptyResponse' Status.alreadyReported
 
 -- | 226
-iMUsed :: String -> ResponseM
+iMUsed :: forall b. Body.Body b => b -> ResponseM
 iMUsed = iMUsed' Headers.empty
 
 -- | 226 with headers
-iMUsed' :: Headers.Headers -> String -> ResponseM
+iMUsed' :: forall b. Body.Body b => Headers.Headers -> b -> ResponseM
 iMUsed' = response' Status.iMUsed
 
 ---------
@@ -264,35 +256,35 @@ iMUsed' = response' Status.iMUsed
 ---------
 
 -- | 300
-multipleChoices :: String -> ResponseM
+multipleChoices :: forall b. Body.Body b => b -> ResponseM
 multipleChoices = multipleChoices' Headers.empty
 
 -- | 300 with headers
-multipleChoices' :: Headers.Headers -> String -> ResponseM
+multipleChoices' :: forall b. Body.Body b => Headers.Headers -> b -> ResponseM
 multipleChoices' = response' Status.multipleChoices
 
 -- | 301
-movedPermanently :: String -> ResponseM
+movedPermanently :: forall b. Body.Body b => b -> ResponseM
 movedPermanently = movedPermanently' Headers.empty
 
 -- | 301 with headers
-movedPermanently' :: Headers.Headers -> String -> ResponseM
+movedPermanently' :: forall b. Body.Body b => Headers.Headers -> b -> ResponseM
 movedPermanently' = response' Status.movedPermanently
 
 -- | 302
-found :: String -> ResponseM
+found :: forall b. Body.Body b => b -> ResponseM
 found = found' Headers.empty
 
 -- | 302 with headers
-found' :: Headers.Headers -> String -> ResponseM
+found' :: forall b. Body.Body b => Headers.Headers -> b -> ResponseM
 found' = response' Status.found
 
 -- | 303
-seeOther :: String -> ResponseM
+seeOther :: forall b. Body.Body b => b -> ResponseM
 seeOther = seeOther' Headers.empty
 
 -- | 303 with headers
-seeOther' :: Headers.Headers -> String -> ResponseM
+seeOther' :: forall b. Body.Body b => Headers.Headers -> b -> ResponseM
 seeOther' = response' Status.seeOther
 
 -- | 304
@@ -304,27 +296,27 @@ notModified' :: Headers.Headers -> ResponseM
 notModified' = emptyResponse' Status.notModified
 
 -- | 305
-useProxy :: String -> ResponseM
+useProxy :: forall b. Body.Body b => b -> ResponseM
 useProxy = useProxy' Headers.empty
 
 -- | 305 with headers
-useProxy' :: Headers.Headers -> String -> ResponseM
+useProxy' :: forall b. Body.Body b => Headers.Headers -> b -> ResponseM
 useProxy' = response' Status.useProxy
 
 -- | 307
-temporaryRedirect :: String -> ResponseM
+temporaryRedirect :: forall b. Body.Body b => b -> ResponseM
 temporaryRedirect = temporaryRedirect' Headers.empty
 
 -- | 307 with headers
-temporaryRedirect' :: Headers.Headers -> String -> ResponseM
+temporaryRedirect' :: forall b. Body.Body b => Headers.Headers -> b -> ResponseM
 temporaryRedirect' = response' Status.temporaryRedirect
 
 -- | 308
-permanentRedirect :: String -> ResponseM
+permanentRedirect :: forall b. Body.Body b => b -> ResponseM
 permanentRedirect = permanentRedirect' Headers.empty
 
 -- | 308 with headers
-permanentRedirect' :: Headers.Headers -> String -> ResponseM
+permanentRedirect' :: forall b. Body.Body b => Headers.Headers -> b -> ResponseM
 permanentRedirect' = response' Status.permanentRedirect
 
 
@@ -333,11 +325,11 @@ permanentRedirect' = response' Status.permanentRedirect
 ---------
 
 -- | 400
-badRequest :: String -> ResponseM
+badRequest :: forall b. Body.Body b => b -> ResponseM
 badRequest = badRequest' Headers.empty
 
 -- | 400 with headers
-badRequest' :: Headers.Headers -> String -> ResponseM
+badRequest' :: forall b. Body.Body b => Headers.Headers -> b -> ResponseM
 badRequest' = response' Status.badRequest
 
 -- | 401
@@ -405,11 +397,11 @@ requestTimeout' :: Headers.Headers -> ResponseM
 requestTimeout' = emptyResponse' Status.requestTimeout
 
 -- | 409
-conflict :: String -> ResponseM
+conflict :: forall b. Body.Body b => b -> ResponseM
 conflict = conflict' Headers.empty
 
 -- | 409 with headers
-conflict' :: Headers.Headers -> String -> ResponseM
+conflict' :: forall b. Body.Body b => Headers.Headers -> b -> ResponseM
 conflict' = response' Status.conflict
 
 -- | 410
@@ -561,11 +553,14 @@ unavailableForLegalReasons' = emptyResponse' Status.unavailableForLegalReasons
 ---------
 
 -- | 500
-internalServerError :: String -> ResponseM
+internalServerError :: forall b. Body.Body b => b -> ResponseM
 internalServerError = internalServerError' Headers.empty
 
 -- | 500 with headers
-internalServerError' :: Headers.Headers -> String -> ResponseM
+internalServerError' :: forall b. Body.Body b =>
+                        Headers.Headers ->
+                        b ->
+                        ResponseM
 internalServerError' = response' Status.internalServerError
 
 -- | 501

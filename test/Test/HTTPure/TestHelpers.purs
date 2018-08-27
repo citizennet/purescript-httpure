@@ -66,7 +66,7 @@ toBuffer response = Aff.makeAff \done -> do
     Ref.read chunks
     >>= List.reverse >>> Array.fromFoldable >>> Buffer.concat
     >>= Either.Right >>> done
-  pure $ Aff.nonCanceler
+  pure Aff.nonCanceler
 
 -- | Convert a request to an Aff containing the string with the response body.
 toString :: HTTPClient.Response -> Aff.Aff String
@@ -143,8 +143,7 @@ mockRequest method url body =
   EffectClass.liftEffect <<< mockRequestImpl method url body <<< Object.fromFoldable
 
 -- | Mock an HTTP Response object
-foreign import mockResponse ::
-  Effect.Effect HTTP.Response
+foreign import mockResponse :: Effect.Effect HTTP.Response
 
 -- | Get the current body from an HTTP Response object (note this will only work
 -- | with an object returned from mockResponse).

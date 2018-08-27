@@ -20,8 +20,7 @@ filePath = "./docs/Examples/Image/circle.png"
 
 -- | Respond with image data when run
 image :: HTTPure.Request -> HTTPure.ResponseM
-image _ =
-  FS.readFile filePath >>= HTTPure.binaryResponse' 200 headers
+image _ = FS.readFile filePath >>= HTTPure.ok' headers
   where
     headers = HTTPure.header "Content-Type" "image/png"
 

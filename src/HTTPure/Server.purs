@@ -10,7 +10,6 @@ import Prelude
 
 import Effect as Effect
 import Effect.Aff as Aff
-import Effect.Class as EffectClass
 import Data.Maybe as Maybe
 import Data.Options ((:=), Options)
 import Node.Encoding as Encoding
@@ -37,7 +36,7 @@ handleRequest :: (Request.Request -> Response.ResponseM) ->
 handleRequest router request response =
   void $ Aff.runAff (\_ -> pure unit) do
     req <- Request.fromHTTPRequest request
-    router req >>= Response.send response >>> EffectClass.liftEffect
+    router req >>= Response.send response
 
 -- | Given a `ListenOptions` object, a function mapping `Request` to
 -- | `ResponseM`, and a `ServerM` containing effects to run on boot, creates and

@@ -2,6 +2,7 @@ module Test.HTTPure.BodySpec where
 
 import Prelude
 
+import Data.Maybe as Maybe
 import Effect.Class as EffectClass
 import Node.Buffer as Buffer
 import Node.Encoding as Encoding
@@ -21,28 +22,37 @@ readSpec = Spec.describe "read" do
 
 sizeSpec :: TestHelpers.Test
 sizeSpec = Spec.describe "size" do
-  Spec.it "returns the correct size for ASCII string body" do
-    size <- EffectClass.liftEffect $ Body.size $ Body.StringBody "ascii"
-    size ?= 5
-
-  Spec.it "returns the correct size for UTF-8 string body" do
-    size <- EffectClass.liftEffect $ Body.size $ Body.StringBody "\x2603"  -- snowman
-    size ?= 3
-
-  Spec.it "returns the correct size for binary body" do
-    size <- EffectClass.liftEffect do
-      buf <- Buffer.fromString "foobar" Encoding.UTF8
-      Body.size $ Body.BinaryBody buf
-    size ?= 6
+  Spec.describe "String" do
+    Spec.it "returns the correct size for ASCII string body" do
+      size <- EffectClass.liftEffect $ Body.size "ascii"
+      size ?= Maybe.Just 5
+    Spec.it "returns the correct size for UTF-8 string body" do
+      size <- EffectClass.liftEffect $ Body.size "\x2603"  -- snowman
+      size ?= Maybe.Just 3
+  Spec.describe "Buffer" do
+    Spec.it "returns the correct size for binary body" do
+      size <- EffectClass.liftEffect do
+        buf <- Buffer.fromString "foobar" Encoding.UTF8
+        Body.size buf
+      size ?= Maybe.Just 6
 
 writeSpec :: TestHelpers.Test
 writeSpec = Spec.describe "write" do
-  Spec.it "writes the string to the Response body" do
-    body <- EffectClass.liftEffect do
-      resp <- TestHelpers.mockResponse
-      Body.write resp $ Body.StringBody "test"
-      pure $ TestHelpers.getResponseBody resp
-    body ?= "test"
+  Spec.describe "String" do
+    Spec.it "writes the String to the Response body" do
+      body <- do
+        resp <- EffectClass.liftEffect TestHelpers.mockResponse
+        Body.write "test" resp
+        pure $ TestHelpers.getResponseBody resp
+      body ?= "test"
+  Spec.describe "Buffer" do
+    Spec.it "writes the Buffer to the Response body" do
+      body <- do
+        resp <- EffectClass.liftEffect TestHelpers.mockResponse
+        buf <- EffectClass.liftEffect $ Buffer.fromString "test" Encoding.UTF8
+        Body.write buf resp
+        pure $ TestHelpers.getResponseBody resp
+      body ?= "test"
 
 bodySpec :: TestHelpers.Test
 bodySpec = Spec.describe "Body" do
