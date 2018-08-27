@@ -3,7 +3,6 @@ module Test.HTTPure.ResponseSpec where
 import Prelude
 
 import Data.Either as Either
-import Data.Maybe as Maybe
 import Effect.Aff as Aff
 import Effect.Class as EffectClass
 import Node.Encoding as Encoding
@@ -11,6 +10,7 @@ import Node.HTTP as HTTP
 import Node.Stream as Stream
 import Test.Spec as Spec
 
+import HTTPure.Body as Body
 import HTTPure.Headers as Headers
 import HTTPure.Response as Response
 
@@ -25,12 +25,6 @@ sendSpec = Spec.describe "send" do
       Response.send httpResponse $ mockResponse unit
       pure $ TestHelpers.getResponseHeader "Test" httpResponse
     header ?= "test"
-  Spec.it "sets the Content-Length header" do
-    header <- do
-      httpResponse <- EffectClass.liftEffect $ TestHelpers.mockResponse
-      Response.send httpResponse $ mockResponse unit
-      pure $ TestHelpers.getResponseHeader "Content-Length" httpResponse
-    header ?= "4"
   Spec.it "writes the status" do
     status <- do
       httpResponse <- EffectClass.liftEffect $ TestHelpers.mockResponse
@@ -54,7 +48,6 @@ sendSpec = Spec.describe "send" do
           _ <- Stream.end stream $ pure unit
           done $ Either.Right unit
           pure Aff.nonCanceler
-      , size: Maybe.Just 4
       }
 
 responseFunctionSpec :: TestHelpers.Test
@@ -62,12 +55,10 @@ responseFunctionSpec = Spec.describe "response" do
   Spec.it "has the right status" do
     resp <- Response.response 123 "test"
     resp.status ?= 123
-  Spec.it "has empty headers" do
+  Spec.it "has only default headers" do
     resp <- Response.response 123 "test"
-    resp.headers ?= Headers.empty
-  Spec.it "has the right size" do
-    resp <- Response.response 123 "test"
-    resp.size ?= Maybe.Just 4
+    defaultHeaders <- EffectClass.liftEffect $ Body.additionalHeaders "test"
+    resp.headers ?= defaultHeaders
   Spec.it "has the right writeBody function" do
     body <- do
       resp <- Response.response 123 "test"
@@ -83,10 +74,8 @@ response'Spec = Spec.describe "response'" do
     resp.status ?= 123
   Spec.it "has the right headers" do
     resp <- mockResponse
-    resp.headers ?= mockHeaders
-  Spec.it "has the right size" do
-    resp <- mockResponse
-    resp.size ?= Maybe.Just 4
+    defaultHeaders <- EffectClass.liftEffect $ Body.additionalHeaders "test"
+    resp.headers ?= defaultHeaders <> mockHeaders
   Spec.it "has the right writeBody function" do
     body <- do
       resp <- mockResponse
@@ -103,12 +92,10 @@ emptyResponseSpec = Spec.describe "emptyResponse" do
   Spec.it "has the right status" do
     resp <- Response.emptyResponse 123
     resp.status ?= 123
-  Spec.it "has empty headers" do
+  Spec.it "has only default headers" do
     resp <- Response.emptyResponse 123
-    resp.headers ?= Headers.empty
-  Spec.it "has the right size" do
-    resp <- Response.emptyResponse 123
-    resp.size ?= Maybe.Just 0
+    defaultHeaders <- EffectClass.liftEffect $ Body.additionalHeaders ""
+    resp.headers ?= defaultHeaders
   Spec.it "has the right writeBody function" do
     body <- do
       resp <- Response.emptyResponse 123
@@ -124,10 +111,8 @@ emptyResponse'Spec = Spec.describe "emptyResponse'" do
     resp.status ?= 123
   Spec.it "has the right headers" do
     resp <- mockResponse
-    resp.headers ?= mockHeaders
-  Spec.it "has the right size" do
-    resp <- mockResponse
-    resp.size ?= Maybe.Just 0
+    defaultHeaders <- EffectClass.liftEffect $ Body.additionalHeaders ""
+    resp.headers ?= mockHeaders <> defaultHeaders
   Spec.it "has the right writeBody function" do
     body <- do
       resp <- mockResponse

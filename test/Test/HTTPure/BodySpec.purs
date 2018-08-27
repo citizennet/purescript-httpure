@@ -2,13 +2,13 @@ module Test.HTTPure.BodySpec where
 
 import Prelude
 
-import Data.Maybe as Maybe
 import Effect.Class as EffectClass
 import Node.Buffer as Buffer
 import Node.Encoding as Encoding
 import Test.Spec as Spec
 
 import HTTPure.Body as Body
+import HTTPure.Headers as Headers
 
 import Test.HTTPure.TestHelpers as TestHelpers
 import Test.HTTPure.TestHelpers ((?=))
@@ -20,21 +20,27 @@ readSpec = Spec.describe "read" do
     body <- Body.read request
     body ?= "test"
 
-sizeSpec :: TestHelpers.Test
-sizeSpec = Spec.describe "size" do
+additionalHeadersSpec :: TestHelpers.Test
+additionalHeadersSpec = Spec.describe "additionalHeaders" do
   Spec.describe "String" do
-    Spec.it "returns the correct size for ASCII string body" do
-      size <- EffectClass.liftEffect $ Body.size "ascii"
-      size ?= Maybe.Just 5
-    Spec.it "returns the correct size for UTF-8 string body" do
-      size <- EffectClass.liftEffect $ Body.size "\x2603"  -- snowman
-      size ?= Maybe.Just 3
+    Spec.describe "with an ASCII string" do
+      Spec.it "has the correct Content-Length header" do
+        headers <- EffectClass.liftEffect $ Body.additionalHeaders "ascii"
+        headers ?= Headers.header "Content-Length" "5"
+    Spec.describe "with a UTF-8 string" do
+      Spec.it "has the correct Content-Length header" do
+        headers <- EffectClass.liftEffect $ Body.additionalHeaders "\x2603"
+        headers ?= Headers.header "Content-Length" "3"
   Spec.describe "Buffer" do
-    Spec.it "returns the correct size for binary body" do
-      size <- EffectClass.liftEffect do
-        buf <- Buffer.fromString "foobar" Encoding.UTF8
-        Body.size buf
-      size ?= Maybe.Just 6
+    Spec.it "has the correct Content-Length header" do
+      buf <- EffectClass.liftEffect $ Buffer.fromString "foobar" Encoding.UTF8
+      headers <- EffectClass.liftEffect $ Body.additionalHeaders buf
+      headers ?= Headers.header "Content-Length" "6"
+  Spec.describe "Chunked" do
+    Spec.it "specifies the Transfer-Encoding header" do
+      let body = Body.Chunked $ TestHelpers.stringToStream "test"
+      headers <- EffectClass.liftEffect $ Body.additionalHeaders body
+      headers ?= Headers.header "Transfer-Encoding" "chunked"
 
 writeSpec :: TestHelpers.Test
 writeSpec = Spec.describe "write" do
@@ -53,9 +59,17 @@ writeSpec = Spec.describe "write" do
         Body.write buf resp
         pure $ TestHelpers.getResponseBody resp
       body ?= "test"
+  Spec.describe "Chunked" do
+    Spec.it "pipes the input stream to the Response body" do
+      body <- do
+        resp <- EffectClass.liftEffect TestHelpers.mockResponse
+        let body = Body.Chunked $ TestHelpers.stringToStream "test"
+        Body.write body resp
+        pure $ TestHelpers.getResponseBody resp
+      body ?= "test"
 
 bodySpec :: TestHelpers.Test
 bodySpec = Spec.describe "Body" do
+  additionalHeadersSpec
   readSpec
-  sizeSpec
   writeSpec

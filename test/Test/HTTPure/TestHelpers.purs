@@ -162,3 +162,6 @@ getResponseHeaders = Coerce.unsafeCoerce <<< _.headers <<< Coerce.unsafeCoerce
 getResponseHeader :: String -> HTTP.Response -> String
 getResponseHeader header =
   Maybe.fromMaybe "" <<< Object.lookup header <<< getResponseHeaders
+
+-- | Create a stream out of a string.
+foreign import stringToStream :: String -> Stream.Readable ()

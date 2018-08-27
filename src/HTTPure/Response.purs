@@ -78,7 +78,6 @@ module HTTPure.Response
 
 import Prelude
 
-import Data.Maybe as Maybe
 import Effect.Aff as Aff
 import Effect.Class as EffectClass
 import Node.HTTP as HTTP
@@ -97,21 +96,16 @@ type Response =
   { status :: Status.Status
   , headers :: Headers.Headers
   , writeBody :: HTTP.Response -> Aff.Aff Unit
-  , size :: Maybe.Maybe Int
   }
 
 -- | Given an HTTP `Response` and a HTTPure `Response`, this method will return
 -- | a monad encapsulating writing the HTTPure `Response` to the HTTP `Response`
 -- | and closing the HTTP `Response`.
 send :: HTTP.Response -> Response -> Aff.Aff Unit
-send httpresponse { status, headers, writeBody, size } = do
+send httpresponse { status, headers, writeBody } = do
   EffectClass.liftEffect $ Status.write httpresponse status
-  EffectClass.liftEffect $ Headers.write httpresponse finalHeaders
+  EffectClass.liftEffect $ Headers.write httpresponse headers
   writeBody httpresponse
-  where
-    finalHeaders = headers <> contentLength size
-    contentLength (Maybe.Just s) = Headers.header "Content-Length" $ show s
-    contentLength Maybe.Nothing = Headers.empty
 
 -- | For custom response statuses or providing a body for response codes that
 -- | don't typically send one.
@@ -124,9 +118,13 @@ response' :: forall b. Body.Body b =>
              Headers.Headers ->
              b ->
              ResponseM
-response' status headers body = do
-  size <- EffectClass.liftEffect $ Body.size body
-  pure $ { status, headers, size, writeBody: Body.write body }
+response' status headers body = EffectClass.liftEffect do
+  additionalHeaders <- Body.additionalHeaders body
+  pure
+    { status
+    , headers: headers <> additionalHeaders
+    , writeBody: Body.write body
+    }
 
 -- | The same as `response` but without a body.
 emptyResponse :: Status.Status -> ResponseM

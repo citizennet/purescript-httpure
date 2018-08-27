@@ -1,4 +1,4 @@
-module Examples.Image.Main where
+module Examples.Binary.Main where
 
 import Prelude
 
@@ -16,7 +16,7 @@ portS = show port
 
 -- | The path to the file containing the response to send
 filePath :: String
-filePath = "./docs/Examples/Image/circle.png"
+filePath = "./docs/Examples/Binary/circle.png"
 
 -- | Respond with image data when run
 image :: HTTPure.Request -> HTTPure.ResponseM

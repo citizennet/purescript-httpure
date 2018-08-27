@@ -32,9 +32,20 @@ exports.mockResponse = function() {
     },
 
     end: function() { },
+    on: function() { },
+    once: function() { },
+    emit: function() { },
 
     setHeader: function(header, val) {
       this.headers[header] = val;
     }
   };
 };
+
+exports.stringToStream = function (str) {
+  var stream = new require('stream').Readable();
+  stream._read = function () {};
+  stream.push(str);
+  stream.push(null);
+  return stream;
+}

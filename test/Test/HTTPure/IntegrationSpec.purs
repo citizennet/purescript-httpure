@@ -12,14 +12,15 @@ import Test.HTTPure.TestHelpers as TestHelpers
 import Test.HTTPure.TestHelpers ((?=))
 
 import Examples.AsyncResponse.Main as AsyncResponse
+import Examples.Binary.Main as Binary
+import Examples.Chunked.Main as Chunked
 import Examples.Headers.Main as Headers
 import Examples.HelloWorld.Main as HelloWorld
-import Examples.Image.Main as Image
 import Examples.Middleware.Main as Middleware
 import Examples.MultiRoute.Main as MultiRoute
 import Examples.PathSegments.Main as PathSegments
-import Examples.QueryParameters.Main as QueryParameters
 import Examples.Post.Main as Post
+import Examples.QueryParameters.Main as QueryParameters
 import Examples.SSL.Main as SSL
 
 asyncResponseSpec :: TestHelpers.Test
@@ -28,6 +29,25 @@ asyncResponseSpec = Spec.it "runs the async response example" do
   response <- TestHelpers.get port Object.empty "/"
   response ?= "hello world!"
   where port = AsyncResponse.port
+
+binarySpec :: TestHelpers.Test
+binarySpec = Spec.it "runs the binary example" do
+  binaryBuf <- FS.readFile Binary.filePath
+  expected <- EffectClass.liftEffect $ Buffer.toArray binaryBuf
+  EffectClass.liftEffect Binary.main
+  responseBuf <- TestHelpers.getBinary port Object.empty "/"
+  response <- EffectClass.liftEffect $ Buffer.toArray responseBuf
+  response ?= expected
+  where port = Binary.port
+
+chunkedSpec :: TestHelpers.Test
+chunkedSpec = Spec.it "runs the chunked example" do
+  EffectClass.liftEffect Chunked.main
+  response <- TestHelpers.get port Object.empty "/"
+  -- TODO this isn't a great way to validate this, we need a way of inspecting
+  -- each individual chunk instead of just looking at the entire response
+  response ?= "hello world!"
+  where port = Chunked.port
 
 headersSpec :: TestHelpers.Test
 headersSpec = Spec.it "runs the headers example" do
@@ -44,16 +64,6 @@ helloWorldSpec = Spec.it "runs the hello world example" do
   response <- TestHelpers.get port Object.empty "/"
   response ?= "hello world!"
   where port = HelloWorld.port
-
-imageSpec :: TestHelpers.Test
-imageSpec = Spec.it "runs the image example" do
-  imageBuf <- FS.readFile Image.filePath
-  expected <- EffectClass.liftEffect $ Buffer.toArray imageBuf
-  EffectClass.liftEffect Image.main
-  responseBuf <- TestHelpers.getBinary port Object.empty "/"
-  response <- EffectClass.liftEffect $ Buffer.toArray responseBuf
-  response ?= expected
-  where port = Image.port
 
 middlewareSpec :: TestHelpers.Test
 middlewareSpec = Spec.it "runs the middleware example" do
@@ -86,6 +96,13 @@ pathSegmentsSpec = Spec.it "runs the path segments example" do
   somebars ?= "[\"some\",\"bars\"]"
   where port = PathSegments.port
 
+postSpec :: TestHelpers.Test
+postSpec = Spec.it "runs the post example" do
+  EffectClass.liftEffect Post.main
+  response <- TestHelpers.post port Object.empty "/" "test"
+  response ?= "test"
+  where port = Post.port
+
 queryParametersSpec :: TestHelpers.Test
 queryParametersSpec = Spec.it "runs the query parameters example" do
   EffectClass.liftEffect QueryParameters.main
@@ -99,13 +116,6 @@ queryParametersSpec = Spec.it "runs the query parameters example" do
   baz ?= "test"
   where port = QueryParameters.port
 
-postSpec :: TestHelpers.Test
-postSpec = Spec.it "runs the post example" do
-  EffectClass.liftEffect Post.main
-  response <- TestHelpers.post port Object.empty "/" "test"
-  response ?= "test"
-  where port = Post.port
-
 sslSpec :: TestHelpers.Test
 sslSpec = Spec.it "runs the ssl example" do
   EffectClass.liftEffect SSL.main
@@ -116,12 +126,13 @@ sslSpec = Spec.it "runs the ssl example" do
 integrationSpec :: TestHelpers.Test
 integrationSpec = Spec.describe "Integration" do
   asyncResponseSpec
+  binarySpec
+  chunkedSpec
   headersSpec
   helloWorldSpec
-  imageSpec
   middlewareSpec
   multiRouteSpec
   pathSegmentsSpec
-  queryParametersSpec
   postSpec
+  queryParametersSpec
   sslSpec
