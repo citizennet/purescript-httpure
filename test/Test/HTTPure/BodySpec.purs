@@ -36,9 +36,9 @@ additionalHeadersSpec = Spec.describe "additionalHeaders" do
       buf <- EffectClass.liftEffect $ Buffer.fromString "foobar" Encoding.UTF8
       headers <- EffectClass.liftEffect $ Body.additionalHeaders buf
       headers ?= Headers.header "Content-Length" "6"
-  Spec.describe "Chunked" do
+  Spec.describe "Readable" do
     Spec.it "specifies the Transfer-Encoding header" do
-      let body = Body.Chunked $ TestHelpers.stringToStream "test"
+      let body = TestHelpers.stringToStream "test"
       headers <- EffectClass.liftEffect $ Body.additionalHeaders body
       headers ?= Headers.header "Transfer-Encoding" "chunked"
 
@@ -59,12 +59,11 @@ writeSpec = Spec.describe "write" do
         Body.write buf resp
         pure $ TestHelpers.getResponseBody resp
       body ?= "test"
-  Spec.describe "Chunked" do
+  Spec.describe "Readable" do
     Spec.it "pipes the input stream to the Response body" do
       body <- do
         resp <- EffectClass.liftEffect TestHelpers.mockResponse
-        let body = Body.Chunked $ TestHelpers.stringToStream "test"
-        Body.write body resp
+        Body.write (TestHelpers.stringToStream "test") resp
         pure $ TestHelpers.getResponseBody resp
       body ?= "test"
 

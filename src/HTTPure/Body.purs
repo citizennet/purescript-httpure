@@ -1,6 +1,5 @@
 module HTTPure.Body
   ( class Body
-  , Chunked(..)
   , additionalHeaders
   , read
   , write
@@ -16,10 +15,9 @@ import Node.Buffer as Buffer
 import Node.Encoding as Encoding
 import Node.HTTP as HTTP
 import Node.Stream as Stream
+import Type.Equality as TypeEquals
 
 import HTTPure.Headers as Headers
-
-newtype Chunked = Chunked (Stream.Readable ())
 
 -- | Types that implement the `Body` class can be used as a body to an HTTPure
 -- | response, and can be used with all the response helpers.
@@ -69,13 +67,16 @@ instance bodyBuffer :: Body Buffer.Buffer where
 -- | This instance can be used to send chunked data.  Here, we add a
 -- | `Transfer-Encoding` header to indicate chunked data.  To write the data, we
 -- | simply pipe the newtype-wrapped `Stream` to the response.
-instance bodyChunked :: Body Chunked where
+instance bodyChunked ::
+  TypeEquals.TypeEquals (Stream.Stream r) (Stream.Readable ()) =>
+  Body (Stream.Stream r) where
 
   additionalHeaders _ = pure $ Headers.header "Transfer-Encoding" "chunked"
 
-  write (Chunked body) response = Aff.makeAff \done -> do
-    _ <- Stream.pipe body $ HTTP.responseAsStream response
-    Stream.onEnd body $ done $ Either.Right unit
+  write body response = Aff.makeAff \done -> do
+    let stream = TypeEquals.to body
+    _ <- Stream.pipe stream $ HTTP.responseAsStream response
+    Stream.onEnd stream $ done $ Either.Right unit
     pure Aff.nonCanceler
 
 -- | Extract the contents of the body of the HTTP `Request`.

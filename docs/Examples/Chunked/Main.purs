@@ -20,7 +20,7 @@ foreign import stagger :: String -> String -> Int -> Stream.Readable ()
 
 -- | Say 'hello world!' in chunks when run
 sayHello :: HTTPure.Request -> HTTPure.ResponseM
-sayHello _ = HTTPure.ok $ HTTPure.Chunked $ stagger "hello " "world!" 1000
+sayHello _ = HTTPure.ok $ stagger "hello " "world!" 1000
 
 -- | Boot up the server
 main :: HTTPure.ServerM
