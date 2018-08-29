@@ -119,10 +119,10 @@ response' :: forall b. Body.Body b =>
              b ->
              ResponseM
 response' status headers body = EffectClass.liftEffect do
-  additionalHeaders <- Body.additionalHeaders body
+  defaultHeaders <- Body.defaultHeaders body
   pure
     { status
-    , headers: headers <> additionalHeaders
+    , headers: defaultHeaders <> headers
     , writeBody: Body.write body
     }
 

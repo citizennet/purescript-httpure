@@ -57,7 +57,7 @@ responseFunctionSpec = Spec.describe "response" do
     resp.status ?= 123
   Spec.it "has only default headers" do
     resp <- Response.response 123 "test"
-    defaultHeaders <- EffectClass.liftEffect $ Body.additionalHeaders "test"
+    defaultHeaders <- EffectClass.liftEffect $ Body.defaultHeaders "test"
     resp.headers ?= defaultHeaders
   Spec.it "has the right writeBody function" do
     body <- do
@@ -74,7 +74,7 @@ response'Spec = Spec.describe "response'" do
     resp.status ?= 123
   Spec.it "has the right headers" do
     resp <- mockResponse
-    defaultHeaders <- EffectClass.liftEffect $ Body.additionalHeaders "test"
+    defaultHeaders <- EffectClass.liftEffect $ Body.defaultHeaders "test"
     resp.headers ?= defaultHeaders <> mockHeaders
   Spec.it "has the right writeBody function" do
     body <- do
@@ -94,7 +94,7 @@ emptyResponseSpec = Spec.describe "emptyResponse" do
     resp.status ?= 123
   Spec.it "has only default headers" do
     resp <- Response.emptyResponse 123
-    defaultHeaders <- EffectClass.liftEffect $ Body.additionalHeaders ""
+    defaultHeaders <- EffectClass.liftEffect $ Body.defaultHeaders ""
     resp.headers ?= defaultHeaders
   Spec.it "has the right writeBody function" do
     body <- do
@@ -111,7 +111,7 @@ emptyResponse'Spec = Spec.describe "emptyResponse'" do
     resp.status ?= 123
   Spec.it "has the right headers" do
     resp <- mockResponse
-    defaultHeaders <- EffectClass.liftEffect $ Body.additionalHeaders ""
+    defaultHeaders <- EffectClass.liftEffect $ Body.defaultHeaders ""
     resp.headers ?= mockHeaders <> defaultHeaders
   Spec.it "has the right writeBody function" do
     body <- do

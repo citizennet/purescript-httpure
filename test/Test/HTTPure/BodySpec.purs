@@ -20,26 +20,26 @@ readSpec = Spec.describe "read" do
     body <- Body.read request
     body ?= "test"
 
-additionalHeadersSpec :: TestHelpers.Test
-additionalHeadersSpec = Spec.describe "additionalHeaders" do
+defaultHeadersSpec :: TestHelpers.Test
+defaultHeadersSpec = Spec.describe "defaultHeaders" do
   Spec.describe "String" do
     Spec.describe "with an ASCII string" do
       Spec.it "has the correct Content-Length header" do
-        headers <- EffectClass.liftEffect $ Body.additionalHeaders "ascii"
+        headers <- EffectClass.liftEffect $ Body.defaultHeaders "ascii"
         headers ?= Headers.header "Content-Length" "5"
     Spec.describe "with a UTF-8 string" do
       Spec.it "has the correct Content-Length header" do
-        headers <- EffectClass.liftEffect $ Body.additionalHeaders "\x2603"
+        headers <- EffectClass.liftEffect $ Body.defaultHeaders "\x2603"
         headers ?= Headers.header "Content-Length" "3"
   Spec.describe "Buffer" do
     Spec.it "has the correct Content-Length header" do
       buf <- EffectClass.liftEffect $ Buffer.fromString "foobar" Encoding.UTF8
-      headers <- EffectClass.liftEffect $ Body.additionalHeaders buf
+      headers <- EffectClass.liftEffect $ Body.defaultHeaders buf
       headers ?= Headers.header "Content-Length" "6"
   Spec.describe "Readable" do
     Spec.it "specifies the Transfer-Encoding header" do
       let body = TestHelpers.stringToStream "test"
-      headers <- EffectClass.liftEffect $ Body.additionalHeaders body
+      headers <- EffectClass.liftEffect $ Body.defaultHeaders body
       headers ?= Headers.header "Transfer-Encoding" "chunked"
 
 writeSpec :: TestHelpers.Test
@@ -69,6 +69,6 @@ writeSpec = Spec.describe "write" do
 
 bodySpec :: TestHelpers.Test
 bodySpec = Spec.describe "Body" do
-  additionalHeadersSpec
+  defaultHeadersSpec
   readSpec
   writeSpec
