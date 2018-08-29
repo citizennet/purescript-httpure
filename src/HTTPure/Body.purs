@@ -54,9 +54,8 @@ instance bodyString :: Body String where
 -- | the stream and end the stream.
 instance bodyBuffer :: Body Buffer.Buffer where
 
-  defaultHeaders buf = do
-    size <- Buffer.size buf
-    pure $ Headers.header "Content-Length" $ show size
+  defaultHeaders buf =
+    Headers.header "Content-Length" <$> show <$> Buffer.size buf
 
   write body response = Aff.makeAff \done -> do
     let stream = HTTP.responseAsStream response

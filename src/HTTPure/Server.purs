@@ -34,10 +34,8 @@ handleRequest :: (Request.Request -> Response.ResponseM) ->
                  HTTP.Response ->
                  ServerM
 handleRequest router request httpresponse =
-  void $ Aff.runAff (\_ -> pure unit) do
-    req <- Request.fromHTTPRequest request
-    response <- router req
-    Response.send httpresponse response
+  void $ Aff.runAff (\_ -> pure unit) $
+    Request.fromHTTPRequest request >>= router >>= Response.send httpresponse
 
 -- | Given a `ListenOptions` object, a function mapping `Request` to
 -- | `ResponseM`, and a `ServerM` containing effects to run on boot, creates and

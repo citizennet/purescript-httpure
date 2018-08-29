@@ -2,10 +2,12 @@ module Examples.Chunked.Main where
 
 import Prelude
 
+import Effect.Aff as Aff
 import Effect.Class as EffectClass
 import Effect.Console as Console
 import HTTPure as HTTPure
 import Node.ChildProcess as ChildProcess
+import Node.Stream as Stream
 
 -- | Serve the example server on this port
 port :: Int
@@ -15,16 +17,15 @@ port = 8091
 portS :: String
 portS = show port
 
--- | This is the script that says hello!
-script :: String
-script = "echo -n 'hello '; sleep 1; echo -n 'world!'"
+-- | Run a script and return it's stdout stream
+runScript :: String -> Aff.Aff (Stream.Readable ())
+runScript script = EffectClass.liftEffect $ ChildProcess.stdout <$>
+  ChildProcess.spawn "sh" [ "-c", script ] ChildProcess.defaultSpawnOptions
 
 -- | Say 'hello world!' in chunks when run
 sayHello :: HTTPure.Request -> HTTPure.ResponseM
-sayHello _ = do
-  child <- EffectClass.liftEffect $
-    ChildProcess.spawn "sh" [ "-c", script ] ChildProcess.defaultSpawnOptions
-  HTTPure.ok $ ChildProcess.stdout $ child
+sayHello _ =
+  runScript "echo -n 'hello '; sleep 1; echo -n 'world!'" >>= HTTPure.ok
 
 -- | Boot up the server
 main :: HTTPure.ServerM
