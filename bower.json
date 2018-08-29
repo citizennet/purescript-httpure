@@ -17,17 +17,18 @@
     "*.md"
   ],
   "dependencies": {
-    "purescript-prelude": "^4.0.1",
     "purescript-aff": "^5.0.0",
+    "purescript-foldable-traversable": "^4.0.0",
     "purescript-node-fs": "^5.0.0",
     "purescript-node-http": "^5.0.0",
-    "purescript-strings": "^4.0.0",
-    "purescript-foldable-traversable": "^4.0.0"
+    "purescript-prelude": "^4.0.1",
+    "purescript-strings": "^4.0.0"
   },
   "devDependencies": {
+    "purescript-node-child-process": "^5.0.0",
+    "purescript-node-fs-aff": "^6.0.0",
     "purescript-psci-support": "^4.0.0",
     "purescript-spec": "^3.0.0",
-    "purescript-unsafe-coerce": "^4.0.0",
-    "purescript-node-fs-aff": "^6.0.0"
+    "purescript-unsafe-coerce": "^4.0.0"
   }
 }
