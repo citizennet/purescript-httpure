@@ -2,6 +2,7 @@ unreleased
 ==========
 - Re-export `HTTPure.Query` and `HTTPure.Status` (thanks **@akheron**)
 - Support binary response body (thanks **@akheron**)
+- Add support for chunked responses
 
 0.7.0 / 2018-07-08
 ==================
