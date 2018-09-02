@@ -26,30 +26,35 @@ mockRouter { path } = Response.ok $ "/" <> String.joinWith "/" path
 serveSpec :: TestHelpers.Test
 serveSpec = Spec.describe "serve" do
   Spec.it "boots a server on the given port" do
-    EffectClass.liftEffect $ Server.serve 7901 mockRouter $ pure unit
-    out <- TestHelpers.get 7901 Object.empty "/test"
+    close <- EffectClass.liftEffect $ Server.serve 8080 mockRouter $ pure unit
+    out <- TestHelpers.get 8080 Object.empty "/test"
+    EffectClass.liftEffect $ close $ pure unit
     out ?= "/test"
 
 serve'Spec :: TestHelpers.Test
 serve'Spec = Spec.describe "serve'" do
   Spec.it "boots a server with the given options" do
-    EffectClass.liftEffect $ Server.serve' options mockRouter $ pure unit
-    out <- TestHelpers.get 7902 Object.empty "/test"
+    close <- EffectClass.liftEffect $
+      Server.serve' options mockRouter $ pure unit
+    out <- TestHelpers.get 8080 Object.empty "/test"
+    EffectClass.liftEffect $ close $ pure unit
     out ?= "/test"
   where
-    options = { hostname: "localhost", port: 7902, backlog: Maybe.Nothing }
+    options = { hostname: "localhost", port: 8080, backlog: Maybe.Nothing }
 
 serveSecureSpec :: TestHelpers.Test
 serveSecureSpec = Spec.describe "serveSecure" do
   Spec.describe "with valid key and cert files" do
     Spec.it "boots a server on the given port" do
-      EffectClass.liftEffect $ Server.serveSecure 7903 cert key mockRouter $ pure unit
-      out <- TestHelpers.get' 7903 Object.empty "/test"
+      close <- EffectClass.liftEffect $
+        Server.serveSecure 8080 cert key mockRouter $ pure unit
+      out <- TestHelpers.get' 8080 Object.empty "/test"
+      EffectClass.liftEffect $ close $ pure unit
       out ?= "/test"
   Spec.describe "with invalid key and cert files" do
     Spec.it "throws" do
-      AffAssertions.expectError do
-        EffectClass.liftEffect $ Server.serveSecure 7904 "" "" mockRouter $ pure unit
+      AffAssertions.expectError $ EffectClass.liftEffect $
+        Server.serveSecure 8080 "" "" mockRouter $ pure unit
   where
     cert = "./test/Mocks/Certificate.cer"
     key = "./test/Mocks/Key.key"
@@ -59,9 +64,10 @@ serveSecure'Spec = Spec.describe "serveSecure'" do
   Spec.describe "with valid key and cert files" do
     Spec.it "boots a server on the given port" do
       sslOpts <- EffectClass.liftEffect $ sslOptions
-      EffectClass.liftEffect $
-        Server.serveSecure' sslOpts (options 7905) mockRouter $ pure unit
-      out <- TestHelpers.get' 7905 Object.empty "/test"
+      close <- EffectClass.liftEffect $
+        Server.serveSecure' sslOpts (options 8080) mockRouter $ pure unit
+      out <- TestHelpers.get' 8080 Object.empty "/test"
+      EffectClass.liftEffect $ close $ pure unit
       out ?= "/test"
   where
     options port = { hostname: "localhost", port, backlog: Maybe.Nothing }

@@ -25,103 +25,103 @@ import Examples.SSL.Main as SSL
 
 asyncResponseSpec :: TestHelpers.Test
 asyncResponseSpec = Spec.it "runs the async response example" do
-  EffectClass.liftEffect AsyncResponse.main
-  response <- TestHelpers.get port Object.empty "/"
+  close <- EffectClass.liftEffect AsyncResponse.main
+  response <- TestHelpers.get 8080 Object.empty "/"
+  EffectClass.liftEffect $ close $ pure unit
   response ?= "hello world!"
-  where port = AsyncResponse.port
 
 binarySpec :: TestHelpers.Test
 binarySpec = Spec.it "runs the binary example" do
+  close <- EffectClass.liftEffect Binary.main
+  responseBuf <- TestHelpers.getBinary 8080 Object.empty "/"
+  EffectClass.liftEffect $ close $ pure unit
   binaryBuf <- FS.readFile Binary.filePath
   expected <- EffectClass.liftEffect $ Buffer.toArray binaryBuf
-  EffectClass.liftEffect Binary.main
-  responseBuf <- TestHelpers.getBinary port Object.empty "/"
   response <- EffectClass.liftEffect $ Buffer.toArray responseBuf
   response ?= expected
-  where port = Binary.port
 
 chunkedSpec :: TestHelpers.Test
 chunkedSpec = Spec.it "runs the chunked example" do
-  EffectClass.liftEffect Chunked.main
-  response <- TestHelpers.get port Object.empty "/"
+  close <- EffectClass.liftEffect Chunked.main
+  response <- TestHelpers.get 8080 Object.empty "/"
+  EffectClass.liftEffect $ close $ pure unit
   -- TODO this isn't a great way to validate this, we need a way of inspecting
   -- each individual chunk instead of just looking at the entire response
   response ?= "hello world!"
-  where port = Chunked.port
 
 headersSpec :: TestHelpers.Test
 headersSpec = Spec.it "runs the headers example" do
-  EffectClass.liftEffect Headers.main
-  header <- TestHelpers.getHeader port Object.empty "/" "X-Example"
+  close <- EffectClass.liftEffect Headers.main
+  header <- TestHelpers.getHeader 8080 Object.empty "/" "X-Example"
+  response <- TestHelpers.get 8080 (Object.singleton "X-Input" "test") "/"
+  EffectClass.liftEffect $ close $ pure unit
   header ?= "hello world!"
-  response <- TestHelpers.get port (Object.singleton "X-Input" "test") "/"
   response ?= "test"
-  where port = Headers.port
 
 helloWorldSpec :: TestHelpers.Test
 helloWorldSpec = Spec.it "runs the hello world example" do
-  EffectClass.liftEffect HelloWorld.main
-  response <- TestHelpers.get port Object.empty "/"
+  close <- EffectClass.liftEffect HelloWorld.main
+  response <- TestHelpers.get 8080 Object.empty "/"
+  EffectClass.liftEffect $ close $ pure unit
   response ?= "hello world!"
-  where port = HelloWorld.port
 
 middlewareSpec :: TestHelpers.Test
 middlewareSpec = Spec.it "runs the middleware example" do
-  EffectClass.liftEffect Middleware.main
-  header <- TestHelpers.getHeader port Object.empty "/" "X-Middleware"
+  close <- EffectClass.liftEffect Middleware.main
+  header <- TestHelpers.getHeader 8080 Object.empty "/" "X-Middleware"
+  body <- TestHelpers.get 8080 Object.empty "/"
+  header' <- TestHelpers.getHeader 8080 Object.empty "/middleware" "X-Middleware"
+  body' <- TestHelpers.get 8080 Object.empty "/middleware"
+  EffectClass.liftEffect $ close $ pure unit
   header ?= "router"
-  body <- TestHelpers.get port Object.empty "/"
   body ?= "hello"
-  header' <- TestHelpers.getHeader port Object.empty "/middleware" "X-Middleware"
   header' ?= "middleware"
-  body' <- TestHelpers.get port Object.empty "/middleware"
   body' ?= "Middleware!"
-  where port = Middleware.port
 
 multiRouteSpec :: TestHelpers.Test
 multiRouteSpec = Spec.it "runs the multi route example" do
-  EffectClass.liftEffect MultiRoute.main
-  hello <- TestHelpers.get port Object.empty "/hello"
+  close <- EffectClass.liftEffect MultiRoute.main
+  hello <- TestHelpers.get 8080 Object.empty "/hello"
+  goodbye <- TestHelpers.get 8080 Object.empty "/goodbye"
+  EffectClass.liftEffect $ close $ pure unit
   hello ?= "hello"
-  goodbye <- TestHelpers.get port Object.empty "/goodbye"
   goodbye ?= "goodbye"
-  where port = MultiRoute.port
 
 pathSegmentsSpec :: TestHelpers.Test
 pathSegmentsSpec = Spec.it "runs the path segments example" do
-  EffectClass.liftEffect PathSegments.main
-  foo <- TestHelpers.get port Object.empty "/segment/foo"
+  close <- EffectClass.liftEffect PathSegments.main
+  foo <- TestHelpers.get 8080 Object.empty "/segment/foo"
+  somebars <- TestHelpers.get 8080 Object.empty "/some/bars"
+  EffectClass.liftEffect $ close $ pure unit
   foo ?= "foo"
-  somebars <- TestHelpers.get port Object.empty "/some/bars"
   somebars ?= "[\"some\",\"bars\"]"
-  where port = PathSegments.port
 
 postSpec :: TestHelpers.Test
 postSpec = Spec.it "runs the post example" do
-  EffectClass.liftEffect Post.main
-  response <- TestHelpers.post port Object.empty "/" "test"
+  close <- EffectClass.liftEffect Post.main
+  response <- TestHelpers.post 8080 Object.empty "/" "test"
+  EffectClass.liftEffect $ close $ pure unit
   response ?= "test"
-  where port = Post.port
 
 queryParametersSpec :: TestHelpers.Test
 queryParametersSpec = Spec.it "runs the query parameters example" do
-  EffectClass.liftEffect QueryParameters.main
-  foo <- TestHelpers.get port Object.empty "/?foo"
+  close <- EffectClass.liftEffect QueryParameters.main
+  foo <- TestHelpers.get 8080 Object.empty "/?foo"
+  bar <- TestHelpers.get 8080 Object.empty "/?bar=test"
+  notbar <- TestHelpers.get 8080 Object.empty "/?bar=nottest"
+  baz <- TestHelpers.get 8080 Object.empty "/?baz=test"
+  EffectClass.liftEffect $ close $ pure unit
   foo ?= "foo"
-  bar <- TestHelpers.get port Object.empty "/?bar=test"
   bar ?= "bar"
-  notbar <- TestHelpers.get port Object.empty "/?bar=nottest"
   notbar ?= ""
-  baz <- TestHelpers.get port Object.empty "/?baz=test"
   baz ?= "test"
-  where port = QueryParameters.port
 
 sslSpec :: TestHelpers.Test
 sslSpec = Spec.it "runs the ssl example" do
-  EffectClass.liftEffect SSL.main
-  response <- TestHelpers.get' port Object.empty "/"
+  close <- EffectClass.liftEffect SSL.main
+  response <- TestHelpers.get' 8080 Object.empty "/"
+  EffectClass.liftEffect $ close $ pure unit
   response ?= "hello world!"
-  where port = SSL.port
 
 integrationSpec :: TestHelpers.Test
 integrationSpec = Spec.describe "Integration" do

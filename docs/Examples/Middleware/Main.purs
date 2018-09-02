@@ -6,14 +6,6 @@ import Effect.Class as EffectClass
 import Effect.Console as Console
 import HTTPure as HTTPure
 
--- | Serve the example server on this port
-port :: Int
-port = 8089
-
--- | Shortcut for `show port`
-portS :: String
-portS = show port
-
 -- | A middleware that logs at the beginning and end of each request
 loggingMiddleware :: (HTTPure.Request -> HTTPure.ResponseM) ->
                      HTTPure.Request ->
@@ -51,17 +43,17 @@ sayHello _ = HTTPure.ok' (HTTPure.header "X-Middleware" "router") "hello"
 
 -- | Boot up the server
 main :: HTTPure.ServerM
-main = HTTPure.serve port (middlewares sayHello) do
+main = HTTPure.serve 8080 (middlewares sayHello) do
   Console.log $ " ┌───────────────────────────────────────┐"
-  Console.log $ " │ Server now up on port " <> portS <> "            │"
+  Console.log $ " │ Server now up on port 8080            │"
   Console.log $ " │                                       │"
   Console.log $ " │ To test, run:                         │"
-  Console.log $ " │  > curl -v localhost:" <> portS <> "             │"
+  Console.log $ " │  > curl -v localhost:8080             │"
   Console.log $ " │    # => ...                           │"
   Console.log $ " │    # => ...< X-Middleware: router     │"
   Console.log $ " │    # => ...                           │"
   Console.log $ " │    # => hello                         │"
-  Console.log $ " │  > curl -v localhost:" <> portS <> "/middleware  │"
+  Console.log $ " │  > curl -v localhost:8080/middleware  │"
   Console.log $ " │    # => ...                           │"
   Console.log $ " │    # => ...< X-Middleware: middleware │"
   Console.log $ " │    # => ...                           │"
