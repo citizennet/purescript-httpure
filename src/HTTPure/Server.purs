@@ -20,10 +20,10 @@ import Node.HTTP.Secure as HTTPS
 import HTTPure.Request as Request
 import HTTPure.Response as Response
 
--- | The `ServerM` type simply conveniently wraps up an HTTPure monad that
--- | returns a `Unit`. This type is the return type of the HTTPure serve and
--- | related methods.
-type ServerM = Effect.Effect Unit
+-- | The `ServerM` is just an `Effect` containing a callback to close the
+-- | server. This type is the return type of the HTTPure serve and related
+-- | methods.
+type ServerM = Effect.Effect (Effect.Effect Unit -> Effect.Effect Unit)
 
 -- | This function takes a method which takes a `Request` and returns a
 -- | `ResponseM`, an HTTP `Request`, and an HTTP `Response`. It runs the
@@ -32,7 +32,7 @@ type ServerM = Effect.Effect Unit
 handleRequest :: (Request.Request -> Response.ResponseM) ->
                  HTTP.Request ->
                  HTTP.Response ->
-                 ServerM
+                 Effect.Effect Unit
 handleRequest router request httpresponse =
   void $ Aff.runAff (\_ -> pure unit) $
     Request.fromHTTPRequest request >>= router >>= Response.send httpresponse
@@ -42,11 +42,12 @@ handleRequest router request httpresponse =
 -- | runs a HTTPure server without SSL.
 serve' :: HTTP.ListenOptions ->
           (Request.Request -> Response.ResponseM) ->
-          ServerM ->
+          Effect.Effect Unit ->
           ServerM
-serve' options router onStarted =
-  HTTP.createServer (handleRequest router) >>= \server ->
-    HTTP.listen server options onStarted
+serve' options router onStarted = do
+  server <- HTTP.createServer (handleRequest router)
+  HTTP.listen server options onStarted
+  pure $ HTTP.close server
 
 -- | Given a `Options HTTPS.SSLOptions` object and a `HTTP.ListenOptions`
 -- | object, a function mapping `Request` to `ResponseM`, and a `ServerM`
@@ -55,11 +56,12 @@ serve' options router onStarted =
 serveSecure' :: Options HTTPS.SSLOptions ->
                 HTTP.ListenOptions ->
                 (Request.Request -> Response.ResponseM) ->
-                ServerM ->
+                Effect.Effect Unit ->
                 ServerM
-serveSecure' sslOptions options router onStarted =
-  HTTPS.createServer sslOptions (handleRequest router) >>= \server ->
-    HTTP.listen server options onStarted
+serveSecure' sslOptions options router onStarted = do
+  server <- HTTPS.createServer sslOptions (handleRequest router)
+  HTTP.listen server options onStarted
+  pure $ HTTP.close server
 
 -- | Given a port number, return a `HTTP.ListenOptions` `Record`.
 listenOptions :: Int -> HTTP.ListenOptions
@@ -76,7 +78,7 @@ listenOptions port =
 -- | effects.
 serve :: Int ->
          (Request.Request -> Response.ResponseM) ->
-         ServerM ->
+         Effect.Effect Unit ->
          ServerM
 serve = serve' <<< listenOptions
 
@@ -91,7 +93,7 @@ serveSecure :: Int ->
                String ->
                String ->
                (Request.Request -> Response.ResponseM) ->
-               ServerM ->
+               Effect.Effect Unit ->
                ServerM
 serveSecure port cert key router onStarted = do
   cert' <- FSSync.readTextFile Encoding.UTF8 cert

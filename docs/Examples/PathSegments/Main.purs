@@ -6,14 +6,6 @@ import Effect.Console as Console
 import HTTPure as HTTPure
 import HTTPure ((!@))
 
--- | Serve the example server on this port
-port :: Int
-port = 8086
-
--- | Shortcut for `show port`
-portS :: String
-portS = show port
-
 -- | Specify the routes
 router :: HTTPure.Request -> HTTPure.ResponseM
 router { path }
@@ -22,13 +14,13 @@ router { path }
 
 -- | Boot up the server
 main :: HTTPure.ServerM
-main = HTTPure.serve port router do
+main = HTTPure.serve 8080 router do
   Console.log $ " ┌───────────────────────────────────────────────┐"
-  Console.log $ " │ Server now up on port " <> portS <> "                    │"
+  Console.log $ " │ Server now up on port 8080                    │"
   Console.log $ " │                                               │"
   Console.log $ " │ To test, run:                                 │"
-  Console.log $ " │  > curl localhost:" <> portS <> "/segment/<anything>     │"
+  Console.log $ " │  > curl localhost:8080/segment/<anything>     │"
   Console.log $ " │    # => <anything>                            │"
-  Console.log $ " │  > curl localhost:" <> portS <> "/<anything>/<else>/...  │"
+  Console.log $ " │  > curl localhost:8080/<anything>/<else>/...  │"
   Console.log $ " │    # => [ <anything>, <else>, ... ]           │"
   Console.log $ " └───────────────────────────────────────────────┘"
