@@ -14,10 +14,12 @@ router _                       = HTTPure.notFound
 -- | Boot up the server
 main :: HTTPure.ServerM
 main = HTTPure.serve 8080 router do
-  Console.log $ " ┌───────────────────────────────────────────────┐"
-  Console.log $ " │ Server now up on port 8080                    │"
-  Console.log $ " │                                               │"
-  Console.log $ " │ To test, run:                                 │"
-  Console.log $ " │  > curl localhost:8080/hello     # => hello   │"
-  Console.log $ " │  > curl localhost:8080/goodbye   # => goodbye │"
-  Console.log $ " └───────────────────────────────────────────────┘"
+  Console.log $ " ┌────────────────────────────────┐"
+  Console.log $ " │ Server now up on port 8080     │"
+  Console.log $ " │                                │"
+  Console.log $ " │ To test, run:                  │"
+  Console.log $ " │  > curl localhost:8080/hello   │"
+  Console.log $ " │    # => hello                  │"
+  Console.log $ " │  > curl localhost:8080/goodbye │"
+  Console.log $ " │    # => goodbye                │"
+  Console.log $ " └────────────────────────────────┘"

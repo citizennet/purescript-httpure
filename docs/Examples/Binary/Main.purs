@@ -20,9 +20,9 @@ image = const $ FS.readFile filePath >>= HTTPure.ok' responseHeaders
 -- | Boot up the server
 main :: HTTPure.ServerM
 main = HTTPure.serve 8080 image do
-  Console.log $ " ┌────────────────────────────────────────────┐"
-  Console.log $ " │ Server now up on port 8080                 │"
-  Console.log $ " │                                            │"
-  Console.log $ " │ To test, run:                              │"
-  Console.log $ " │  > curl -o circle.png localhost:8080       │"
-  Console.log $ " └────────────────────────────────────────────┘"
+  Console.log $ " ┌──────────────────────────────────────┐"
+  Console.log $ " │ Server now up on port 8080           │"
+  Console.log $ " │                                      │"
+  Console.log $ " │ To test, run:                        │"
+  Console.log $ " │  > curl -o circle.png localhost:8080 │"
+  Console.log $ " └──────────────────────────────────────┘"
