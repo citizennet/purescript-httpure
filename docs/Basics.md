@@ -31,7 +31,7 @@ Most of the [examples](./Examples), besides [the SSL Example](./Examples/SSL),
 use this method to create the server.
 
 You can also create a server using a custom
-`[HTTP.ListenOptions](http://bit.ly/2G42rLd)` value:
+[`HTTP.ListenOptions`](http://bit.ly/2G42rLd) value:
 
 ```purescript
 main :: HTTPure.ServerM
@@ -55,8 +55,8 @@ You can look at [the SSL Example](./Examples/SSL/Main.purs), which uses this
 method to create the server.
 
 You can also create a server using a
-`[HTTP.ListenOptions](http://bit.ly/2G42rLd)` and a `Options
-[HTTPS.SSLOptions](http://bit.ly/2G3Aljr)`:
+[`HTTP.ListenOptions`](http://bit.ly/2G42rLd) and a
+[`HTTPS.SSLOptions`](http://bit.ly/2G3Aljr):
 
 ```purescript
 main :: HTTPure.ServerM
