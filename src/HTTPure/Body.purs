@@ -8,8 +8,7 @@ module HTTPure.Body
 import Prelude
 
 import Data.Either as Either
-import Data.Foldable (foldMap)
-import Effect (Effect)
+import Data.Foldable as Foldable
 import Effect as Effect
 import Effect.Aff as Aff
 import HTTPure.Headers as Headers
@@ -80,8 +79,8 @@ instance bodyChunked ::
     pure Aff.nonCanceler
 
 foreign import aggregateChunks :: forall w. Stream.Readable w ->
-                                  (Array Buffer.Buffer -> Effect Unit) ->
-                                  Effect Unit
+                                  (Array Buffer.Buffer -> Effect.Effect Unit) ->
+                                  Effect.Effect Unit
 
 -- | Extract the contents of the body of the HTTP `Request`.
 read :: HTTP.Request -> Aff.Aff String
@@ -90,5 +89,5 @@ read request = Aff.makeAff \done -> do
     stream = HTTP.requestAsStream request
     decode = Buffer.toString Encoding.UTF8
   aggregateChunks stream $
-    (foldMap decode >=> (Either.Right >>> pure) >=> done)
+    Foldable.foldMap decode >=> Either.Right >>> pure >=> done
   pure Aff.nonCanceler
