@@ -78,6 +78,16 @@ instance bodyChunked ::
     Stream.onEnd stream $ done $ Either.Right unit
     pure Aff.nonCanceler
 
+-- | Given a readable stream accumulates incomming chunks preserving
+-- | their original order.
+-- |
+-- | We want to append every chunk using single function call
+-- | to ensure "atomicity" of this action. If we use any additional
+-- | function calls inside our data handler Javascript scheduler can interleave
+-- | processing of multiple chunks and we can't be sure if they end up
+-- | in correct order.
+-- |
+-- | Please refer to #117 for more details.
 foreign import aggregateChunks :: forall w. Stream.Readable w ->
                                   (Array Buffer.Buffer -> Effect.Effect Unit) ->
                                   Effect.Effect Unit
