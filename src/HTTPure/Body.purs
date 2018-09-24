@@ -8,16 +8,16 @@ module HTTPure.Body
 import Prelude
 
 import Data.Either as Either
+import Data.Foldable (foldMap)
+import Effect (Effect)
 import Effect as Effect
 import Effect.Aff as Aff
-import Effect.Ref as Ref
+import HTTPure.Headers as Headers
 import Node.Buffer as Buffer
 import Node.Encoding as Encoding
 import Node.HTTP as HTTP
 import Node.Stream as Stream
 import Type.Equality as TypeEquals
-
-import HTTPure.Headers as Headers
 
 -- | Types that implement the `Body` class can be used as a body to an HTTPure
 -- | response, and can be used with all the response helpers.
@@ -79,12 +79,16 @@ instance bodyChunked ::
     Stream.onEnd stream $ done $ Either.Right unit
     pure Aff.nonCanceler
 
+foreign import aggregateChunks :: forall w. Stream.Readable w ->
+                                  (Array Buffer.Buffer -> Effect Unit) ->
+                                  Effect Unit
+
 -- | Extract the contents of the body of the HTTP `Request`.
 read :: HTTP.Request -> Aff.Aff String
 read request = Aff.makeAff \done -> do
-  let stream = HTTP.requestAsStream request
-  buf <- Ref.new ""
-  Stream.onDataString stream Encoding.UTF8 \str ->
-    void $ Ref.modify ((<>) str) buf
-  Stream.onEnd stream $ Ref.read buf >>= Either.Right >>> done
+  let
+    stream = HTTP.requestAsStream request
+    decode = Buffer.toString Encoding.UTF8
+  aggregateChunks stream $
+    (foldMap decode >=> (Either.Right >>> pure) >=> done)
   pure Aff.nonCanceler
