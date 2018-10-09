@@ -125,6 +125,13 @@ getHeader :: Int ->
 getHeader port headers path header =
   extractHeader header <$> request false port "GET" headers path ""
 
+getStatus :: Int ->
+             Object.Object String ->
+             String ->
+             Aff.Aff Int
+getStatus port headers path =
+  HTTPClient.statusCode <$> request false port "GET" headers path ""
+
 -- | Mock an HTTP Request object
 foreign import mockRequestImpl ::
   String ->

@@ -3,6 +3,8 @@ module Test.HTTPure.ServerSpec where
 import Prelude
 
 import Effect.Class as EffectClass
+import Effect.Exception as Exception
+import Control.Monad.Except as Except
 import Data.Maybe as Maybe
 import Data.Options ((:=))
 import Data.String as String
@@ -23,6 +25,9 @@ import Test.HTTPure.TestHelpers ((?=))
 mockRouter :: Request.Request -> Response.ResponseM
 mockRouter { path } = Response.ok $ "/" <> String.joinWith "/" path
 
+errorRouter :: Request.Request -> Response.ResponseM
+errorRouter _ = Except.throwError $ Exception.error "fail!"
+
 serveSpec :: TestHelpers.Test
 serveSpec = Spec.describe "serve" do
   Spec.it "boots a server on the given port" do
@@ -30,6 +35,12 @@ serveSpec = Spec.describe "serve" do
     out <- TestHelpers.get 8080 Object.empty "/test"
     EffectClass.liftEffect $ close $ pure unit
     out ?= "/test"
+
+  Spec.it "responds with a 500 upon unhandled exceptions" do
+    close <- EffectClass.liftEffect $ Server.serve 8080 errorRouter $ pure unit
+    status <- TestHelpers.getStatus 8080 Object.empty "/"
+    EffectClass.liftEffect $ close $ pure unit
+    status ?= 500
 
 serve'Spec :: TestHelpers.Test
 serve'Spec = Spec.describe "serve'" do
