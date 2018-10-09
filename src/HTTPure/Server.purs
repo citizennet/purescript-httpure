@@ -10,6 +10,7 @@ import Prelude
 
 import Effect as Effect
 import Effect.Aff as Aff
+import Control.Alt ((<|>))
 import Data.Maybe as Maybe
 import Data.Options ((:=), Options)
 import Node.Encoding as Encoding
@@ -25,6 +26,14 @@ import HTTPure.Response as Response
 -- | methods.
 type ServerM = Effect.Effect (Effect.Effect Unit -> Effect.Effect Unit)
 
+-- | Given a router, handle unhandled exceptions it raises by
+-- | responding with 500 Internal Server Error.
+onError500 :: (Request.Request -> Response.ResponseM) ->
+              Request.Request ->
+              Response.ResponseM
+onError500 router request =
+  router request <|> Response.internalServerError ""
+
 -- | This function takes a method which takes a `Request` and returns a
 -- | `ResponseM`, an HTTP `Request`, and an HTTP `Response`. It runs the
 -- | request, extracts the `Response` from the `ResponseM`, and sends the
@@ -35,7 +44,9 @@ handleRequest :: (Request.Request -> Response.ResponseM) ->
                  Effect.Effect Unit
 handleRequest router request httpresponse =
   void $ Aff.runAff (\_ -> pure unit) $
-    Request.fromHTTPRequest request >>= router >>= Response.send httpresponse
+    Request.fromHTTPRequest request
+    >>= onError500 router
+    >>= Response.send httpresponse
 
 -- | Given a `ListenOptions` object, a function mapping `Request` to
 -- | `ResponseM`, and a `ServerM` containing effects to run on boot, creates and
