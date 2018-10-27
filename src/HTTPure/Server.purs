@@ -10,7 +10,8 @@ import Prelude
 
 import Effect as Effect
 import Effect.Aff as Aff
-import Control.Alt ((<|>))
+import Effect.Class as EffectClass
+import Effect.Console as Console
 import Data.Maybe as Maybe
 import Data.Options ((:=), Options)
 import Node.Encoding as Encoding
@@ -32,7 +33,10 @@ onError500 :: (Request.Request -> Response.ResponseM) ->
               Request.Request ->
               Response.ResponseM
 onError500 router request =
-  router request <|> Response.internalServerError ""
+  Aff.catchError (router request) \err -> do
+    EffectClass.liftEffect $ Console.error $ Aff.message err
+    Response.internalServerError "Internal server error"
+
 
 -- | This function takes a method which takes a `Request` and returns a
 -- | `ResponseM`, an HTTP `Request`, and an HTTP `Response`. It runs the
