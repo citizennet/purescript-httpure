@@ -51,9 +51,9 @@ fullPathSpec = Spec.describe "fullPath" do
       mock <- mockRequest "?a=b&c=d"
       Request.fullPath mock ?= "/?a=b&c=d"
   Spec.describe "with only empty query parameters" do
-    Spec.it "is has the default value of 'true' for the empty parameters" do
+    Spec.it "is has the default value of '' for the empty parameters" do
       mock <- mockRequest "?a"
-      Request.fullPath mock ?= "/?a=true"
+      Request.fullPath mock ?= "/?a="
   Spec.describe "with empty query parameters" do
     Spec.it "strips out the empty arameters" do
       mock <- mockRequest "?a=b&&&"
@@ -61,7 +61,7 @@ fullPathSpec = Spec.describe "fullPath" do
   Spec.describe "with a mix of segments and query parameters" do
     Spec.it "is correct" do
       mock <- mockRequest "/foo///bar/?&a=b&&c"
-      Request.fullPath mock ?= "/foo/bar?a=b&c=true"
+      Request.fullPath mock ?= "/foo/bar?a=b&c="
   where
     mockHTTPRequest path = TestHelpers.mockRequest "POST" path "body" []
     mockRequest path = mockHTTPRequest path >>= Request.fromHTTPRequest

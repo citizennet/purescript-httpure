@@ -34,9 +34,9 @@ readSpec = Spec.describe "read" do
       req <- TestHelpers.mockRequest "" "/test?a=b&a=c" "" []
       Query.read req ?= Object.singleton "a" "c"
   Spec.describe "with empty params" do
-    Spec.it "uses 'true' as the value" do
+    Spec.it "uses '' as the value" do
       req <- TestHelpers.mockRequest "" "/test?a" "" []
-      Query.read req ?= Object.singleton "a" "true"
+      Query.read req ?= Object.singleton "a" ""
   Spec.describe "with complex params" do
     Spec.it "is the correct Map" do
       req <- TestHelpers.mockRequest "" "/test?&&a&b=c&b=d&&&e=f&g=&" "" []
@@ -44,10 +44,10 @@ readSpec = Spec.describe "read" do
   where
       expectedComplexResult =
         Object.fromFoldable
-          [ Tuple.Tuple "a" "true"
+          [ Tuple.Tuple "a" ""
           , Tuple.Tuple "b" "d"
           , Tuple.Tuple "e" "f"
-          , Tuple.Tuple "g" "true"
+          , Tuple.Tuple "g" ""
           ]
 
 querySpec :: TestHelpers.Test
