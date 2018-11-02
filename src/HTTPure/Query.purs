@@ -6,11 +6,15 @@ module HTTPure.Query
 import Prelude
 
 import Data.Array as Array
+import Data.Bifunctor as Bifunctor
+import Data.Bitraversable as Bitraversable
 import Data.Maybe as Maybe
 import Data.String as String
 import Data.Tuple as Tuple
 import Foreign.Object as Object
 import Node.HTTP as HTTP
+
+import HTTPure.Utils (decodeURIComponent)
 
 -- | The `Query` type is a `Object` of `Strings`, with one entry per query
 -- | parameter in the request. For any query parameters that don't have values
@@ -27,11 +31,13 @@ read :: HTTP.Request -> Query
 read =
   HTTP.requestURL >>> split "?" >>> last >>> split "&" >>> nonempty >>> toObject
   where
-    toObject = map toTuple >>> Object.fromFoldable
+    toObject = map toTuple >>> Array.catMaybes >>> Object.fromFoldable
     nonempty = Array.filter ((/=) "")
     split = String.Pattern >>> String.split
     first = Array.head >>> Maybe.fromMaybe ""
     last = Array.tail >>> Maybe.fromMaybe [] >>> String.joinWith ""
-    toTuple item = Tuple.Tuple (first itemParts) (last itemParts)
+    decodeKeyValue = Bifunctor.bimap decodeURIComponent decodeURIComponent
+    toMaybeTuple item = decodeKeyValue $ Tuple.Tuple (first itemParts) (last itemParts)
       where
         itemParts = split "=" item
+    toTuple = toMaybeTuple >>> Bitraversable.bisequence

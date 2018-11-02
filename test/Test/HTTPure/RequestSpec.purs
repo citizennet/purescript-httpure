@@ -54,6 +54,10 @@ fullPathSpec = Spec.describe "fullPath" do
     Spec.it "is has the default value of '' for the empty parameters" do
       mock <- mockRequest "?a"
       Request.fullPath mock ?= "/?a="
+  Spec.describe "with query parameters that have special characters" do
+    Spec.it "percent encodes query params" do
+      mock <- mockRequest "?a=%3Fx%3Dtest"
+      Request.fullPath mock ?= "/?a=%3Fx%3Dtest"
   Spec.describe "with empty query parameters" do
     Spec.it "strips out the empty arameters" do
       mock <- mockRequest "?a=b&&&"
