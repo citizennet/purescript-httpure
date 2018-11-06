@@ -16,6 +16,7 @@ import HTTPure.Headers as Headers
 import HTTPure.Method as Method
 import HTTPure.Path as Path
 import HTTPure.Query as Query
+import HTTPure.Utils (encodeURIComponent)
 
 -- | The `Request` type is a `Record` type that includes fields for accessing
 -- | the different parts of the HTTP request.
@@ -37,7 +38,7 @@ fullPath request = "/" <> path <> questionMark <> queryParams
     questionMark = if Object.isEmpty request.query then "" else "?"
     queryParams = String.joinWith "&" queryParamsArr
     queryParamsArr = Object.toArrayWithKey stringifyQueryParam request.query
-    stringifyQueryParam key value = key <> "=" <> value
+    stringifyQueryParam key value = encodeURIComponent key <> "=" <> encodeURIComponent value
 
 -- | Given an HTTP `Request` object, this method will convert it to an HTTPure
 -- | `Request` object.

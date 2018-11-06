@@ -34,20 +34,30 @@ readSpec = Spec.describe "read" do
       req <- TestHelpers.mockRequest "" "/test?a=b&a=c" "" []
       Query.read req ?= Object.singleton "a" "c"
   Spec.describe "with empty params" do
-    Spec.it "uses 'true' as the value" do
+    Spec.it "uses '' as the value" do
       req <- TestHelpers.mockRequest "" "/test?a" "" []
-      Query.read req ?= Object.singleton "a" "true"
+      Query.read req ?= Object.singleton "a" ""
   Spec.describe "with complex params" do
     Spec.it "is the correct Map" do
       req <- TestHelpers.mockRequest "" "/test?&&a&b=c&b=d&&&e=f&g=&" "" []
       Query.read req ?= expectedComplexResult
+  Spec.describe "with urlencoded params" do
+    Spec.it "decodes valid keys and values" do
+      req <- TestHelpers.mockRequest "" "/test?foo%20bar=%3Fx%3Dtest" "" []
+      Query.read req ?= Object.singleton "foo bar" "?x=test"
+    Spec.it "passes invalid keys and values through" do
+      req <- TestHelpers.mockRequest "" "/test?%%=%C3" "" []
+      Query.read req ?= Object.singleton "%%" "%C3"
+    Spec.it "converts + to a space" do
+      req <- TestHelpers.mockRequest "" "/test?foo=bar+baz" "" []
+      Query.read req ?= Object.singleton "foo" "bar baz"
   where
       expectedComplexResult =
         Object.fromFoldable
-          [ Tuple.Tuple "a" "true"
+          [ Tuple.Tuple "a" ""
           , Tuple.Tuple "b" "d"
           , Tuple.Tuple "e" "f"
-          , Tuple.Tuple "g" "true"
+          , Tuple.Tuple "g" ""
           ]
 
 querySpec :: TestHelpers.Test
