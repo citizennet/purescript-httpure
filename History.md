@@ -4,6 +4,8 @@ unreleased
 - Support binary response body (thanks **@akheron**)
 - Add support for chunked responses
 - `ServerM` now contains a callback that when called will shut down the server
+- Map empty query parameters to empty strings instead of `"true"`
+- Decode percent encoding in path segments and query parameters automatically
 
 0.7.0 / 2018-07-08
 ==================
