@@ -13,7 +13,7 @@ import Data.Tuple as Tuple
 import Foreign.Object as Object
 import Node.HTTP as HTTP
 
-import HTTPure.Utils (decodeURIComponent)
+import HTTPure.Utils as Utils
 
 -- | The `Query` type is a `Object` of `Strings`, with one entry per query
 -- | parameter in the request. For any query parameters that don't have values
@@ -35,9 +35,8 @@ read =
     split = String.Pattern >>> String.split
     first = Array.head >>> Maybe.fromMaybe ""
     last = Array.tail >>> Maybe.fromMaybe [] >>> String.joinWith ""
-    replacePlus = String.replace (String.Pattern "+") (String.Replacement "%20")
-    tryDecode s = Maybe.fromMaybe s $ decodeURIComponent $ replacePlus s
-    decodeKeyValue = Bifunctor.bimap tryDecode tryDecode
+    decode = Utils.replacePlus >>> Utils.urlDecode
+    decodeKeyValue = Bifunctor.bimap decode decode
     toTuple item = decodeKeyValue $ Tuple.Tuple (first itemParts) (last itemParts)
       where
         itemParts = split "=" item

@@ -27,6 +27,13 @@ readSpec = Spec.describe "read" do
     Spec.it "strips the empty segments" do
       request <- TestHelpers.mockRequest "GET" "//test//path///?query" "" []
       Path.read request ?= [ "test", "path" ]
+  Spec.describe "with percent encoded segments" do
+    Spec.it "decodes percent encoding" do
+      request <- TestHelpers.mockRequest "GET" "/test%20path/%2Fthis" "" []
+      Path.read request ?= [ "test path", "/this" ]
+    Spec.it "does not decode a plus sign" do
+      request <- TestHelpers.mockRequest "GET" "/test+path/this" "" []
+      Path.read request ?= [ "test+path", "this" ]
 
 pathSpec :: TestHelpers.Test
 pathSpec = Spec.describe "Path" do
