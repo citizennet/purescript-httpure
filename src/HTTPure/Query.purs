@@ -7,7 +7,6 @@ import Prelude
 
 import Data.Array as Array
 import Data.Bifunctor as Bifunctor
-import Data.Bitraversable as Bitraversable
 import Data.Maybe as Maybe
 import Data.String as String
 import Data.Tuple as Tuple
@@ -31,13 +30,13 @@ read :: HTTP.Request -> Query
 read =
   HTTP.requestURL >>> split "?" >>> last >>> split "&" >>> nonempty >>> toObject
   where
-    toObject = map toTuple >>> Array.catMaybes >>> Object.fromFoldable
+    toObject = map toTuple >>> Object.fromFoldable
     nonempty = Array.filter ((/=) "")
     split = String.Pattern >>> String.split
     first = Array.head >>> Maybe.fromMaybe ""
     last = Array.tail >>> Maybe.fromMaybe [] >>> String.joinWith ""
-    decodeKeyValue = Bifunctor.bimap decodeURIComponent decodeURIComponent
-    toMaybeTuple item = decodeKeyValue $ Tuple.Tuple (first itemParts) (last itemParts)
+    tryDecode s = Maybe.fromMaybe s $ decodeURIComponent s
+    decodeKeyValue = Bifunctor.bimap tryDecode tryDecode
+    toTuple item = decodeKeyValue $ Tuple.Tuple (first itemParts) (last itemParts)
       where
         itemParts = split "=" item
-    toTuple = toMaybeTuple >>> Bitraversable.bisequence

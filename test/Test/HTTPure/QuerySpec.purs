@@ -42,12 +42,12 @@ readSpec = Spec.describe "read" do
       req <- TestHelpers.mockRequest "" "/test?&&a&b=c&b=d&&&e=f&g=&" "" []
       Query.read req ?= expectedComplexResult
   Spec.describe "with urlencoded params" do
-    Spec.it "decodes valid params" do
-      req <- TestHelpers.mockRequest "" "/test?a=%3Fx%3Dtest" "" []
-      Query.read req ?= Object.singleton "a" "?x=test"
-    Spec.it "ignoreds invalid params" do
-      req <- TestHelpers.mockRequest "" "/test?a=%C3" "" []
-      Query.read req ?= Object.empty
+    Spec.it "decodes valid keys and values" do
+      req <- TestHelpers.mockRequest "" "/test?foo%20bar=%3Fx%3Dtest" "" []
+      Query.read req ?= Object.singleton "foo bar" "?x=test"
+    Spec.it "passes invalid keys and values through" do
+      req <- TestHelpers.mockRequest "" "/test?%%=%C3" "" []
+      Query.read req ?= Object.singleton "%%" "%C3"
   where
       expectedComplexResult =
         Object.fromFoldable
