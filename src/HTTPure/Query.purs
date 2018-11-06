@@ -35,7 +35,8 @@ read =
     split = String.Pattern >>> String.split
     first = Array.head >>> Maybe.fromMaybe ""
     last = Array.tail >>> Maybe.fromMaybe [] >>> String.joinWith ""
-    tryDecode s = Maybe.fromMaybe s $ decodeURIComponent s
+    replacePlus = String.replace (String.Pattern "+") (String.Replacement "%20")
+    tryDecode s = Maybe.fromMaybe s $ decodeURIComponent $ replacePlus s
     decodeKeyValue = Bifunctor.bimap tryDecode tryDecode
     toTuple item = decodeKeyValue $ Tuple.Tuple (first itemParts) (last itemParts)
       where

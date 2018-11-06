@@ -48,6 +48,9 @@ readSpec = Spec.describe "read" do
     Spec.it "passes invalid keys and values through" do
       req <- TestHelpers.mockRequest "" "/test?%%=%C3" "" []
       Query.read req ?= Object.singleton "%%" "%C3"
+    Spec.it "converts + to a space" do
+      req <- TestHelpers.mockRequest "" "/test?foo=bar+baz" "" []
+      Query.read req ?= Object.singleton "foo" "bar baz"
   where
       expectedComplexResult =
         Object.fromFoldable
