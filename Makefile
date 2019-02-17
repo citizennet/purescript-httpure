@@ -5,7 +5,8 @@ MAKEFLAGS += --warn-undefined-variables
 .SILENT:
 
 # Executables used in this makefile
-PULP := pulp
+PULP := pulp --psc-package
+PSCPACKAGE := psc-package
 NODE := node
 YARN := yarn
 
@@ -26,6 +27,7 @@ EXAMPLEPATH := $(EXAMPLESPATH)/$(EXAMPLE)
 # Various output directories
 OUTPUT := ./out
 MODULES := ./node_modules
+PSCPACKAGES := ./.psc-package
 BUILD := $(OUTPUT)/build
 OUTPUT_DOCS := $(OUTPUT)/docs
 OUTPUT_EXAMPLE := $(OUTPUT)/examples/$(EXAMPLE)
@@ -42,8 +44,12 @@ EXAMPLESOURCES := $(EXAMPLESPATH)/**/*
 $(MODULES): $(PACKAGEJSON)
 	$(YARN) --cache-folder $(MODULES) install
 
+# Install psc packages
+$(PSCPACKAGES): $(PSCPACKAGEJSON)
+	$(PSCPACKAGE) install
+
 # Build the source files
-$(BUILD): $(PSCPACKAGEJSON) $(SOURCES) $(MODULES)
+$(BUILD): $(PSCPACKAGES) $(SOURCES) $(MODULES)
 	$(PULP) build \
 	  --src-path $(SRCPATH) \
 	  --build-path $(BUILD) \
@@ -91,7 +97,7 @@ test: $(BUILD) $(TESTSOURCES) $(EXAMPLESOURCES) $(MODULES)
 	  $(BUILD_OPTIONS)
 
 # Launch a repl with all modules loaded
-repl: $(PSCPACKAGEJSON) $(SOURCES) $(TESTSOURCES) $(EXAMPLESOURCES) $(MODULES)
+repl: $(PSCPACKAGES) $(SOURCES) $(TESTSOURCES) $(EXAMPLESOURCES) $(MODULES)
 	$(PULP) repl \
 	  --include $(EXAMPLESPATH) \
 	  --src-path $(SRCPATH) \
@@ -99,7 +105,7 @@ repl: $(PSCPACKAGEJSON) $(SOURCES) $(TESTSOURCES) $(EXAMPLESOURCES) $(MODULES)
 
 # Remove all make output from the source tree
 clean:
-	rm -rf $(OUTPUT) $(MODULES)
+	rm -rf $(OUTPUT) $(MODULES) $(PSCPACKAGES)
 
 # Print out a description of all the supported tasks
 help:
@@ -115,7 +121,7 @@ help:
 	$(info - make help        Print this help)
 
 # Build the documentation
-$(OUTPUT_DOCS): $(PSCPACKAGEJSON) $(SOURCES) $(MODULES)
+$(OUTPUT_DOCS): $(PSCPACKAGES) $(SOURCES) $(MODULES)
 	$(PULP) docs \
 	  --src-path $(SRCPATH)
 	rm -rf $(OUTPUT_DOCS)
