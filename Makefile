@@ -6,26 +6,27 @@ MAKEFLAGS += --warn-undefined-variables
 
 # Executables used in this makefile
 PULP := pulp
-BOWER := bower
 NODE := node
+YARN := yarn
 
 # Options to pass to pulp when building
 BUILD_OPTIONS := -- --stash --censor-lib --strict
 
 # Package manifest files
-BOWERJSON := bower.json
+PACKAGEJSON := package.json
+PSCPACKAGEJSON = psc-package.json
 
 # Various input directories
 SRCPATH := ./src
 TESTPATH := ./test
-OUTPUT := ./out
 DOCS := ./docs
 EXAMPLESPATH := $(DOCS)/Examples
 EXAMPLEPATH := $(EXAMPLESPATH)/$(EXAMPLE)
 
 # Various output directories
+OUTPUT := ./out
+MODULES := ./node_modules
 BUILD := $(OUTPUT)/build
-COMPONENTS := $(OUTPUT)/components
 OUTPUT_DOCS := $(OUTPUT)/docs
 OUTPUT_EXAMPLE := $(OUTPUT)/examples/$(EXAMPLE)
 
@@ -37,12 +38,12 @@ SOURCES := $(SRCPATH)/**/*
 TESTSOURCES := $(TESTPATH)/**/*
 EXAMPLESOURCES := $(EXAMPLESPATH)/**/*
 
-# Install bower components
-$(COMPONENTS): $(BOWERJSON)
-	$(BOWER) install
+# Install node modules
+$(MODULES): $(PACKAGEJSON)
+	$(YARN) --cache-folder $(MODULES) install
 
 # Build the source files
-$(BUILD): $(COMPONENTS) $(SOURCES)
+$(BUILD): $(PSCPACKAGEJSON) $(SOURCES) $(MODULES)
 	$(PULP) build \
 	  --src-path $(SRCPATH) \
 	  --build-path $(BUILD) \
@@ -56,7 +57,7 @@ $(OUTPUT_EXAMPLE):
 	mkdir -p $(OUTPUT_EXAMPLE)
 
 # Build the example specified by the environment variable EXAMPLE
-$(EXAMPLE_INDEX): $(OUTPUT_EXAMPLE) $(BUILD) $(EXAMPLEPATH)/Main.purs
+$(EXAMPLE_INDEX): $(OUTPUT_EXAMPLE) $(BUILD) $(EXAMPLEPATH)/Main.purs $(MODULES)
 	$(PULP) build \
 	  --src-path $(EXAMPLEPATH) \
 	  --include $(SRCPATH) \
@@ -81,7 +82,7 @@ example: $(BUILD) $(EXAMPLE_INDEX)
 endif
 
 # Run the test suite
-test: $(BUILD) $(TESTSOURCES) $(EXAMPLESOURCES)
+test: $(BUILD) $(TESTSOURCES) $(EXAMPLESOURCES) $(MODULES)
 	$(PULP) test \
 	  --src-path $(SRCPATH) \
 	  --test-path $(TESTPATH) \
@@ -90,7 +91,7 @@ test: $(BUILD) $(TESTSOURCES) $(EXAMPLESOURCES)
 	  $(BUILD_OPTIONS)
 
 # Launch a repl with all modules loaded
-repl: $(COMPONENTS) $(SOURCES) $(TESTSOURCES) $(EXAMPLESOURCES)
+repl: $(PSCPACKAGEJSON) $(SOURCES) $(TESTSOURCES) $(EXAMPLESOURCES) $(MODULES)
 	$(PULP) repl \
 	  --include $(EXAMPLESPATH) \
 	  --src-path $(SRCPATH) \
@@ -98,7 +99,7 @@ repl: $(COMPONENTS) $(SOURCES) $(TESTSOURCES) $(EXAMPLESOURCES)
 
 # Remove all make output from the source tree
 clean:
-	rm -rf $(OUTPUT)
+	rm -rf $(OUTPUT) $(MODULES)
 
 # Print out a description of all the supported tasks
 help:
@@ -114,7 +115,7 @@ help:
 	$(info - make help        Print this help)
 
 # Build the documentation
-$(OUTPUT_DOCS): $(COMPONENTS) $(SOURCES)
+$(OUTPUT_DOCS): $(PSCPACKAGEJSON) $(SOURCES) $(MODULES)
 	$(PULP) docs \
 	  --src-path $(SRCPATH)
 	rm -rf $(OUTPUT_DOCS)

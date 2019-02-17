@@ -29,7 +29,7 @@ check our [contributing guide](./Contributing.md).
 ## Installation
 
 ```bash
-bower install --save purescript-httpure
+psc-package install httpure
 ```
 
 ## Quick Start

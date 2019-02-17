@@ -1,0 +1,18 @@
+{
+  "name": "purescript-httpure",
+  "set": "psc-0.12.2",
+  "source": "https://github.com/purescript/package-sets.git",
+  "depends": [
+    "aff",
+    "foldable-traversable",
+    "node-child-process",
+    "node-fs",
+    "node-fs-aff",
+    "node-http",
+    "prelude",
+    "psci-support",
+    "spec",
+    "strings",
+    "unsafe-coerce"
+  ]
+}
