@@ -8,7 +8,6 @@ MAKEFLAGS += --warn-undefined-variables
 PULP := pulp
 BOWER := bower
 NODE := node
-NPM := npm
 
 # Options to pass to pulp when building
 BUILD_OPTIONS := -- --stash --censor-lib --strict
