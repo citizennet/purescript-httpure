@@ -1,11 +1,12 @@
-unreleased
-==========
+0.8.0 / 2019-02-16
+==================
 - Re-export `HTTPure.Query` and `HTTPure.Status` (thanks **@akheron**)
 - Support binary response body (thanks **@akheron**)
 - Add support for chunked responses
 - `ServerM` now contains a callback that when called will shut down the server
 - Map empty query parameters to empty strings instead of `"true"`
 - Decode percent encoding in path segments and query parameters automatically
+- Use psc-package instead of bower
 
 0.7.0 / 2018-07-08
 ==================
