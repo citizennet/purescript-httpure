@@ -4,6 +4,9 @@ language: nix
 notifications:
   email: false
 script:
+  - nix-channel --add https://nixos.org/channels/nixos-18.09 nixpkgs
+  - nix-channel --update
+  - nix-build ./pkgs
   - nix-shell --run "make test"
 after_success:
   - test -n $TRAVIS_TAG && (echo $GITHUB_TOKEN | pulp login) && (yes | pulp publish --no-push)
