@@ -16,7 +16,7 @@ import Test.HTTPure.TestHelpers ((?=))
 readSpec :: TestHelpers.Test
 readSpec = Spec.describe "read" do
   Spec.it "is the body of the Request" do
-    request <- TestHelpers.mockRequest "GET" "" "test" []
+    request <- TestHelpers.mockRequest "" "GET" "" "test" []
     body <- Body.read request
     body ?= "test"
 

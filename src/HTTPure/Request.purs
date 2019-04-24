@@ -26,6 +26,7 @@ type Request =
   , query :: Query.Query
   , headers :: Headers.Headers
   , body :: String
+  , httpVersion :: String
   }
 
 -- | Return the full resolved path, including query parameters. This may not
@@ -51,4 +52,5 @@ fromHTTPRequest request = do
     , query: Query.read request
     , headers: Headers.read request
     , body
+    , httpVersion: HTTP.httpVersion request
     }

@@ -70,12 +70,12 @@ readSpec :: TestHelpers.Test
 readSpec = Spec.describe "read" do
   Spec.describe "with no headers" do
     Spec.it "is an empty Map" do
-      request <- TestHelpers.mockRequest "" "" "" []
+      request <- TestHelpers.mockRequest "" "" "" "" []
       Headers.read request ?= Headers.empty
   Spec.describe "with headers" do
     Spec.it "is a Map with the contents of the headers" do
       let testHeader = [Tuple.Tuple "X-Test" "test"]
-      request <- TestHelpers.mockRequest "" "" "" testHeader
+      request <- TestHelpers.mockRequest "" "" "" "" testHeader
       Headers.read request ?= Headers.headers testHeader
 
 writeSpec :: TestHelpers.Test

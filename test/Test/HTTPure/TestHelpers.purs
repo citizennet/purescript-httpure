@@ -137,6 +137,7 @@ foreign import mockRequestImpl ::
   String ->
   String ->
   String ->
+  String ->
   Object.Object String ->
   Effect.Effect HTTP.Request
 
@@ -144,10 +145,11 @@ foreign import mockRequestImpl ::
 mockRequest :: String ->
                String ->
                String ->
+               String ->
                Array (Tuple.Tuple String String) ->
                Aff.Aff HTTP.Request
-mockRequest method url body =
-  EffectClass.liftEffect <<< mockRequestImpl method url body <<< Object.fromFoldable
+mockRequest httpVersion method url body =
+  EffectClass.liftEffect <<< mockRequestImpl httpVersion method url body <<< Object.fromFoldable
 
 -- | Mock an HTTP Response object
 foreign import mockResponse :: Effect.Effect HTTP.Response

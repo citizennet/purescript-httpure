@@ -43,7 +43,7 @@ readSpec :: TestHelpers.Test
 readSpec = Spec.describe "read" do
   Spec.describe "with a 'GET' Request" do
     Spec.it "is Get" do
-      request <- TestHelpers.mockRequest "GET" "" "" []
+      request <- TestHelpers.mockRequest "" "GET" "" "" []
       Method.read request ?= Method.Get
 
 methodSpec :: TestHelpers.Test
