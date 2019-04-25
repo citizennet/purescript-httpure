@@ -22,6 +22,13 @@ lookupSpec = Spec.describe "lookup" do
     Spec.describe "when searching with uppercase" do
       Spec.it "is Just the string" do
         Headers.header "x-test" "test" !! "X-Test" ?= Maybe.Just "test"
+    Spec.describe "when the string is uppercase" do
+      Spec.describe "when searching with lowercase" do
+        Spec.it "is Just the string" do
+          Headers.header "X-Test" "test" !! "x-test" ?= Maybe.Just "test"
+      Spec.describe "when searching with uppercase" do
+        Spec.it "is Just the string" do
+          Headers.header "X-Test" "test" !! "X-Test" ?= Maybe.Just "test"
   Spec.describe "when the string is not in the header set" do
     Spec.it "is Nothing" do
       ((Headers.empty !! "X-Test") :: Maybe.Maybe String) ?= Maybe.Nothing
