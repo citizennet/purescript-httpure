@@ -9,6 +9,7 @@ import Test.Spec as Spec
 import HTTPure.Headers as Headers
 import HTTPure.Method as Method
 import HTTPure.Request as Request
+import HTTPure.Version as Version
 
 import Test.HTTPure.TestHelpers as TestHelpers
 import Test.HTTPure.TestHelpers ((?=))
@@ -30,10 +31,13 @@ fromHTTPRequestSpec = Spec.describe "fromHTTPRequest" do
   Spec.it "contains the correct body" do
     mock <- mockRequest
     mock.body ?= "body"
+  Spec.it "contains the correct httpVersion" do
+    mock <- mockRequest
+    mock.httpVersion ?= Version.HTTP1_1
   where
     mockHeaders = [ Tuple.Tuple "Test" "test" ]
     mockHTTPRequest =
-      TestHelpers.mockRequest "POST" "/test?a=b" "body" mockHeaders
+      TestHelpers.mockRequest "1.1" "POST" "/test?a=b" "body" mockHeaders
     mockRequest = mockHTTPRequest >>= Request.fromHTTPRequest
 
 fullPathSpec :: TestHelpers.Test
@@ -67,7 +71,7 @@ fullPathSpec = Spec.describe "fullPath" do
       mock <- mockRequest "/foo///bar/?&a=b&&c"
       Request.fullPath mock ?= "/foo/bar?a=b&c="
   where
-    mockHTTPRequest path = TestHelpers.mockRequest "POST" path "body" []
+    mockHTTPRequest path = TestHelpers.mockRequest "" "POST" path "body" []
     mockRequest path = mockHTTPRequest path >>= Request.fromHTTPRequest
 
 requestSpec :: TestHelpers.Test

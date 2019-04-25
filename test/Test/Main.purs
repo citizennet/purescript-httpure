@@ -16,6 +16,7 @@ import Test.HTTPure.RequestSpec as RequestSpec
 import Test.HTTPure.ResponseSpec as ResponseSpec
 import Test.HTTPure.ServerSpec as ServerSpec
 import Test.HTTPure.StatusSpec as StatusSpec
+import Test.HTTPure.VersionSpec as VersionSpec
 import Test.HTTPure.IntegrationSpec as IntegrationSpec
 
 import Test.HTTPure.TestHelpers as TestHelpers
@@ -32,4 +33,5 @@ main = Runner.run [ Reporter.specReporter ] $ Spec.describe "HTTPure" do
   ResponseSpec.responseSpec
   ServerSpec.serverSpec
   StatusSpec.statusSpec
+  VersionSpec.versionSpec
   IntegrationSpec.integrationSpec
