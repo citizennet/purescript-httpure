@@ -9,6 +9,7 @@ import Test.Spec as Spec
 import HTTPure.Headers as Headers
 import HTTPure.Method as Method
 import HTTPure.Request as Request
+import HTTPure.Version as Version
 
 import Test.HTTPure.TestHelpers as TestHelpers
 import Test.HTTPure.TestHelpers ((?=))
@@ -32,7 +33,7 @@ fromHTTPRequestSpec = Spec.describe "fromHTTPRequest" do
     mock.body ?= "body"
   Spec.it "contains the correct httpVersion" do
     mock <- mockRequest
-    mock.httpVersion ?= "1.1"
+    mock.httpVersion ?= Version.HTTP1_1
   where
     mockHeaders = [ Tuple.Tuple "Test" "test" ]
     mockHTTPRequest =

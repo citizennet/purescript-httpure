@@ -17,6 +17,7 @@ import HTTPure.Method as Method
 import HTTPure.Path as Path
 import HTTPure.Query as Query
 import HTTPure.Utils (encodeURIComponent)
+import HTTPure.Version as Version
 
 -- | The `Request` type is a `Record` type that includes fields for accessing
 -- | the different parts of the HTTP request.
@@ -26,7 +27,7 @@ type Request =
   , query :: Query.Query
   , headers :: Headers.Headers
   , body :: String
-  , httpVersion :: String
+  , httpVersion :: Version.Version
   }
 
 -- | Return the full resolved path, including query parameters. This may not
@@ -52,5 +53,5 @@ fromHTTPRequest request = do
     , query: Query.read request
     , headers: Headers.read request
     , body
-    , httpVersion: HTTP.httpVersion request
+    , httpVersion: Version.read request
     }
