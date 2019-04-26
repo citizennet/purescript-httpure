@@ -8,8 +8,10 @@ module HTTPure.Lookup
 import Prelude
 
 import Data.Array as Array
+import Data.Map as Map
 import Data.Maybe as Maybe
 import Data.Monoid as Monoid
+import Data.String.CaseInsensitive as CaseInsensitive
 import Foreign.Object as Object
 
 -- | Types that implement the `Lookup` class can be looked up by some key to
@@ -37,6 +39,14 @@ instance lookupArray :: Lookup (Array t) Int t where
 -- | with a really weird API for `!!`).
 instance lookupObject :: Lookup (Object.Object t) String t where
   lookup = flip Object.lookup
+
+
+-- | The instance of `Lookup` for a `Map CaseInsensitiveString` converts the
+-- | `String` to a `CaseInsensitiveString` for lookup.
+instance lookupMapCaseInsensitiveString ::
+  Lookup (Map.Map CaseInsensitive.CaseInsensitiveString t) String t where
+
+  lookup set key = Map.lookup (CaseInsensitive.CaseInsensitiveString key) set
 
 -- | This simple helper works on any `Lookup` instance where the return type is
 -- | a `Monoid`, and is the same as `lookup` except that it returns a `t`
