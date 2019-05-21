@@ -1,3 +1,9 @@
+0.8.1 / 2019-05-20
+==================
+
+- Add HTTP version to `HTTPure.Request` (thanks **@joneshf**)
+- Fix inconsistent case-insensitivity with `HTTPure.Headers` (thanks **@joneshf**)
+
 0.8.0 / 2019-02-16
 ==================
 - Re-export `HTTPure.Query` and `HTTPure.Status` (thanks **@akheron**)
