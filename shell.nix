@@ -1,7 +1,6 @@
 {
-  purescript ? "0.12.2",
-  nixjs-version ? "0.0.7",
-  nixjs ? fetchTarball "https://github.com/cprussin/nixjs/archive/${nixjs-version}.tar.gz",
+  purescript ? "0.12.4",
+  nixjs ? fetchTarball "https://github.com/cprussin/nixjs/tarball/release-19.03",
   nixpkgs ? <nixpkgs>
 }:
 
