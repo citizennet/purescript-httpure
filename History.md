@@ -1,4 +1,4 @@
-0.8.1 / 2019-05-20
+0.8.2 / 2019-05-20
 ==================
 
 - Add HTTP version to `HTTPure.Request` (thanks **@joneshf**)
