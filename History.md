@@ -1,3 +1,8 @@
+0.8.3 / 2019-06-03
+==================
+
+- Use `Buffer.concat` instead of string concatenation to fix ordering issues (thanks **@rnons**)
+
 0.8.2 / 2019-05-20
 ==================
 
