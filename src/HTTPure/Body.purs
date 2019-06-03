@@ -82,8 +82,10 @@ instance bodyChunked ::
 read :: HTTP.Request -> Aff.Aff String
 read request = Aff.makeAff \done -> do
   let stream = HTTP.requestAsStream request
-  buf <- Ref.new ""
-  Stream.onDataString stream Encoding.UTF8 \str ->
-    void $ Ref.modify (_ <> str) buf
-  Stream.onEnd stream $ Ref.read buf >>= Either.Right >>> done
+  bufs <- Ref.new []
+  Stream.onData stream \buf ->
+    void $ Ref.modify (_ <> [buf]) bufs
+  Stream.onEnd stream do
+    body <- Ref.read bufs >>= Buffer.concat >>= Buffer.toString Encoding.UTF8
+    done $ Either.Right body
   pure Aff.nonCanceler
