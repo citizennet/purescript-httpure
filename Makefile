@@ -5,10 +5,10 @@ MAKEFLAGS += --warn-undefined-variables
 .SILENT:
 
 # Executables used in this makefile
-PULP := pulp --psc-package
-PSCPACKAGE := psc-package
 NODE := node
 YARN := yarn
+PULP := PATH="$$($(YARN) bin):$$PATH" pulp --psc-package
+PSCPACKAGE := PATH="$$($(YARN) bin):$$PATH" psc-package
 
 # Options to pass to pulp when building
 BUILD_OPTIONS := -- --stash --censor-lib --strict
