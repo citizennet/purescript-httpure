@@ -1,6 +1,6 @@
 {
   "name": "purescript-httpure",
-  "set": "psc-0.12.2",
+  "set": "psc-0.13.2-20190815",
   "source": "https://github.com/purescript/package-sets.git",
   "depends": [
     "aff",
@@ -13,6 +13,7 @@
     "exceptions",
     "foldable-traversable",
     "foreign",
+    "globals",
     "lists",
     "maybe",
     "newtype",

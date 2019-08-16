@@ -46,6 +46,7 @@
     "purescript-strings": "^4.0.0",
     "purescript-tuples": "^5.1.0",
     "purescript-type-equality": "^3.0.0",
-    "purescript-unsafe-coerce": "^4.0.0"
+    "purescript-unsafe-coerce": "^4.0.0",
+    "purescript-globals": "^4.1.0"
   }
 }
