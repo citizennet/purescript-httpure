@@ -1,6 +1,6 @@
 module HTTPure.Utils
-  ( encodeURIComponent
-  , decodeURIComponent
+  ( module Global
+  , encodeURIComponent
   , replacePlus
   , urlDecode
   ) where
@@ -8,16 +8,13 @@ module HTTPure.Utils
 import Prelude
 
 import Data.Maybe as Maybe
-import Data.Nullable as Nullable
 import Data.String as String
+import Global (decodeURIComponent) as Global
+import Global.Unsafe (unsafeEncodeURIComponent)
 
 
-foreign import encodeURIComponent :: String -> String
-
-foreign import decodeURIComponentImpl :: String -> Nullable.Nullable String
-
-decodeURIComponent :: String -> Maybe.Maybe String
-decodeURIComponent = Nullable.toMaybe <<< decodeURIComponentImpl
+encodeURIComponent :: String -> String
+encodeURIComponent = unsafeEncodeURIComponent
 
 
 replacePlus :: String -> String
@@ -27,4 +24,4 @@ replacePlus =
 
 urlDecode :: String -> String
 urlDecode s =
-  Maybe.fromMaybe s $ decodeURIComponent s
+  Maybe.fromMaybe s $ Global.decodeURIComponent s
