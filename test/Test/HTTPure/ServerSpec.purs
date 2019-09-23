@@ -13,7 +13,7 @@ import Node.Encoding as Encoding
 import Node.HTTP.Secure as HTTPS
 import Node.FS.Sync as FSSync
 import Test.Spec as Spec
-import Test.Spec.Assertions.Aff as AffAssertions
+import Test.Spec.Assertions as Assertions
 
 import HTTPure.Request as Request
 import HTTPure.Response as Response
@@ -64,7 +64,7 @@ serveSecureSpec = Spec.describe "serveSecure" do
       out ?= "/test"
   Spec.describe "with invalid key and cert files" do
     Spec.it "throws" do
-      AffAssertions.expectError $ EffectClass.liftEffect $
+      Assertions.expectError $ EffectClass.liftEffect $
         Server.serveSecure 8080 "" "" mockRouter $ pure unit
   where
     cert = "./test/Mocks/Certificate.cer"
