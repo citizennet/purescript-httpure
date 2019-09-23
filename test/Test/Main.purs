@@ -2,6 +2,7 @@ module Test.Main where
 
 import Prelude
 
+import Effect.Aff as Aff
 import Test.Spec as Spec
 import Test.Spec.Reporter as Reporter
 import Test.Spec.Runner as Runner
@@ -22,7 +23,7 @@ import Test.HTTPure.IntegrationSpec as IntegrationSpec
 import Test.HTTPure.TestHelpers as TestHelpers
 
 main :: TestHelpers.TestSuite
-main = Runner.run [ Reporter.specReporter ] $ Spec.describe "HTTPure" do
+main = Aff.launchAff_ $ Runner.runSpec [ Reporter.specReporter ] $ Spec.describe "HTTPure" do
   BodySpec.bodySpec
   HeadersSpec.headersSpec
   LookupSpec.lookupSpec

@@ -27,6 +27,7 @@
     "purescript-exceptions": "^4.0.0",
     "purescript-foldable-traversable": "^4.0.0",
     "purescript-foreign": "^5.0.0",
+    "purescript-globals": "^4.1.0",
     "purescript-lists": "^5.4.0",
     "purescript-maybe": "^4.0.1",
     "purescript-newtype": "^3.0.0",
@@ -38,15 +39,13 @@
     "purescript-node-streams": "^4.0.0",
     "purescript-nullable": "^4.1.1",
     "purescript-options": "^5.0.0",
-    "purescript-ordered-collections": "^1.6.1",
     "purescript-prelude": "^4.0.1",
     "purescript-psci-support": "^4.0.0",
     "purescript-refs": "^4.1.0",
-    "purescript-spec": "^3.0.0",
+    "purescript-spec": "^4.0.0",
     "purescript-strings": "^4.0.0",
     "purescript-tuples": "^5.1.0",
     "purescript-type-equality": "^3.0.0",
-    "purescript-unsafe-coerce": "^4.0.0",
-    "purescript-globals": "^4.1.0"
+    "purescript-unsafe-coerce": "^4.0.0"
   }
 }
