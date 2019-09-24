@@ -39,7 +39,9 @@ class Body b where
 -- | response stream and closing the response stream.
 instance bodyString :: Body String where
 
-  defaultHeaders body = Buffer.fromString body Encoding.UTF8 >>= defaultHeaders
+  defaultHeaders body = do
+    buf :: Buffer.Buffer <- Buffer.fromString body Encoding.UTF8
+    defaultHeaders buf
 
   write body response = Aff.makeAff \done -> do
     let stream = HTTP.responseAsStream response
