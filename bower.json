@@ -31,7 +31,7 @@
     "purescript-lists": "^5.4.0",
     "purescript-maybe": "^4.0.1",
     "purescript-newtype": "^3.0.0",
-    "purescript-node-buffer": "^5.0.0",
+    "purescript-node-buffer": "^5.0.0 || ^6.0.0",
     "purescript-node-child-process": "^6.0.0",
     "purescript-node-fs": "^5.0.0",
     "purescript-node-fs-aff": "^6.0.0",

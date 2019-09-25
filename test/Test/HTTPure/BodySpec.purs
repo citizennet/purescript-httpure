@@ -33,7 +33,7 @@ defaultHeadersSpec = Spec.describe "defaultHeaders" do
         headers ?= Headers.header "Content-Length" "3"
   Spec.describe "Buffer" do
     Spec.it "has the correct Content-Length header" do
-      buf <- EffectClass.liftEffect $ Buffer.fromString "foobar" Encoding.UTF8
+      buf :: Buffer.Buffer <- EffectClass.liftEffect $ Buffer.fromString "foobar" Encoding.UTF8
       headers <- EffectClass.liftEffect $ Body.defaultHeaders buf
       headers ?= Headers.header "Content-Length" "6"
   Spec.describe "Readable" do
@@ -55,7 +55,7 @@ writeSpec = Spec.describe "write" do
     Spec.it "writes the Buffer to the Response body" do
       body <- do
         resp <- EffectClass.liftEffect TestHelpers.mockResponse
-        buf <- EffectClass.liftEffect $ Buffer.fromString "test" Encoding.UTF8
+        buf :: Buffer.Buffer <- EffectClass.liftEffect $ Buffer.fromString "test" Encoding.UTF8
         Body.write buf resp
         pure $ TestHelpers.getResponseBody resp
       body ?= "test"
