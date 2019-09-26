@@ -79,6 +79,8 @@ module HTTPure.Response
 import Prelude
 
 import Effect.Aff as Aff
+import Effect.Aff.Class (class MonadAff, liftAff)
+import Effect.Class (class MonadEffect)
 import Effect.Class as EffectClass
 import Node.HTTP as HTTP
 
@@ -101,23 +103,24 @@ type Response =
 -- | Given an HTTP `Response` and a HTTPure `Response`, this method will return
 -- | a monad encapsulating writing the HTTPure `Response` to the HTTP `Response`
 -- | and closing the HTTP `Response`.
-send :: HTTP.Response -> Response -> Aff.Aff Unit
+send :: forall m. MonadEffect m => MonadAff m => HTTP.Response -> Response -> m Unit
 send httpresponse { status, headers, writeBody } = do
   EffectClass.liftEffect $ Status.write httpresponse status
   EffectClass.liftEffect $ Headers.write httpresponse headers
-  writeBody httpresponse
+  liftAff $ writeBody httpresponse
 
 -- | For custom response statuses or providing a body for response codes that
 -- | don't typically send one.
-response :: forall b. Body.Body b => Status.Status -> b -> ResponseM
+response :: forall m b. MonadAff m => Body.Body b => Status.Status -> b -> m Response
 response status = response' status Headers.empty
 
 -- | The same as `response` but with headers.
-response' :: forall b. Body.Body b =>
+response' :: forall m b. MonadAff m =>
+             Body.Body b =>
              Status.Status ->
              Headers.Headers ->
              b ->
-             ResponseM
+             m Response
 response' status headers body = EffectClass.liftEffect do
   defaultHeaders <- Body.defaultHeaders body
   pure
@@ -127,11 +130,11 @@ response' status headers body = EffectClass.liftEffect do
     }
 
 -- | The same as `response` but without a body.
-emptyResponse :: Status.Status -> ResponseM
+emptyResponse :: forall m. MonadAff m => Status.Status -> m Response
 emptyResponse status = emptyResponse' status Headers.empty
 
 -- | The same as `emptyResponse` but with headers.
-emptyResponse' :: Status.Status -> Headers.Headers -> ResponseM
+emptyResponse' :: forall m. MonadAff m => Status.Status -> Headers.Headers -> m Response
 emptyResponse' status headers = response' status headers ""
 
 ---------
@@ -139,27 +142,27 @@ emptyResponse' status headers = response' status headers ""
 ---------
 
 -- | 100
-continue :: ResponseM
+continue :: forall m. MonadAff m => m Response
 continue = continue' Headers.empty
 
 -- | 100 with headers
-continue' :: Headers.Headers -> ResponseM
+continue' :: forall m. MonadAff m => Headers.Headers -> m Response
 continue' = emptyResponse' Status.continue
 
 -- | 101
-switchingProtocols :: ResponseM
+switchingProtocols :: forall m. MonadAff m => m Response
 switchingProtocols = switchingProtocols' Headers.empty
 
 -- | 101 with headers
-switchingProtocols' :: Headers.Headers -> ResponseM
+switchingProtocols' :: forall m. MonadAff m => Headers.Headers -> m Response
 switchingProtocols' = emptyResponse' Status.switchingProtocols
 
 -- | 102
-processing :: ResponseM
+processing :: forall m. MonadAff m => m Response
 processing = processing' Headers.empty
 
 -- | 102 with headers
-processing' :: Headers.Headers -> ResponseM
+processing' :: forall m. MonadAff m => Headers.Headers -> m Response
 processing' = emptyResponse' Status.processing
 
 ---------
@@ -167,86 +170,87 @@ processing' = emptyResponse' Status.processing
 ---------
 
 -- | 200
-ok :: forall b. Body.Body b => b -> ResponseM
+ok :: forall m b. MonadAff m => Body.Body b => b -> m Response
 ok = ok' Headers.empty
 
 -- | 200 with headers
-ok' :: forall b. Body.Body b => Headers.Headers -> b -> ResponseM
+ok' :: forall m b. MonadAff m => Body.Body b => Headers.Headers -> b -> m Response
 ok' = response' Status.ok
 
 -- | 201
-created :: ResponseM
+created :: forall m. MonadAff m => m Response
 created = created' Headers.empty
 
 -- | 201 with headers
-created' :: Headers.Headers -> ResponseM
+created' :: forall m. MonadAff m => Headers.Headers -> m Response
 created' = emptyResponse' Status.created
 
 -- | 202
-accepted :: ResponseM
+accepted :: forall m. MonadAff m => m Response
 accepted = accepted' Headers.empty
 
 -- | 202 with headers
-accepted' :: Headers.Headers -> ResponseM
+accepted' :: forall m. MonadAff m => Headers.Headers -> m Response
 accepted' = emptyResponse' Status.accepted
 
 -- | 203
-nonAuthoritativeInformation :: forall b. Body.Body b => b -> ResponseM
+nonAuthoritativeInformation :: forall m b. MonadAff m => Body.Body b => b -> m Response
 nonAuthoritativeInformation = nonAuthoritativeInformation' Headers.empty
 
 -- | 203 with headers
-nonAuthoritativeInformation' :: forall b. Body.Body b =>
+nonAuthoritativeInformation' :: forall m b. MonadAff m =>
+                                Body.Body b =>
                                 Headers.Headers ->
                                 b ->
-                                ResponseM
+                                m Response
 nonAuthoritativeInformation' = response' Status.nonAuthoritativeInformation
 
 -- | 204
-noContent :: ResponseM
+noContent :: forall m. MonadAff m => m Response
 noContent = noContent' Headers.empty
 
 -- | 204 with headers
-noContent' :: Headers.Headers -> ResponseM
+noContent' :: forall m. MonadAff m => Headers.Headers -> m Response
 noContent' = emptyResponse' Status.noContent
 
 -- | 205
-resetContent :: ResponseM
+resetContent :: forall m. MonadAff m => m Response
 resetContent = resetContent' Headers.empty
 
 -- | 205 with headers
-resetContent' :: Headers.Headers -> ResponseM
+resetContent' :: forall m. MonadAff m => Headers.Headers -> m Response
 resetContent' = emptyResponse' Status.resetContent
 
 -- | 206
-partialContent :: forall b. Body.Body b => b -> ResponseM
+partialContent :: forall m b. MonadAff m => Body.Body b => b -> m Response
 partialContent = partialContent' Headers.empty
 
 -- | 206 with headers
-partialContent' :: forall b. Body.Body b => Headers.Headers -> b -> ResponseM
+partialContent' :: forall m b. MonadAff m => Body.Body b => Headers.Headers -> b -> m Response
 partialContent' = response' Status.partialContent
 
 -- | 207
-multiStatus :: forall b. Body.Body b => b -> ResponseM
+multiStatus :: forall m b. MonadAff m => Body.Body b => b -> m Response
 multiStatus = multiStatus' Headers.empty
 
 -- | 207 with headers
-multiStatus' :: forall b. Body.Body b => Headers.Headers -> b -> ResponseM
+multiStatus' :: forall m b. MonadAff m => Body.Body b => Headers.Headers -> b -> m Response
 multiStatus' = response' Status.multiStatus
 
 -- | 208
-alreadyReported :: ResponseM
+alreadyReported :: forall m. MonadAff m => m Response
 alreadyReported = alreadyReported' Headers.empty
 
 -- | 208 with headers
-alreadyReported' :: Headers.Headers -> ResponseM
+alreadyReported' :: forall m. MonadAff m => Headers.Headers -> m Response
 alreadyReported' = emptyResponse' Status.alreadyReported
 
 -- | 226
-iMUsed :: forall b. Body.Body b => b -> ResponseM
+iMUsed :: forall m b. MonadAff m => Body.Body b => b -> m Response
 iMUsed = iMUsed' Headers.empty
 
 -- | 226 with headers
-iMUsed' :: forall b. Body.Body b => Headers.Headers -> b -> ResponseM
+iMUsed' :: forall m b. MonadAff m => Body.Body b => Headers.Headers -> b -> m Response
 iMUsed' = response' Status.iMUsed
 
 ---------
@@ -254,67 +258,67 @@ iMUsed' = response' Status.iMUsed
 ---------
 
 -- | 300
-multipleChoices :: forall b. Body.Body b => b -> ResponseM
+multipleChoices :: forall m b. MonadAff m => Body.Body b => b -> m Response
 multipleChoices = multipleChoices' Headers.empty
 
 -- | 300 with headers
-multipleChoices' :: forall b. Body.Body b => Headers.Headers -> b -> ResponseM
+multipleChoices' :: forall m b. MonadAff m => Body.Body b => Headers.Headers -> b -> m Response
 multipleChoices' = response' Status.multipleChoices
 
 -- | 301
-movedPermanently :: forall b. Body.Body b => b -> ResponseM
+movedPermanently :: forall m b. MonadAff m => Body.Body b => b -> m Response
 movedPermanently = movedPermanently' Headers.empty
 
 -- | 301 with headers
-movedPermanently' :: forall b. Body.Body b => Headers.Headers -> b -> ResponseM
+movedPermanently' :: forall m b. MonadAff m => Body.Body b => Headers.Headers -> b -> m Response
 movedPermanently' = response' Status.movedPermanently
 
 -- | 302
-found :: forall b. Body.Body b => b -> ResponseM
+found :: forall m b. MonadAff m => Body.Body b => b -> m Response
 found = found' Headers.empty
 
 -- | 302 with headers
-found' :: forall b. Body.Body b => Headers.Headers -> b -> ResponseM
+found' :: forall m b. MonadAff m => Body.Body b => Headers.Headers -> b -> m Response
 found' = response' Status.found
 
 -- | 303
-seeOther :: forall b. Body.Body b => b -> ResponseM
+seeOther :: forall m b. MonadAff m => Body.Body b => b -> m Response
 seeOther = seeOther' Headers.empty
 
 -- | 303 with headers
-seeOther' :: forall b. Body.Body b => Headers.Headers -> b -> ResponseM
+seeOther' :: forall m b. MonadAff m => Body.Body b => Headers.Headers -> b -> m Response
 seeOther' = response' Status.seeOther
 
 -- | 304
-notModified :: ResponseM
+notModified :: forall m. MonadAff m => m Response
 notModified = notModified' Headers.empty
 
 -- | 304 with headers
-notModified' :: Headers.Headers -> ResponseM
+notModified' :: forall m. MonadAff m => Headers.Headers -> m Response
 notModified' = emptyResponse' Status.notModified
 
 -- | 305
-useProxy :: forall b. Body.Body b => b -> ResponseM
+useProxy :: forall m b. MonadAff m => Body.Body b => b -> m Response
 useProxy = useProxy' Headers.empty
 
 -- | 305 with headers
-useProxy' :: forall b. Body.Body b => Headers.Headers -> b -> ResponseM
+useProxy' :: forall m b. MonadAff m => Body.Body b => Headers.Headers -> b -> m Response
 useProxy' = response' Status.useProxy
 
 -- | 307
-temporaryRedirect :: forall b. Body.Body b => b -> ResponseM
+temporaryRedirect :: forall m b. MonadAff m => Body.Body b => b -> m Response
 temporaryRedirect = temporaryRedirect' Headers.empty
 
 -- | 307 with headers
-temporaryRedirect' :: forall b. Body.Body b => Headers.Headers -> b -> ResponseM
+temporaryRedirect' :: forall m b. MonadAff m => Body.Body b => Headers.Headers -> b -> m Response
 temporaryRedirect' = response' Status.temporaryRedirect
 
 -- | 308
-permanentRedirect :: forall b. Body.Body b => b -> ResponseM
+permanentRedirect :: forall m b. MonadAff m => Body.Body b => b -> m Response
 permanentRedirect = permanentRedirect' Headers.empty
 
 -- | 308 with headers
-permanentRedirect' :: forall b. Body.Body b => Headers.Headers -> b -> ResponseM
+permanentRedirect' :: forall m b. MonadAff m => Body.Body b => Headers.Headers -> b -> m Response
 permanentRedirect' = response' Status.permanentRedirect
 
 
@@ -323,227 +327,227 @@ permanentRedirect' = response' Status.permanentRedirect
 ---------
 
 -- | 400
-badRequest :: forall b. Body.Body b => b -> ResponseM
+badRequest :: forall m b. MonadAff m => Body.Body b => b -> m Response
 badRequest = badRequest' Headers.empty
 
 -- | 400 with headers
-badRequest' :: forall b. Body.Body b => Headers.Headers -> b -> ResponseM
+badRequest' :: forall m b. MonadAff m => Body.Body b => Headers.Headers -> b -> m Response
 badRequest' = response' Status.badRequest
 
 -- | 401
-unauthorized :: ResponseM
+unauthorized :: forall m. MonadAff m => m Response
 unauthorized = unauthorized' Headers.empty
 
 -- | 401 with headers
-unauthorized' :: Headers.Headers -> ResponseM
+unauthorized' :: forall m. MonadAff m => Headers.Headers -> m Response
 unauthorized' = emptyResponse' Status.unauthorized
 
 -- | 402
-paymentRequired :: ResponseM
+paymentRequired :: forall m. MonadAff m => m Response
 paymentRequired = paymentRequired' Headers.empty
 
 -- | 402 with headers
-paymentRequired' :: Headers.Headers -> ResponseM
+paymentRequired' :: forall m. MonadAff m => Headers.Headers -> m Response
 paymentRequired' = emptyResponse' Status.paymentRequired
 
 -- | 403
-forbidden :: ResponseM
+forbidden :: forall m. MonadAff m => m Response
 forbidden = forbidden' Headers.empty
 
 -- | 403 with headers
-forbidden' :: Headers.Headers -> ResponseM
+forbidden' :: forall m. MonadAff m => Headers.Headers -> m Response
 forbidden' = emptyResponse' Status.forbidden
 
 -- | 404
-notFound :: ResponseM
+notFound :: forall m. MonadAff m => m Response
 notFound = notFound' Headers.empty
 
 -- | 404 with headers
-notFound' :: Headers.Headers -> ResponseM
+notFound' :: forall m. MonadAff m => Headers.Headers -> m Response
 notFound' = emptyResponse' Status.notFound
 
 -- | 405
-methodNotAllowed :: ResponseM
+methodNotAllowed :: forall m. MonadAff m => m Response
 methodNotAllowed = methodNotAllowed' Headers.empty
 
 -- | 405 with headers
-methodNotAllowed' :: Headers.Headers -> ResponseM
+methodNotAllowed' :: forall m. MonadAff m => Headers.Headers -> m Response
 methodNotAllowed' = emptyResponse' Status.methodNotAllowed
 
 -- | 406
-notAcceptable :: ResponseM
+notAcceptable :: forall m. MonadAff m => m Response
 notAcceptable = notAcceptable' Headers.empty
 
 -- | 406 with headers
-notAcceptable' :: Headers.Headers -> ResponseM
+notAcceptable' :: forall m. MonadAff m => Headers.Headers -> m Response
 notAcceptable' = emptyResponse' Status.notAcceptable
 
 -- | 407
-proxyAuthenticationRequired :: ResponseM
+proxyAuthenticationRequired :: forall m. MonadAff m => m Response
 proxyAuthenticationRequired = proxyAuthenticationRequired' Headers.empty
 
 -- | 407 with headers
-proxyAuthenticationRequired' :: Headers.Headers -> ResponseM
+proxyAuthenticationRequired' :: forall m. MonadAff m => Headers.Headers -> m Response
 proxyAuthenticationRequired' = emptyResponse' Status.proxyAuthenticationRequired
 
 -- | 408
-requestTimeout :: ResponseM
+requestTimeout :: forall m. MonadAff m => m Response
 requestTimeout = requestTimeout' Headers.empty
 
 -- | 408 with headers
-requestTimeout' :: Headers.Headers -> ResponseM
+requestTimeout' :: forall m. MonadAff m => Headers.Headers -> m Response
 requestTimeout' = emptyResponse' Status.requestTimeout
 
 -- | 409
-conflict :: forall b. Body.Body b => b -> ResponseM
+conflict :: forall m b. MonadAff m => Body.Body b => b -> m Response
 conflict = conflict' Headers.empty
 
 -- | 409 with headers
-conflict' :: forall b. Body.Body b => Headers.Headers -> b -> ResponseM
+conflict' :: forall m b. MonadAff m => Body.Body b => Headers.Headers -> b -> m Response
 conflict' = response' Status.conflict
 
 -- | 410
-gone :: ResponseM
+gone :: forall m. MonadAff m => m Response
 gone = gone' Headers.empty
 
 -- | 410 with headers
-gone' :: Headers.Headers -> ResponseM
+gone' :: forall m. MonadAff m => Headers.Headers -> m Response
 gone' = emptyResponse' Status.gone
 
 -- | 411
-lengthRequired :: ResponseM
+lengthRequired :: forall m. MonadAff m => m Response
 lengthRequired = lengthRequired' Headers.empty
 
 -- | 411 with headers
-lengthRequired' :: Headers.Headers -> ResponseM
+lengthRequired' :: forall m. MonadAff m => Headers.Headers -> m Response
 lengthRequired' = emptyResponse' Status.lengthRequired
 
 -- | 412
-preconditionFailed :: ResponseM
+preconditionFailed :: forall m. MonadAff m => m Response
 preconditionFailed = preconditionFailed' Headers.empty
 
 -- | 412 with headers
-preconditionFailed' :: Headers.Headers -> ResponseM
+preconditionFailed' :: forall m. MonadAff m => Headers.Headers -> m Response
 preconditionFailed' = emptyResponse' Status.preconditionFailed
 
 -- | 413
-payloadTooLarge :: ResponseM
+payloadTooLarge :: forall m. MonadAff m => m Response
 payloadTooLarge = payloadTooLarge' Headers.empty
 
 -- | 413 with headers
-payloadTooLarge' :: Headers.Headers -> ResponseM
+payloadTooLarge' :: forall m. MonadAff m => Headers.Headers -> m Response
 payloadTooLarge' = emptyResponse' Status.payloadTooLarge
 
 -- | 414
-uRITooLong :: ResponseM
+uRITooLong :: forall m. MonadAff m => m Response
 uRITooLong = uRITooLong' Headers.empty
 
 -- | 414 with headers
-uRITooLong' :: Headers.Headers -> ResponseM
+uRITooLong' :: forall m. MonadAff m => Headers.Headers -> m Response
 uRITooLong' = emptyResponse' Status.uRITooLong
 
 -- | 415
-unsupportedMediaType :: ResponseM
+unsupportedMediaType :: forall m. MonadAff m => m Response
 unsupportedMediaType = unsupportedMediaType' Headers.empty
 
 -- | 415 with headers
-unsupportedMediaType' :: Headers.Headers -> ResponseM
+unsupportedMediaType' :: forall m. MonadAff m => Headers.Headers -> m Response
 unsupportedMediaType' = emptyResponse' Status.unsupportedMediaType
 
 -- | 416
-rangeNotSatisfiable :: ResponseM
+rangeNotSatisfiable :: forall m. MonadAff m => m Response
 rangeNotSatisfiable = rangeNotSatisfiable' Headers.empty
 
 -- | 416 with headers
-rangeNotSatisfiable' :: Headers.Headers -> ResponseM
+rangeNotSatisfiable' :: forall m. MonadAff m => Headers.Headers -> m Response
 rangeNotSatisfiable' = emptyResponse' Status.rangeNotSatisfiable
 
 -- | 417
-expectationFailed :: ResponseM
+expectationFailed :: forall m. MonadAff m => m Response
 expectationFailed = expectationFailed' Headers.empty
 
 -- | 417 with headers
-expectationFailed' :: Headers.Headers -> ResponseM
+expectationFailed' :: forall m. MonadAff m => Headers.Headers -> m Response
 expectationFailed' = emptyResponse' Status.expectationFailed
 
 -- | 418
-imATeapot :: ResponseM
+imATeapot :: forall m. MonadAff m => m Response
 imATeapot = imATeapot' Headers.empty
 
 -- | 418 with headers
-imATeapot' :: Headers.Headers -> ResponseM
+imATeapot' :: forall m. MonadAff m => Headers.Headers -> m Response
 imATeapot' = emptyResponse' Status.imATeapot
 
 -- | 421
-misdirectedRequest :: ResponseM
+misdirectedRequest :: forall m. MonadAff m => m Response
 misdirectedRequest = misdirectedRequest' Headers.empty
 
 -- | 421 with headers
-misdirectedRequest' :: Headers.Headers -> ResponseM
+misdirectedRequest' :: forall m. MonadAff m => Headers.Headers -> m Response
 misdirectedRequest' = emptyResponse' Status.misdirectedRequest
 
 -- | 422
-unprocessableEntity :: ResponseM
+unprocessableEntity :: forall m. MonadAff m => m Response
 unprocessableEntity = unprocessableEntity' Headers.empty
 
 -- | 422 with headers
-unprocessableEntity' :: Headers.Headers -> ResponseM
+unprocessableEntity' :: forall m. MonadAff m => Headers.Headers -> m Response
 unprocessableEntity' = emptyResponse' Status.unprocessableEntity
 
 -- | 423
-locked :: ResponseM
+locked :: forall m. MonadAff m => m Response
 locked = locked' Headers.empty
 
 -- | 423 with headers
-locked' :: Headers.Headers -> ResponseM
+locked' :: forall m. MonadAff m => Headers.Headers -> m Response
 locked' = emptyResponse' Status.locked
 
 -- | 424
-failedDependency :: ResponseM
+failedDependency :: forall m. MonadAff m => m Response
 failedDependency = failedDependency' Headers.empty
 
 -- | 424 with headers
-failedDependency' :: Headers.Headers -> ResponseM
+failedDependency' :: forall m. MonadAff m => Headers.Headers -> m Response
 failedDependency' = emptyResponse' Status.failedDependency
 
 -- | 426
-upgradeRequired :: ResponseM
+upgradeRequired :: forall m. MonadAff m => m Response
 upgradeRequired = upgradeRequired' Headers.empty
 
 -- | 426 with headers
-upgradeRequired' :: Headers.Headers -> ResponseM
+upgradeRequired' :: forall m. MonadAff m => Headers.Headers -> m Response
 upgradeRequired' = emptyResponse' Status.upgradeRequired
 
 -- | 428
-preconditionRequired :: ResponseM
+preconditionRequired :: forall m. MonadAff m => m Response
 preconditionRequired = preconditionRequired' Headers.empty
 
 -- | 428 with headers
-preconditionRequired' :: Headers.Headers -> ResponseM
+preconditionRequired' :: forall m. MonadAff m => Headers.Headers -> m Response
 preconditionRequired' = emptyResponse' Status.preconditionRequired
 
 -- | 429
-tooManyRequests :: ResponseM
+tooManyRequests :: forall m. MonadAff m => m Response
 tooManyRequests = tooManyRequests' Headers.empty
 
 -- | 429 with headers
-tooManyRequests' :: Headers.Headers -> ResponseM
+tooManyRequests' :: forall m. MonadAff m => Headers.Headers -> m Response
 tooManyRequests' = emptyResponse' Status.tooManyRequests
 
 -- | 431
-requestHeaderFieldsTooLarge :: ResponseM
+requestHeaderFieldsTooLarge :: forall m. MonadAff m => m Response
 requestHeaderFieldsTooLarge = requestHeaderFieldsTooLarge' Headers.empty
 
 -- | 431 with headers
-requestHeaderFieldsTooLarge' :: Headers.Headers -> ResponseM
+requestHeaderFieldsTooLarge' :: forall m. MonadAff m => Headers.Headers -> m Response
 requestHeaderFieldsTooLarge' = emptyResponse' Status.requestHeaderFieldsTooLarge
 
 -- | 451
-unavailableForLegalReasons :: ResponseM
+unavailableForLegalReasons :: forall m. MonadAff m => m Response
 unavailableForLegalReasons = unavailableForLegalReasons' Headers.empty
 
 -- | 451 with headers
-unavailableForLegalReasons' :: Headers.Headers -> ResponseM
+unavailableForLegalReasons' :: forall m. MonadAff m => Headers.Headers -> m Response
 unavailableForLegalReasons' = emptyResponse' Status.unavailableForLegalReasons
 
 ---------
@@ -551,93 +555,94 @@ unavailableForLegalReasons' = emptyResponse' Status.unavailableForLegalReasons
 ---------
 
 -- | 500
-internalServerError :: forall b. Body.Body b => b -> ResponseM
+internalServerError :: forall m b. MonadAff m => Body.Body b => b -> m Response
 internalServerError = internalServerError' Headers.empty
 
 -- | 500 with headers
-internalServerError' :: forall b. Body.Body b =>
+internalServerError' :: forall m b. MonadAff m =>
+                        Body.Body b =>
                         Headers.Headers ->
                         b ->
-                        ResponseM
+                        m Response
 internalServerError' = response' Status.internalServerError
 
 -- | 501
-notImplemented :: ResponseM
+notImplemented :: forall m. MonadAff m => m Response
 notImplemented = notImplemented' Headers.empty
 
 -- | 501 with headers
-notImplemented' :: Headers.Headers -> ResponseM
+notImplemented' :: forall m. MonadAff m => Headers.Headers -> m Response
 notImplemented' = emptyResponse' Status.notImplemented
 
 -- | 502
-badGateway :: ResponseM
+badGateway :: forall m. MonadAff m => m Response
 badGateway = badGateway' Headers.empty
 
 -- | 502 with headers
-badGateway' :: Headers.Headers -> ResponseM
+badGateway' :: forall m. MonadAff m => Headers.Headers -> m Response
 badGateway' = emptyResponse' Status.badGateway
 
 -- | 503
-serviceUnavailable :: ResponseM
+serviceUnavailable :: forall m. MonadAff m => m Response
 serviceUnavailable = serviceUnavailable' Headers.empty
 
 -- | 503 with headers
-serviceUnavailable' :: Headers.Headers -> ResponseM
+serviceUnavailable' :: forall m. MonadAff m => Headers.Headers -> m Response
 serviceUnavailable' = emptyResponse' Status.serviceUnavailable
 
 -- | 504
-gatewayTimeout :: ResponseM
+gatewayTimeout :: forall m. MonadAff m => m Response
 gatewayTimeout = gatewayTimeout' Headers.empty
 
 -- | 504 with headers
-gatewayTimeout' :: Headers.Headers -> ResponseM
+gatewayTimeout' :: forall m. MonadAff m => Headers.Headers -> m Response
 gatewayTimeout' = emptyResponse' Status.gatewayTimeout
 
 -- | 505
-hTTPVersionNotSupported :: ResponseM
+hTTPVersionNotSupported :: forall m. MonadAff m => m Response
 hTTPVersionNotSupported = hTTPVersionNotSupported' Headers.empty
 
 -- | 505 with headers
-hTTPVersionNotSupported' :: Headers.Headers -> ResponseM
+hTTPVersionNotSupported' :: forall m. MonadAff m => Headers.Headers -> m Response
 hTTPVersionNotSupported' = emptyResponse' Status.hTTPVersionNotSupported
 
 -- | 506
-variantAlsoNegotiates :: ResponseM
+variantAlsoNegotiates :: forall m. MonadAff m => m Response
 variantAlsoNegotiates = variantAlsoNegotiates' Headers.empty
 
 -- | 506 with headers
-variantAlsoNegotiates' :: Headers.Headers -> ResponseM
+variantAlsoNegotiates' :: forall m. MonadAff m => Headers.Headers -> m Response
 variantAlsoNegotiates' = emptyResponse' Status.variantAlsoNegotiates
 
 -- | 507
-insufficientStorage :: ResponseM
+insufficientStorage :: forall m. MonadAff m => m Response
 insufficientStorage = insufficientStorage' Headers.empty
 
 -- | 507 with headers
-insufficientStorage' :: Headers.Headers -> ResponseM
+insufficientStorage' :: forall m. MonadAff m => Headers.Headers -> m Response
 insufficientStorage' = emptyResponse' Status.insufficientStorage
 
 -- | 508
-loopDetected :: ResponseM
+loopDetected :: forall m. MonadAff m => m Response
 loopDetected = loopDetected' Headers.empty
 
 -- | 508 with headers
-loopDetected' :: Headers.Headers -> ResponseM
+loopDetected' :: forall m. MonadAff m => Headers.Headers -> m Response
 loopDetected' = emptyResponse' Status.loopDetected
 
 -- | 510
-notExtended :: ResponseM
+notExtended :: forall m. MonadAff m => m Response
 notExtended = notExtended' Headers.empty
 
 -- | 510 with headers
-notExtended' :: Headers.Headers -> ResponseM
+notExtended' :: forall m. MonadAff m => Headers.Headers -> m Response
 notExtended' = emptyResponse' Status.notExtended
 
 -- | 511
-networkAuthenticationRequired :: ResponseM
+networkAuthenticationRequired :: forall m. MonadAff m => m Response
 networkAuthenticationRequired = networkAuthenticationRequired' Headers.empty
 
 -- | 511 with headers
-networkAuthenticationRequired' :: Headers.Headers -> ResponseM
+networkAuthenticationRequired' :: forall m. MonadAff m => Headers.Headers -> m Response
 networkAuthenticationRequired' =
   emptyResponse' Status.networkAuthenticationRequired
