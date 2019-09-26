@@ -1,11 +1,15 @@
+0.9.0 / 2019-09-25
+==================
+- Provide utils from purescript-globals instead of FFI (thanks **@nsaunders**)
+- Update the tests to work with purescript-spec v4.0.0 (thanks **Dretch**)
+- Add some type declarations to get compatibility with node-buffer 6.x (thanks **Dretch**)
+
 0.8.3 / 2019-06-03
 ==================
-
 - Use `Buffer.concat` instead of string concatenation to fix ordering issues (thanks **@rnons**)
 
 0.8.2 / 2019-05-20
 ==================
-
 - Add HTTP version to `HTTPure.Request` (thanks **@joneshf**)
 - Fix inconsistent case-insensitivity with `HTTPure.Headers` (thanks **@joneshf**)
 
