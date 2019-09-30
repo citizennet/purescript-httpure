@@ -14,6 +14,7 @@ import Test.HTTPure.TestHelpers ((?=))
 import Examples.AsyncResponse.Main as AsyncResponse
 import Examples.Binary.Main as Binary
 import Examples.Chunked.Main as Chunked
+import Examples.CustomStack.Main as CustomStack
 import Examples.Headers.Main as Headers
 import Examples.HelloWorld.Main as HelloWorld
 import Examples.Middleware.Main as Middleware
@@ -48,6 +49,13 @@ chunkedSpec = Spec.it "runs the chunked example" do
   -- TODO this isn't a great way to validate this, we need a way of inspecting
   -- each individual chunk instead of just looking at the entire response
   response ?= "hello world!"
+
+customStackSpec :: TestHelpers.Test
+customStackSpec = Spec.it "runs the custom stack example" do
+  close <- EffectClass.liftEffect CustomStack.main
+  response <- TestHelpers.get 8080 Object.empty "/"
+  EffectClass.liftEffect $ close $ pure unit
+  response ?= "hello, joe"
 
 headersSpec :: TestHelpers.Test
 headersSpec = Spec.it "runs the headers example" do
@@ -128,6 +136,7 @@ integrationSpec = Spec.describe "Integration" do
   asyncResponseSpec
   binarySpec
   chunkedSpec
+  customStackSpec
   headersSpec
   helloWorldSpec
   middlewareSpec
