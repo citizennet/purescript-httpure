@@ -1,3 +1,7 @@
+0.10.0 / 2019-12-03
+===================
+- Update response functions to return `MonadAff m => m Repsonse` (thanks **@drewolson**)
+
 0.9.0 / 2019-09-25
 ==================
 - Provide utils from purescript-globals instead of FFI (thanks **@nsaunders**)
