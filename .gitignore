@@ -5,3 +5,5 @@
 /.purs*
 /.psa*
 /.dir-locals.el
+/.spago
+/output
