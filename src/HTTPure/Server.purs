@@ -81,7 +81,7 @@ serveSecure' sslOptions options router onStarted = do
 -- | Given a port number, return a `HTTP.ListenOptions` `Record`.
 listenOptions :: Int -> HTTP.ListenOptions
 listenOptions port =
-  { hostname: "localhost"
+  { hostname: "0.0.0.0"
   , port: port
   , backlog: Maybe.Nothing
   }
