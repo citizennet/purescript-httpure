@@ -1,13 +1,23 @@
-{
-  nixpkgs ? <nixpkgs>
-}:
+{ sources ? import ./sources.nix }:
 
 let
-  pkgs = import nixpkgs {};
+  niv-overlay = self: _: {
+    niv = self.symlinkJoin {
+      name = "niv";
+      paths = [ sources.niv ];
+      buildInputs = [ self.makeWrapper ];
+      postBuild = ''
+        wrapProgram $out/bin/niv \
+          --add-flags "--sources-file ${toString ./sources.json}"
+      '';
+    };
+  };
+  pkgs = import sources.nixpkgs { overlays = [ niv-overlay ]; };
 in
 
 pkgs.mkShell {
   buildInputs = [
+    pkgs.niv
     pkgs.git
     pkgs.nodejs
     pkgs.yarn
