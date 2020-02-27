@@ -1,7 +1,4 @@
 language: nix
 notifications:
   email: false
-script:
-  - nix-shell --run 'make test'
-#after_success:
-#  - nix-shell -run 'test -n $TRAVIS_TAG && (echo $GITHUB_TOKEN | pulp login) && (yes | pulp publish --no-push)'
+script: nix-shell --run 'make test'
