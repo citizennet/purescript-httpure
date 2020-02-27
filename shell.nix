@@ -1,16 +1,23 @@
-{
-  purescript ? "0.12.4",
-  nixjs ? fetchTarball "https://github.com/cprussin/nixjs/tarball/release-19.03",
-  nixpkgs ? <nixpkgs>
-}:
+{ sources ? import ./sources.nix }:
 
 let
-  nixjs-overlay = import nixjs { inherit purescript; };
-  pkgs = import nixpkgs { overlays = [ nixjs-overlay ]; };
+  niv-overlay = self: _: {
+    niv = self.symlinkJoin {
+      name = "niv";
+      paths = [ sources.niv ];
+      buildInputs = [ self.makeWrapper ];
+      postBuild = ''
+        wrapProgram $out/bin/niv \
+          --add-flags "--sources-file ${toString ./sources.json}"
+      '';
+    };
+  };
+  pkgs = import sources.nixpkgs { overlays = [ niv-overlay ]; };
 in
 
 pkgs.mkShell {
   buildInputs = [
+    pkgs.niv
     pkgs.git
     pkgs.nodejs
     pkgs.yarn
