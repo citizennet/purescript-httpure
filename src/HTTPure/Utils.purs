@@ -19,7 +19,7 @@ encodeURIComponent = unsafeEncodeURIComponent
 
 replacePlus :: String -> String
 replacePlus =
-  String.replace (String.Pattern "+") (String.Replacement "%20")
+  String.replaceAll (String.Pattern "+") (String.Replacement "%20")
 
 
 urlDecode :: String -> String
