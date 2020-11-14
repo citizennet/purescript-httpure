@@ -17,6 +17,7 @@ import Test.HTTPure.RequestSpec as RequestSpec
 import Test.HTTPure.ResponseSpec as ResponseSpec
 import Test.HTTPure.ServerSpec as ServerSpec
 import Test.HTTPure.StatusSpec as StatusSpec
+import Test.HTTPure.UtilsSpec as UtilsSpec
 import Test.HTTPure.VersionSpec as VersionSpec
 import Test.HTTPure.IntegrationSpec as IntegrationSpec
 
@@ -34,5 +35,6 @@ main = Aff.launchAff_ $ Runner.runSpec [ Reporter.specReporter ] $ Spec.describe
   ResponseSpec.responseSpec
   ServerSpec.serverSpec
   StatusSpec.statusSpec
+  UtilsSpec.utilsSpec
   VersionSpec.versionSpec
   IntegrationSpec.integrationSpec
