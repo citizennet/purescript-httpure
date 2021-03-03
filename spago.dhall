@@ -10,7 +10,6 @@
     , "exceptions"
     , "foldable-traversable"
     , "foreign"
-    , "globals"
     , "lists"
     , "maybe"
     , "newtype"
@@ -30,6 +29,7 @@
     , "tuples"
     , "type-equality"
     , "unsafe-coerce"
+    , "js-uri"
     ]
 , packages = ./packages.dhall
 , sources = [ "src/**/*.purs", "test/**/*.purs", "docs/**/*.purs" ]
