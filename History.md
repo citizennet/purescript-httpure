@@ -1,3 +1,12 @@
+0.11.0 / 2021-03-04
+===================
+- Dependency version bumps
+- Fix `Utils.replacePlus` to replace all occurrences (thanks **@tmciver**)
+- Update to purescript 0.14 (thanks **@realvictorprm**)
+- Expose original request url as a part of `Request` (thanks **@paluh**)
+- Bind to 0.0.0.0 instead of 'localhost'
+- Add spago configuration (thanks **@drewolson**)
+
 0.10.0 / 2019-12-03
 ===================
 - Update response functions to return `MonadAff m => m Repsonse` (thanks **@drewolson**)
