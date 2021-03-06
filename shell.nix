@@ -12,7 +12,16 @@ let
       '';
     };
   };
-  pkgs = import sources.nixpkgs { overlays = [ niv-overlay ]; };
+  pkgs-unstable = import sources.nixpkgs-unstable {};
+  unstable-packages-overlay = _: _: {
+    inherit (pkgs-unstable) purescript;
+  };
+  pkgs = import sources.nixpkgs {
+    overlays = [
+      niv-overlay
+      unstable-packages-overlay
+    ];
+  };
 in
 
 pkgs.mkShell {
@@ -22,7 +31,6 @@ pkgs.mkShell {
     pkgs.nodejs
     pkgs.yarn
     pkgs.purescript
-    pkgs.psc-package
   ];
   shellHook = "export PATH=$PATH:$PWD/node_modules/.bin";
 }

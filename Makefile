@@ -5,17 +5,17 @@ MAKEFLAGS += --warn-undefined-variables
 .SILENT:
 
 # Executables used in this makefile
-PULP := pulp --psc-package
-PSCPACKAGE := psc-package
+PULP := pulp
 NODE := node
 YARN := yarn
+BOWER := bower
 
 # Options to pass to pulp when building
 BUILD_OPTIONS := -- --stash --censor-lib --strict
 
 # Package manifest files
 PACKAGEJSON := package.json
-PSCPACKAGEJSON = psc-package.json
+BOWERJSON = bower.json
 
 # Various input directories
 SRCPATH := ./src
@@ -27,7 +27,7 @@ EXAMPLEPATH := $(EXAMPLESPATH)/$(EXAMPLE)
 # Various output directories
 OUTPUT := ./out
 MODULES := ./node_modules
-PSCPACKAGES := ./.psc-package
+BOWER_COMPONENTS := ./bower_components
 BUILD := $(OUTPUT)/build
 OUTPUT_DOCS := $(OUTPUT)/docs
 OUTPUT_EXAMPLE := $(OUTPUT)/examples/$(EXAMPLE)
@@ -44,12 +44,12 @@ EXAMPLESOURCES := $(EXAMPLESPATH)/**/*
 $(MODULES): $(PACKAGEJSON)
 	$(YARN) --cache-folder $(MODULES) install
 
-# Install psc packages
-$(PSCPACKAGES): $(PSCPACKAGEJSON)
-	$(PSCPACKAGE) install
+# Install bower packages
+$(BOWER_COMPONENTS): $(BOWERJSON) $(MODULES)
+	$(BOWER) install
 
 # Build the source files
-$(BUILD): $(PSCPACKAGES) $(SOURCES) $(MODULES)
+$(BUILD): $(BOWER_COMPONENTS) $(SOURCES) $(MODULES)
 	$(PULP) build \
 	  --src-path $(SRCPATH) \
 	  --build-path $(BUILD) \
@@ -97,7 +97,7 @@ test: $(BUILD) $(TESTSOURCES) $(EXAMPLESOURCES) $(MODULES)
 	  $(BUILD_OPTIONS)
 
 # Launch a repl with all modules loaded
-repl: $(PSCPACKAGES) $(SOURCES) $(TESTSOURCES) $(EXAMPLESOURCES) $(MODULES)
+repl: $(BOWER_COMPONENTS) $(SOURCES) $(TESTSOURCES) $(EXAMPLESOURCES) $(MODULES)
 	$(PULP) repl \
 	  --include $(EXAMPLESPATH) \
 	  --src-path $(SRCPATH) \
@@ -105,7 +105,7 @@ repl: $(PSCPACKAGES) $(SOURCES) $(TESTSOURCES) $(EXAMPLESOURCES) $(MODULES)
 
 # Remove all make output from the source tree
 clean:
-	rm -rf $(OUTPUT) $(MODULES) $(PSCPACKAGES)
+	rm -rf $(OUTPUT) $(MODULES) $(BOWER_COMPONENTS)
 
 # Print out a description of all the supported tasks
 help:
@@ -121,9 +121,10 @@ help:
 	$(info - make help        Print this help)
 
 # Build the documentation
-$(OUTPUT_DOCS): $(PSCPACKAGES) $(SOURCES) $(MODULES)
+$(OUTPUT_DOCS): $(BOWER_COMPONENTS) $(SOURCES) $(MODULES)
 	$(PULP) docs \
-	  --src-path $(SRCPATH)
+	  --src-path $(SRCPATH) \
+	  --build-path $(BUILD)
 	rm -rf $(OUTPUT_DOCS)
 	mv generated-docs $(OUTPUT_DOCS)
 docs: $(OUTPUT_DOCS)

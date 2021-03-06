@@ -1,4 +1,0 @@
-language: nix
-notifications:
-  email: false
-script: nix-shell --run 'make test'

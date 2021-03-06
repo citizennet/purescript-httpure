@@ -1,9 +1,6 @@
 /out
+/bower_components
 /node_modules
-/.pulp-cache/
-/.psc*
-/.purs*
-/.psa*
-/.dir-locals.el
-/.spago
 /output
+/.psa-stash
+/.psci_modules
