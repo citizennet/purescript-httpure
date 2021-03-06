@@ -17,5 +17,8 @@ jobs:
         with:
           nix_path: nixpkgs=channel:nixos-20.09
 
-      - name: Run tests
+      - name: Build
+        run: nix-shell --run 'make build'
+
+      - name: Test
         run: nix-shell --run 'make test'
