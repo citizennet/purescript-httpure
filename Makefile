@@ -11,7 +11,7 @@ YARN := yarn
 BOWER := bower
 
 # Options to pass to pulp when building
-BUILD_OPTIONS := -- --stash --censor-lib --strict
+BUILD_OPTIONS := -- 
 
 # Package manifest files
 PACKAGEJSON := package.json
