@@ -15,7 +15,9 @@
    notes for v<new version number>`.
 4. Run `pulp version` in the project root. This will check the project for any
    issues and create a new version tag and empty checkpoint commit.
-5. Push the release notes and version commit and version tag.
+5. Run `pulp publish` in the project root.  This will publish the commits & tag
+   to github, will publish the package to bower, and will push documentation to
+   pursuit.
 6. If you are pushing a non-patch release, create and push a branch named with
    the version series, i.e. `v0.1.x`.
 7. [Create the release on
