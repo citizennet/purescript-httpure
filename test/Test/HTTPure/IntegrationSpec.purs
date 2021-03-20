@@ -48,7 +48,7 @@ chunkedSpec = Spec.it "runs the chunked example" do
   EffectClass.liftEffect $ close $ pure unit
   -- TODO this isn't a great way to validate this, we need a way of inspecting
   -- each individual chunk instead of just looking at the entire response
-  response ?= "hello world!"
+  response ?= "hello \nworld!\n"
 
 customStackSpec :: TestHelpers.Test
 customStackSpec = Spec.it "runs the custom stack example" do

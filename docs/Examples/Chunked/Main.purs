@@ -17,7 +17,7 @@ runScript script = EffectClass.liftEffect $ ChildProcess.stdout <$>
 -- | Say 'hello world!' in chunks when run
 sayHello :: HTTPure.Request -> HTTPure.ResponseM
 sayHello =
-  const $ runScript "echo -n 'hello '; sleep 1; echo -n 'world!'" >>= HTTPure.ok
+  const $ runScript "echo 'hello '; sleep 1; echo 'world!'" >>= HTTPure.ok
 
 -- | Boot up the server
 main :: HTTPure.ServerM
