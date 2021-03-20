@@ -1,3 +1,10 @@
+0.12.0 / 2021-03-20
+===================
+- Bump all dependency versions
+- Modernize tooling
+- Fix CI
+- Don't use `echo -n` in example since it's nonportable to OSX
+
 0.11.0 / 2021-03-04
 ===================
 - Dependency version bumps
