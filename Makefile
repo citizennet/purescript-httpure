@@ -1,7 +1,7 @@
 # Configuration for Make
 MAKEFLAGS += --warn-undefined-variables
 .DEFAULT_GOAL := help
-.PHONY: clean test repl example help
+.PHONY: clean example format help repl test test-code test-format
 .SILENT:
 
 # Executables used in this makefile
@@ -9,6 +9,7 @@ PULP := pulp
 NODE := node
 YARN := yarn
 BOWER := bower
+PURTY := purty
 
 # Options to pass to pulp when building
 BUILD_OPTIONS := -- --stash --censor-lib --strict
@@ -87,14 +88,26 @@ example: $(BUILD) $(EXAMPLE_INDEX)
 	$(NODE) $(EXAMPLE_INDEX)
 endif
 
+format: $(MODULES) $(SOURCES) $(TESTSOURCES) $(EXAMPLESOURCES)
+	$(PURTY) format --write $(SRCPATH)
+	$(PURTY) format --write $(TESTPATH)
+	$(PURTY) format --write $(EXAMPLESPATH)
+
+test-format: $(MODULES) $(SOURCES) $(TESTSOURCES) $(EXAMPLESOURCES)
+	$(PURTY) validate $(SRCPATH) &&\
+	  $(PURTY) validate $(TESTPATH) &&\
+	  $(PURTY) validate $(EXAMPLESPATH)
+
 # Run the test suite
-test: $(BUILD) $(TESTSOURCES) $(EXAMPLESOURCES) $(MODULES)
+test-code: $(BUILD) $(TESTSOURCES) $(EXAMPLESOURCES) $(MODULES)
 	$(PULP) test \
 	  --src-path $(SRCPATH) \
 	  --test-path $(TESTPATH) \
 	  --include $(EXAMPLESPATH) \
 	  --build-path $(BUILD) \
 	  $(BUILD_OPTIONS)
+
+test: test-code test-format
 
 # Launch a repl with all modules loaded
 repl: $(BOWER_COMPONENTS) $(SOURCES) $(TESTSOURCES) $(EXAMPLESOURCES) $(MODULES)
@@ -111,14 +124,18 @@ clean:
 help:
 	$(info HTTPure make utility)
 	$(info )
-	$(info Usage: make [ test | docs | example | repl | clean | help ])
+	$(info Usage: make [ build | clean | docs | example | format | help | repl | test ])
 	$(info )
-	$(info - make test        Run the test suite)
-	$(info - make docs        Build the documentation into $(OUTPUT_DOCS))
-	$(info - make example     Run the example in environment variable EXAMPLE)
-	$(info - make repl        Launch a repl with all project code loaded)
-	$(info - make clean       Remove all build files)
-	$(info - make help        Print this help)
+	$(info - make build           Build the documentation into $(OUTPUT_DOCS))
+	$(info - make clean           Remove all build files)
+	$(info - make docs            Build the documentation into $(OUTPUT_DOCS))
+	$(info - make example         Run the example in environment variable EXAMPLE)
+	$(info - make format          Run code formatting)
+	$(info - make help            Print this help)
+	$(info - make repl            Launch a repl with all project code loaded)
+	$(info - make test            Run all checks)
+	$(info - make test-format     Validate the code formatting)
+	$(info - make test-code       Run the code test suite)
 
 # Build the documentation
 $(OUTPUT_DOCS): $(BOWER_COMPONENTS) $(SOURCES) $(MODULES)

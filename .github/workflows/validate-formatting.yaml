@@ -1,4 +1,4 @@
-name: Test
+name: Validate Formatting
 
 on:
   pull_request:
@@ -21,4 +21,4 @@ jobs:
         run: nix-shell --run 'make build'
 
       - name: Test
-        run: nix-shell --run 'make test-code'
+        run: nix-shell --run 'make test-format'

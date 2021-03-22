@@ -3,6 +3,7 @@
     "devDependencies": {
         "bower": "^1.8.12",
         "pulp": "^15.0.0",
-        "purescript-psa": "^0.8.2"
+        "purescript-psa": "^0.8.2",
+        "purty": "^7.0.0"
     }
 }
