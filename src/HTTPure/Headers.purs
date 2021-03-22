@@ -8,7 +8,6 @@ module HTTPure.Headers
   ) where
 
 import Prelude
-
 import Effect as Effect
 import Foreign.Object as Object
 import Data.Foldable as Foldable
@@ -19,13 +18,14 @@ import Data.String.CaseInsensitive as CaseInsensitive
 import Data.TraversableWithIndex as TraversableWithIndex
 import Data.Tuple as Tuple
 import Node.HTTP as HTTP
-
 import HTTPure.Lookup as Lookup
 import HTTPure.Lookup ((!!))
 
 -- | The `Headers` type is just sugar for a `Object` of `Strings`
 -- | that represents the set of headers in an HTTP request or response.
-newtype Headers = Headers (Map.Map CaseInsensitive.CaseInsensitiveString String)
+newtype Headers
+  = Headers (Map.Map CaseInsensitive.CaseInsensitiveString String)
+
 derive instance newtypeHeaders :: Newtype.Newtype Headers _
 
 -- | Given a string, return a `Maybe` containing the value of the matching
@@ -36,10 +36,9 @@ instance lookup :: Lookup.Lookup Headers String String where
 -- | Allow a `Headers` to be represented as a string. This string is formatted
 -- | in HTTP headers format.
 instance show :: Show Headers where
-  show (Headers headers') =
-    FoldableWithIndex.foldMapWithIndex showField headers' <> "\n"
+  show (Headers headers') = FoldableWithIndex.foldMapWithIndex showField headers' <> "\n"
     where
-      showField key value = Newtype.unwrap key <> ": " <> value <> "\n"
+    showField key value = Newtype.unwrap key <> ": " <> value <> "\n"
 
 -- | Compare two `Headers` objects by comparing the underlying `Objects`.
 instance eq :: Eq Headers where
@@ -53,16 +52,16 @@ instance semigroup :: Semigroup Headers where
 read :: HTTP.Request -> Headers
 read = HTTP.requestHeaders >>> Object.fold insertField Map.empty >>> Headers
   where
-    insertField x key value =
-      Map.insert (CaseInsensitive.CaseInsensitiveString key) value x
+  insertField x key value = Map.insert (CaseInsensitive.CaseInsensitiveString key) value x
 
 -- | Given an HTTP `Response` and a `Headers` object, return an effect that will
 -- | write the `Headers` to the `Response`.
 write :: HTTP.Response -> Headers -> Effect.Effect Unit
-write response (Headers headers') = void $
-  TraversableWithIndex.traverseWithIndex writeField headers'
+write response (Headers headers') =
+  void
+    $ TraversableWithIndex.traverseWithIndex writeField headers'
   where
-    writeField key value = HTTP.setHeader response (Newtype.unwrap key) value
+  writeField key value = HTTP.setHeader response (Newtype.unwrap key) value
 
 -- | Return a `Headers` containing nothing.
 empty :: Headers
@@ -72,10 +71,8 @@ empty = Headers Map.empty
 headers :: Array (Tuple.Tuple String String) -> Headers
 headers = Foldable.foldl insertField Map.empty >>> Headers
   where
-    insertField x (Tuple.Tuple key value) =
-      Map.insert (CaseInsensitive.CaseInsensitiveString key) value x
+  insertField x (Tuple.Tuple key value) = Map.insert (CaseInsensitive.CaseInsensitiveString key) value x
 
 -- | Create a singleton header from a key-value pair.
 header :: String -> String -> Headers
-header key =
-  Map.singleton (CaseInsensitive.CaseInsensitiveString key) >>> Headers
+header key = Map.singleton (CaseInsensitive.CaseInsensitiveString key) >>> Headers

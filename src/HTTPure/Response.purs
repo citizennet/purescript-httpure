@@ -2,88 +2,143 @@ module HTTPure.Response
   ( Response
   , ResponseM
   , send
-  , response, response'
-  , emptyResponse, emptyResponse'
-
+  , response
+  , response'
+  , emptyResponse
+  , emptyResponse'
   -- 1xx
-  , continue, continue'
-  , switchingProtocols, switchingProtocols'
-  , processing, processing'
-
+  , continue
+  , continue'
+  , switchingProtocols
+  , switchingProtocols'
+  , processing
+  , processing'
   -- 2xx
-  , ok, ok'
-  , created, created'
-  , accepted, accepted'
-  , nonAuthoritativeInformation, nonAuthoritativeInformation'
-  , noContent, noContent'
-  , resetContent, resetContent'
-  , partialContent, partialContent'
-  , multiStatus, multiStatus'
-  , alreadyReported, alreadyReported'
-  , iMUsed, iMUsed'
-
+  , ok
+  , ok'
+  , created
+  , created'
+  , accepted
+  , accepted'
+  , nonAuthoritativeInformation
+  , nonAuthoritativeInformation'
+  , noContent
+  , noContent'
+  , resetContent
+  , resetContent'
+  , partialContent
+  , partialContent'
+  , multiStatus
+  , multiStatus'
+  , alreadyReported
+  , alreadyReported'
+  , iMUsed
+  , iMUsed'
   -- 3xx
-  , multipleChoices, multipleChoices'
-  , movedPermanently, movedPermanently'
-  , found, found'
-  , seeOther, seeOther'
-  , notModified, notModified'
-  , useProxy, useProxy'
-  , temporaryRedirect, temporaryRedirect'
-  , permanentRedirect, permanentRedirect'
-
+  , multipleChoices
+  , multipleChoices'
+  , movedPermanently
+  , movedPermanently'
+  , found
+  , found'
+  , seeOther
+  , seeOther'
+  , notModified
+  , notModified'
+  , useProxy
+  , useProxy'
+  , temporaryRedirect
+  , temporaryRedirect'
+  , permanentRedirect
+  , permanentRedirect'
   -- 4xx
-  , badRequest, badRequest'
-  , unauthorized, unauthorized'
-  , paymentRequired, paymentRequired'
-  , forbidden, forbidden'
-  , notFound, notFound'
-  , methodNotAllowed, methodNotAllowed'
-  , notAcceptable, notAcceptable'
-  , proxyAuthenticationRequired, proxyAuthenticationRequired'
-  , requestTimeout, requestTimeout'
-  , conflict, conflict'
-  , gone, gone'
-  , lengthRequired, lengthRequired'
-  , preconditionFailed, preconditionFailed'
-  , payloadTooLarge, payloadTooLarge'
-  , uRITooLong, uRITooLong'
-  , unsupportedMediaType, unsupportedMediaType'
-  , rangeNotSatisfiable, rangeNotSatisfiable'
-  , expectationFailed, expectationFailed'
-  , imATeapot, imATeapot'
-  , misdirectedRequest, misdirectedRequest'
-  , unprocessableEntity, unprocessableEntity'
-  , locked, locked'
-  , failedDependency, failedDependency'
-  , upgradeRequired, upgradeRequired'
-  , preconditionRequired, preconditionRequired'
-  , tooManyRequests, tooManyRequests'
-  , requestHeaderFieldsTooLarge, requestHeaderFieldsTooLarge'
-  , unavailableForLegalReasons, unavailableForLegalReasons'
-
+  , badRequest
+  , badRequest'
+  , unauthorized
+  , unauthorized'
+  , paymentRequired
+  , paymentRequired'
+  , forbidden
+  , forbidden'
+  , notFound
+  , notFound'
+  , methodNotAllowed
+  , methodNotAllowed'
+  , notAcceptable
+  , notAcceptable'
+  , proxyAuthenticationRequired
+  , proxyAuthenticationRequired'
+  , requestTimeout
+  , requestTimeout'
+  , conflict
+  , conflict'
+  , gone
+  , gone'
+  , lengthRequired
+  , lengthRequired'
+  , preconditionFailed
+  , preconditionFailed'
+  , payloadTooLarge
+  , payloadTooLarge'
+  , uRITooLong
+  , uRITooLong'
+  , unsupportedMediaType
+  , unsupportedMediaType'
+  , rangeNotSatisfiable
+  , rangeNotSatisfiable'
+  , expectationFailed
+  , expectationFailed'
+  , imATeapot
+  , imATeapot'
+  , misdirectedRequest
+  , misdirectedRequest'
+  , unprocessableEntity
+  , unprocessableEntity'
+  , locked
+  , locked'
+  , failedDependency
+  , failedDependency'
+  , upgradeRequired
+  , upgradeRequired'
+  , preconditionRequired
+  , preconditionRequired'
+  , tooManyRequests
+  , tooManyRequests'
+  , requestHeaderFieldsTooLarge
+  , requestHeaderFieldsTooLarge'
+  , unavailableForLegalReasons
+  , unavailableForLegalReasons'
   -- 5xx
-  , internalServerError, internalServerError'
-  , notImplemented, notImplemented'
-  , badGateway, badGateway'
-  , serviceUnavailable, serviceUnavailable'
-  , gatewayTimeout, gatewayTimeout'
-  , hTTPVersionNotSupported, hTTPVersionNotSupported'
-  , variantAlsoNegotiates, variantAlsoNegotiates'
-  , insufficientStorage, insufficientStorage'
-  , loopDetected, loopDetected'
-  , notExtended, notExtended'
-  , networkAuthenticationRequired, networkAuthenticationRequired'
+  , internalServerError
+  , internalServerError'
+  , notImplemented
+  , notImplemented'
+  , badGateway
+  , badGateway'
+  , serviceUnavailable
+  , serviceUnavailable'
+  , gatewayTimeout
+  , gatewayTimeout'
+  , hTTPVersionNotSupported
+  , hTTPVersionNotSupported'
+  , variantAlsoNegotiates
+  , variantAlsoNegotiates'
+  , insufficientStorage
+  , insufficientStorage'
+  , loopDetected
+  , loopDetected'
+  , notExtended
+  , notExtended'
+  , networkAuthenticationRequired
+  , networkAuthenticationRequired'
   ) where
 
 import Prelude
-
 import Effect.Aff as Aff
 import Effect.Aff.Class (class MonadAff, liftAff)
 import Effect.Class (class MonadEffect)
 import Effect.Class as EffectClass
 import Node.HTTP as HTTP
-
 import HTTPure.Body as Body
 import HTTPure.Headers as Headers
 import HTTPure.Status as Status
@@ -91,14 +146,15 @@ import HTTPure.Status as Status
 -- | The `ResponseM` type simply conveniently wraps up an HTTPure monad that
 -- | returns a response. This type is the return type of all router/route
 -- | methods.
-type ResponseM = Aff.Aff Response
+type ResponseM
+  = Aff.Aff Response
 
 -- | A `Response` is a status code, headers, and a body.
-type Response =
-  { status :: Status.Status
-  , headers :: Headers.Headers
-  , writeBody :: HTTP.Response -> Aff.Aff Unit
-  }
+type Response
+  = { status :: Status.Status
+    , headers :: Headers.Headers
+    , writeBody :: HTTP.Response -> Aff.Aff Unit
+    }
 
 -- | Given an HTTP `Response` and a HTTPure `Response`, this method will return
 -- | a monad encapsulating writing the HTTPure `Response` to the HTTP `Response`
@@ -115,19 +171,22 @@ response :: forall m b. MonadAff m => Body.Body b => Status.Status -> b -> m Res
 response status = response' status Headers.empty
 
 -- | The same as `response` but with headers.
-response' :: forall m b. MonadAff m =>
-             Body.Body b =>
-             Status.Status ->
-             Headers.Headers ->
-             b ->
-             m Response
-response' status headers body = EffectClass.liftEffect do
-  defaultHeaders <- Body.defaultHeaders body
-  pure
-    { status
-    , headers: defaultHeaders <> headers
-    , writeBody: Body.write body
-    }
+response' ::
+  forall m b.
+  MonadAff m =>
+  Body.Body b =>
+  Status.Status ->
+  Headers.Headers ->
+  b ->
+  m Response
+response' status headers body =
+  EffectClass.liftEffect do
+    defaultHeaders <- Body.defaultHeaders body
+    pure
+      { status
+      , headers: defaultHeaders <> headers
+      , writeBody: Body.write body
+      }
 
 -- | The same as `response` but without a body.
 emptyResponse :: forall m. MonadAff m => Status.Status -> m Response
@@ -140,7 +199,6 @@ emptyResponse' status headers = response' status headers ""
 ---------
 -- 1xx --
 ---------
-
 -- | 100
 continue :: forall m. MonadAff m => m Response
 continue = continue' Headers.empty
@@ -168,7 +226,6 @@ processing' = emptyResponse' Status.processing
 ---------
 -- 2xx --
 ---------
-
 -- | 200
 ok :: forall m b. MonadAff m => Body.Body b => b -> m Response
 ok = ok' Headers.empty
@@ -198,11 +255,13 @@ nonAuthoritativeInformation :: forall m b. MonadAff m => Body.Body b => b -> m R
 nonAuthoritativeInformation = nonAuthoritativeInformation' Headers.empty
 
 -- | 203 with headers
-nonAuthoritativeInformation' :: forall m b. MonadAff m =>
-                                Body.Body b =>
-                                Headers.Headers ->
-                                b ->
-                                m Response
+nonAuthoritativeInformation' ::
+  forall m b.
+  MonadAff m =>
+  Body.Body b =>
+  Headers.Headers ->
+  b ->
+  m Response
 nonAuthoritativeInformation' = response' Status.nonAuthoritativeInformation
 
 -- | 204
@@ -256,7 +315,6 @@ iMUsed' = response' Status.iMUsed
 ---------
 -- 3xx --
 ---------
-
 -- | 300
 multipleChoices :: forall m b. MonadAff m => Body.Body b => b -> m Response
 multipleChoices = multipleChoices' Headers.empty
@@ -321,11 +379,9 @@ permanentRedirect = permanentRedirect' Headers.empty
 permanentRedirect' :: forall m b. MonadAff m => Body.Body b => Headers.Headers -> b -> m Response
 permanentRedirect' = response' Status.permanentRedirect
 
-
 ---------
 -- 4xx --
 ---------
-
 -- | 400
 badRequest :: forall m b. MonadAff m => Body.Body b => b -> m Response
 badRequest = badRequest' Headers.empty
@@ -553,17 +609,18 @@ unavailableForLegalReasons' = emptyResponse' Status.unavailableForLegalReasons
 ---------
 -- 5xx --
 ---------
-
 -- | 500
 internalServerError :: forall m b. MonadAff m => Body.Body b => b -> m Response
 internalServerError = internalServerError' Headers.empty
 
 -- | 500 with headers
-internalServerError' :: forall m b. MonadAff m =>
-                        Body.Body b =>
-                        Headers.Headers ->
-                        b ->
-                        m Response
+internalServerError' ::
+  forall m b.
+  MonadAff m =>
+  Body.Body b =>
+  Headers.Headers ->
+  b ->
+  m Response
 internalServerError' = response' Status.internalServerError
 
 -- | 501
@@ -644,5 +701,4 @@ networkAuthenticationRequired = networkAuthenticationRequired' Headers.empty
 
 -- | 511 with headers
 networkAuthenticationRequired' :: forall m. MonadAff m => Headers.Headers -> m Response
-networkAuthenticationRequired' =
-  emptyResponse' Status.networkAuthenticationRequired
+networkAuthenticationRequired' = emptyResponse' Status.networkAuthenticationRequired

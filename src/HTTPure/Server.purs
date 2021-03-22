@@ -7,7 +7,6 @@ module HTTPure.Server
   ) where
 
 import Prelude
-
 import Effect as Effect
 import Effect.Aff as Aff
 import Effect.Class as EffectClass
@@ -18,47 +17,49 @@ import Node.Encoding as Encoding
 import Node.FS.Sync as FSSync
 import Node.HTTP as HTTP
 import Node.HTTP.Secure as HTTPS
-
 import HTTPure.Request as Request
 import HTTPure.Response as Response
 
 -- | The `ServerM` is just an `Effect` containing a callback to close the
 -- | server. This type is the return type of the HTTPure serve and related
 -- | methods.
-type ServerM = Effect.Effect (Effect.Effect Unit -> Effect.Effect Unit)
+type ServerM
+  = Effect.Effect (Effect.Effect Unit -> Effect.Effect Unit)
 
 -- | Given a router, handle unhandled exceptions it raises by
 -- | responding with 500 Internal Server Error.
-onError500 :: (Request.Request -> Response.ResponseM) ->
-              Request.Request ->
-              Response.ResponseM
+onError500 ::
+  (Request.Request -> Response.ResponseM) ->
+  Request.Request ->
+  Response.ResponseM
 onError500 router request =
   Aff.catchError (router request) \err -> do
     EffectClass.liftEffect $ Console.error $ Aff.message err
     Response.internalServerError "Internal server error"
 
-
 -- | This function takes a method which takes a `Request` and returns a
 -- | `ResponseM`, an HTTP `Request`, and an HTTP `Response`. It runs the
 -- | request, extracts the `Response` from the `ResponseM`, and sends the
 -- | `Response` to the HTTP `Response`.
-handleRequest :: (Request.Request -> Response.ResponseM) ->
-                 HTTP.Request ->
-                 HTTP.Response ->
-                 Effect.Effect Unit
+handleRequest ::
+  (Request.Request -> Response.ResponseM) ->
+  HTTP.Request ->
+  HTTP.Response ->
+  Effect.Effect Unit
 handleRequest router request httpresponse =
-  void $ Aff.runAff (\_ -> pure unit) $
-    Request.fromHTTPRequest request
+  void $ Aff.runAff (\_ -> pure unit)
+    $ Request.fromHTTPRequest request
     >>= onError500 router
     >>= Response.send httpresponse
 
 -- | Given a `ListenOptions` object, a function mapping `Request` to
 -- | `ResponseM`, and a `ServerM` containing effects to run on boot, creates and
 -- | runs a HTTPure server without SSL.
-serve' :: HTTP.ListenOptions ->
-          (Request.Request -> Response.ResponseM) ->
-          Effect.Effect Unit ->
-          ServerM
+serve' ::
+  HTTP.ListenOptions ->
+  (Request.Request -> Response.ResponseM) ->
+  Effect.Effect Unit ->
+  ServerM
 serve' options router onStarted = do
   server <- HTTP.createServer (handleRequest router)
   HTTP.listen server options onStarted
@@ -68,11 +69,12 @@ serve' options router onStarted = do
 -- | object, a function mapping `Request` to `ResponseM`, and a `ServerM`
 -- | containing effects to run on boot, creates and runs a HTTPure server with
 -- | SSL.
-serveSecure' :: Options HTTPS.SSLOptions ->
-                HTTP.ListenOptions ->
-                (Request.Request -> Response.ResponseM) ->
-                Effect.Effect Unit ->
-                ServerM
+serveSecure' ::
+  Options HTTPS.SSLOptions ->
+  HTTP.ListenOptions ->
+  (Request.Request -> Response.ResponseM) ->
+  Effect.Effect Unit ->
+  ServerM
 serveSecure' sslOptions options router onStarted = do
   server <- HTTPS.createServer sslOptions (handleRequest router)
   HTTP.listen server options onStarted
@@ -91,10 +93,11 @@ listenOptions port =
 -- | `ResponseM`, and a `ServerM` containing effects to run after the server has
 -- | booted (usually logging). Returns an `ServerM` containing the server's
 -- | effects.
-serve :: Int ->
-         (Request.Request -> Response.ResponseM) ->
-         Effect.Effect Unit ->
-         ServerM
+serve ::
+  Int ->
+  (Request.Request -> Response.ResponseM) ->
+  Effect.Effect Unit ->
+  ServerM
 serve = serve' <<< listenOptions
 
 -- | Create and start an SSL server. This method is the same as `serve`, but
@@ -104,17 +107,19 @@ serve = serve' <<< listenOptions
 -- | 3. A path to a private key file
 -- | 4. A handler method which maps `Request` to `ResponseM`
 -- | 5. A callback to call when the server is up
-serveSecure :: Int ->
-               String ->
-               String ->
-               (Request.Request -> Response.ResponseM) ->
-               Effect.Effect Unit ->
-               ServerM
+serveSecure ::
+  Int ->
+  String ->
+  String ->
+  (Request.Request -> Response.ResponseM) ->
+  Effect.Effect Unit ->
+  ServerM
 serveSecure port cert key router onStarted = do
   cert' <- FSSync.readTextFile Encoding.UTF8 cert
   key' <- FSSync.readTextFile Encoding.UTF8 key
   serveSecure' (sslOpts key' cert') (listenOptions port) router onStarted
   where
-    sslOpts key' cert' =
-      HTTPS.key  := HTTPS.keyString  key' <>
-      HTTPS.cert := HTTPS.certString cert'
+  sslOpts key' cert' =
+    HTTPS.key := HTTPS.keyString key'
+      <> HTTPS.cert
+      := HTTPS.certString cert'
