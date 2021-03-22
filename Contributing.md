@@ -27,9 +27,7 @@ steps for creating a successful PR:
 6. Push your code and create a PR on github. Please make sure to reference your
    issue number in your PR description.
 
-Branch all work off the `master` branch. In the future, we will create branches
-for specific release series, and `master` will be used for the current stable
-release series.
+Branch all work off the `main` branch.
 
 ### Documentation
 

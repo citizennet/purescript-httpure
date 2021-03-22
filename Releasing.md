@@ -1,8 +1,7 @@
 # HTTPure Releasing Guide
 
-1. Check out the release series branch (or `master` if you are releasing the
-   next major/minor version). Ensure all relevant commits and PRs have been
-   merged.
+1. Check out the release series branch (or `main` if you are releasing the next 
+   major/minor version). Ensure all relevant commits and PRs have been merged.
 2. Update [History.md](./History.md) by changing "unreleased" to the new
    version/date.  Example diff:
 ```diff
