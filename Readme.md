@@ -1,6 +1,6 @@
 # HTTPure
 
-[![License](https://img.shields.io/badge/license-MIT-blue.svg)](https://raw.githubusercontent.com/cprussin/purescript-httpure/master/License)
+[![License](https://img.shields.io/badge/license-MIT-blue.svg)](https://raw.githubusercontent.com/cprussin/purescript-httpure/main/License)
 [![Latest release](http://img.shields.io/github/release/cprussin/purescript-httpure.svg)](https://github.com/cprussin/purescript-httpure/releases)
 [![purescript-httpure on Pursuit](https://pursuit.purescript.org/packages/purescript-httpure/badge)](https://pursuit.purescript.org/packages/purescript-httpure)
 
