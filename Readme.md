@@ -2,7 +2,6 @@
 
 [![License](https://img.shields.io/badge/license-MIT-blue.svg)](https://raw.githubusercontent.com/cprussin/purescript-httpure/master/License)
 [![Latest release](http://img.shields.io/github/release/cprussin/purescript-httpure.svg)](https://github.com/cprussin/purescript-httpure/releases)
-[![Build Status](https://github.com/cprussin/purescript-httpure/actions/workflows/test.yaml/badge.svg)](https://github.com/cprussin/purescript-httpure/actions/workflows/test.yaml)
 [![purescript-httpure on Pursuit](https://pursuit.purescript.org/packages/purescript-httpure/badge)](https://pursuit.purescript.org/packages/purescript-httpure)
 
 A purescript HTTP server framework.
