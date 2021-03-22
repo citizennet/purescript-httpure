@@ -36,12 +36,12 @@ instance showMethod :: Show Method where
 -- | Take an HTTP `Request` and extract the `Method` for that request.
 read :: HTTP.Request -> Method
 read request = case HTTP.requestMethod request of
-  "POST"    -> Post
-  "PUT"     -> Put
-  "DELETE"  -> Delete
-  "HEAD"    -> Head
+  "POST" -> Post
+  "PUT" -> Put
+  "DELETE" -> Delete
+  "HEAD" -> Head
   "CONNECT" -> Connect
   "OPTIONS" -> Options
-  "TRACE"   -> Trace
-  "PATCH"   -> Patch
-  _         -> Get
+  "TRACE" -> Trace
+  "PATCH" -> Patch
+  _ -> Get

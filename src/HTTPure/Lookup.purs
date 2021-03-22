@@ -1,12 +1,14 @@
 module HTTPure.Lookup
   ( class Lookup
-  , at, (!@)
-  , has, (!?)
-  , lookup, (!!)
+  , at
+  , (!@)
+  , has
+  , (!?)
+  , lookup
+  , (!!)
   ) where
 
 import Prelude
-
 import Data.Array as Array
 import Data.Map as Map
 import Data.Maybe as Maybe
@@ -19,7 +21,6 @@ import Foreign.Object as Object
 -- | `String Int String` where `lookup s i` returns `Just` a `String` containing
 -- | the character in `s` at `i`, or `Nothing` if `i` is out of bounds.
 class Lookup c k r | c -> r where
-
   -- | Given some type and a key on that type, extract some value that
   -- | corresponds to that key.
   lookup :: c -> k -> Maybe.Maybe r
@@ -40,12 +41,10 @@ instance lookupArray :: Lookup (Array t) Int t where
 instance lookupObject :: Lookup (Object.Object t) String t where
   lookup = flip Object.lookup
 
-
 -- | The instance of `Lookup` for a `Map CaseInsensitiveString` converts the
 -- | `String` to a `CaseInsensitiveString` for lookup.
 instance lookupMapCaseInsensitiveString ::
   Lookup (Map.Map CaseInsensitive.CaseInsensitiveString t) String t where
-
   lookup set key = Map.lookup (CaseInsensitive.CaseInsensitiveString key) set
 
 -- | This simple helper works on any `Lookup` instance where the return type is

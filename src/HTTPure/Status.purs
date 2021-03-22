@@ -1,12 +1,10 @@
 module HTTPure.Status
   ( Status
   , write
-
   -- 1xx
   , continue
   , switchingProtocols
   , processing
-
   -- 2xx
   , ok
   , created
@@ -18,7 +16,6 @@ module HTTPure.Status
   , multiStatus
   , alreadyReported
   , iMUsed
-
   -- 3xx
   , multipleChoices
   , movedPermanently
@@ -28,7 +25,6 @@ module HTTPure.Status
   , useProxy
   , temporaryRedirect
   , permanentRedirect
-
   -- 4xx
   , badRequest
   , unauthorized
@@ -58,7 +54,6 @@ module HTTPure.Status
   , tooManyRequests
   , requestHeaderFieldsTooLarge
   , unavailableForLegalReasons
-
   -- 5xx
   , internalServerError
   , notImplemented
@@ -74,12 +69,12 @@ module HTTPure.Status
   ) where
 
 import Prelude
-
 import Effect as Effect
 import Node.HTTP as HTTP
 
 -- | The `Status` type enumerates all valid HTTP response status codes.
-type Status = Int
+type Status
+  = Int
 
 -- | Write a status to a given HTTP `Response`.
 write :: HTTP.Response -> Status -> Effect.Effect Unit
@@ -88,7 +83,6 @@ write = HTTP.setStatusCode
 ---------
 -- 1xx --
 ---------
-
 -- | 100
 continue :: Status
 continue = 100
@@ -104,7 +98,6 @@ processing = 102
 ---------
 -- 2xx --
 ---------
-
 -- | 200
 ok :: Status
 ok = 200
@@ -148,7 +141,6 @@ iMUsed = 226
 ---------
 -- 3xx --
 ---------
-
 -- | 300
 multipleChoices :: Status
 multipleChoices = 300
@@ -181,11 +173,9 @@ temporaryRedirect = 307
 permanentRedirect :: Status
 permanentRedirect = 308
 
-
 ---------
 -- 4xx --
 ---------
-
 -- | 400
 badRequest :: Status
 badRequest = 400
@@ -301,7 +291,6 @@ unavailableForLegalReasons = 451
 ---------
 -- 5xx --
 ---------
-
 -- | 500
 internalServerError :: Status
 internalServerError = 500
