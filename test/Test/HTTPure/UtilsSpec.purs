@@ -1,10 +1,6 @@
 module Test.HTTPure.UtilsSpec where
 
-import Prelude
-import Data.Tuple as Tuple
-import Foreign.Object as Object
 import Test.Spec as Spec
-import HTTPure.Query as Query
 import HTTPure.Utils as Utils
 import Test.HTTPure.TestHelpers as TestHelpers
 import Test.HTTPure.TestHelpers ((?=))
