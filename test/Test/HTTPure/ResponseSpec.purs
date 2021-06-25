@@ -45,9 +45,11 @@ sendSpec =
         \response ->
           Aff.makeAff \done -> do
             stream <- pure $ HTTP.responseAsStream response
-            _ <- Stream.writeString stream Encoding.UTF8 "test" $ pure unit
-            _ <- Stream.end stream $ pure unit
-            done $ Either.Right unit
+            void
+              $ Stream.writeString stream Encoding.UTF8 "test"
+              $ Stream.end stream
+              $ done
+              $ Either.Right unit
             pure Aff.nonCanceler
     }
 

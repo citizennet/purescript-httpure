@@ -42,9 +42,10 @@ instance bodyString :: Body String where
     Aff.makeAff \done -> do
       let
         stream = HTTP.responseAsStream response
-      _ <- Stream.writeString stream Encoding.UTF8 body $ pure unit
-      _ <- Stream.end stream $ pure unit
-      done $ Either.Right unit
+      void $ Stream.writeString stream Encoding.UTF8 body
+        $ Stream.end stream
+        $ done
+        $ Either.Right unit
       pure Aff.nonCanceler
 
 -- | The instance for `Buffer` is trivial--we add a `Content-Length` header
@@ -56,9 +57,10 @@ instance bodyBuffer :: Body Buffer.Buffer where
     Aff.makeAff \done -> do
       let
         stream = HTTP.responseAsStream response
-      _ <- Stream.write stream body $ pure unit
-      _ <- Stream.end stream $ pure unit
-      done $ Either.Right unit
+      void $ Stream.write stream body
+        $ Stream.end stream
+        $ done
+        $ Either.Right unit
       pure Aff.nonCanceler
 
 -- | This instance can be used to send chunked data.  Here, we add a
@@ -72,7 +74,7 @@ instance bodyChunked ::
     Aff.makeAff \done -> do
       let
         stream = TypeEquals.to body
-      _ <- Stream.pipe stream $ HTTP.responseAsStream response
+      void $ Stream.pipe stream $ HTTP.responseAsStream response
       Stream.onEnd stream $ done $ Either.Right unit
       pure Aff.nonCanceler
 

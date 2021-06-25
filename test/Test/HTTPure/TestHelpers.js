@@ -30,11 +30,19 @@ exports.mockResponse = function() {
     body: "",
     headers: {},
 
-    write: function(str) {
+    write: function(str, encoding, callback) {
       this.body = this.body + str;
+      if (callback) {
+        callback();
+      }
     },
 
-    end: function() { },
+    end: function(str, encoding, callback) {
+      if (callback) {
+        callback();
+      }
+    },
+
     on: function() { },
     once: function() { },
     emit: function() { },
