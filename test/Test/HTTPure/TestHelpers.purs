@@ -47,8 +47,10 @@ request secure port method headers path body =
     req <- HTTPClient.request options $ Either.Right >>> done
     let
       stream = HTTPClient.requestAsStream req
-    _ <- Stream.writeString stream Encoding.UTF8 body $ pure unit
-    Stream.end stream $ pure unit
+    void
+      $ Stream.writeString stream Encoding.UTF8 body
+      $ Stream.end stream
+      $ pure unit
     pure Aff.nonCanceler
   where
   options =
