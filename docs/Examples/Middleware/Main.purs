@@ -37,7 +37,6 @@ pathMiddleware ::
   HTTPure.Request ->
   HTTPure.ResponseM
 pathMiddleware _ { path: [ "middleware" ] } = HTTPure.ok "Middleware!"
-
 pathMiddleware router request = router request
 
 -- | Say 'hello' when run, and add a default value to the X-Middleware header

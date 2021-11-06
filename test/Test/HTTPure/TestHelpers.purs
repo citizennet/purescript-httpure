@@ -55,18 +55,12 @@ request secure port method headers path body =
   where
   options =
     HTTPClient.protocol := (if secure then "https:" else "http:")
-      <> HTTPClient.method
-      := method
-      <> HTTPClient.hostname
-      := "localhost"
-      <> HTTPClient.port
-      := port
-      <> HTTPClient.path
-      := path
-      <> HTTPClient.headers
-      := HTTPClient.RequestHeaders headers
-      <> HTTPClient.rejectUnauthorized
-      := false
+      <> HTTPClient.method := method
+      <> HTTPClient.hostname := "localhost"
+      <> HTTPClient.port := port
+      <> HTTPClient.path := path
+      <> HTTPClient.headers := HTTPClient.RequestHeaders headers
+      <> HTTPClient.rejectUnauthorized := false
 
 -- | Convert a request to an Aff containing the `Buffer with the response body.
 toBuffer :: HTTPClient.Response -> Aff.Aff Buffer.Buffer
@@ -76,13 +70,12 @@ toBuffer response =
       stream = HTTPClient.responseAsStream response
     chunks <- Ref.new List.Nil
     Stream.onData stream $ \new -> Ref.modify_ (List.Cons new) chunks
-    Stream.onEnd stream
-      $ Ref.read chunks
+    Stream.onEnd stream $ Ref.read chunks
       >>= List.reverse
-      >>> Array.fromFoldable
-      >>> Buffer.concat
+        >>> Array.fromFoldable
+        >>> Buffer.concat
       >>= Either.Right
-      >>> done
+        >>> done
     pure Aff.nonCanceler
 
 -- | Convert a request to an Aff containing the string with the response body.

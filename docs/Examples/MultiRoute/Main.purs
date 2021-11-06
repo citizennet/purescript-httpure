@@ -7,9 +7,7 @@ import HTTPure as HTTPure
 -- | Specify the routes
 router :: HTTPure.Request -> HTTPure.ResponseM
 router { path: [ "hello" ] } = HTTPure.ok "hello"
-
 router { path: [ "goodbye" ] } = HTTPure.ok "goodbye"
-
 router _ = HTTPure.notFound
 
 -- | Boot up the server

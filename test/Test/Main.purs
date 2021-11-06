@@ -21,19 +21,17 @@ import Test.HTTPure.IntegrationSpec as IntegrationSpec
 import Test.HTTPure.TestHelpers as TestHelpers
 
 main :: TestHelpers.TestSuite
-main =
-  Aff.launchAff_ $ Runner.runSpec [ Reporter.specReporter ]
-    $ Spec.describe "HTTPure" do
-        BodySpec.bodySpec
-        HeadersSpec.headersSpec
-        LookupSpec.lookupSpec
-        MethodSpec.methodSpec
-        PathSpec.pathSpec
-        QuerySpec.querySpec
-        RequestSpec.requestSpec
-        ResponseSpec.responseSpec
-        ServerSpec.serverSpec
-        StatusSpec.statusSpec
-        UtilsSpec.utilsSpec
-        VersionSpec.versionSpec
-        IntegrationSpec.integrationSpec
+main = Aff.launchAff_ $ Runner.runSpec [ Reporter.specReporter ] $ Spec.describe "HTTPure" do
+  BodySpec.bodySpec
+  HeadersSpec.headersSpec
+  LookupSpec.lookupSpec
+  MethodSpec.methodSpec
+  PathSpec.pathSpec
+  QuerySpec.querySpec
+  RequestSpec.requestSpec
+  ResponseSpec.responseSpec
+  ServerSpec.serverSpec
+  StatusSpec.statusSpec
+  UtilsSpec.utilsSpec
+  VersionSpec.versionSpec
+  IntegrationSpec.integrationSpec

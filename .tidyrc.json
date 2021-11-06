@@ -3,7 +3,7 @@
   "indent": 2,
   "operatorsFile": null,
   "ribbon": 1,
-  "typeArrowPlacement": "first",
+  "typeArrowPlacement": "last",
   "unicode": "never",
   "width": null
 }

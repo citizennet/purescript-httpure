@@ -7,7 +7,6 @@ import HTTPure as HTTPure
 -- | Route to the correct handler
 router :: HTTPure.Request -> HTTPure.ResponseM
 router { body, method: HTTPure.Post } = HTTPure.ok body
-
 router _ = HTTPure.notFound
 
 -- | Boot up the server

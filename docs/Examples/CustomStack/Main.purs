@@ -8,9 +8,7 @@ import Effect.Console as Console
 import HTTPure as HTTPure
 
 -- | A type to hold the environment for our ReaderT
-type Env
-  = { name :: String
-    }
+type Env = { name :: String }
 
 -- | A middleware that introduces a ReaderT
 readerMiddleware ::
