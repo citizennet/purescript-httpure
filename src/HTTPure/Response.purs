@@ -146,15 +146,14 @@ import HTTPure.Status as Status
 -- | The `ResponseM` type simply conveniently wraps up an HTTPure monad that
 -- | returns a response. This type is the return type of all router/route
 -- | methods.
-type ResponseM
-  = Aff.Aff Response
+type ResponseM = Aff.Aff Response
 
 -- | A `Response` is a status code, headers, and a body.
-type Response
-  = { status :: Status.Status
-    , headers :: Headers.Headers
-    , writeBody :: HTTP.Response -> Aff.Aff Unit
-    }
+type Response =
+  { status :: Status.Status
+  , headers :: Headers.Headers
+  , writeBody :: HTTP.Response -> Aff.Aff Unit
+  }
 
 -- | Given an HTTP `Response` and a HTTPure `Response`, this method will return
 -- | a monad encapsulating writing the HTTPure `Response` to the HTTP `Response`

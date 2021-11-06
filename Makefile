@@ -9,7 +9,7 @@ PULP := pulp
 NODE := node
 YARN := yarn
 BOWER := bower
-PURTY := purty
+PURSTIDY := purs-tidy
 
 # Options to pass to pulp when building
 BUILD_OPTIONS := -- --stash --censor-lib --strict
@@ -89,14 +89,10 @@ example: $(BUILD) $(EXAMPLE_INDEX)
 endif
 
 format: $(MODULES) $(SOURCES) $(TESTSOURCES) $(EXAMPLESOURCES)
-	$(PURTY) format --write $(SRCPATH)
-	$(PURTY) format --write $(TESTPATH)
-	$(PURTY) format --write $(EXAMPLESPATH)
+	$(PURSTIDY) format-in-place $(SRCPATH) $(TESTPATH) $(EXAMPLESPATH)
 
 test-format: $(MODULES) $(SOURCES) $(TESTSOURCES) $(EXAMPLESOURCES)
-	$(PURTY) validate $(SRCPATH) &&\
-	  $(PURTY) validate $(TESTPATH) &&\
-	  $(PURTY) validate $(EXAMPLESPATH)
+	$(PURSTIDY) check $(SRCPATH) $(TESTPATH) $(EXAMPLESPATH)
 
 # Run the test suite
 test-code: $(BUILD) $(TESTSOURCES) $(EXAMPLESOURCES) $(MODULES)

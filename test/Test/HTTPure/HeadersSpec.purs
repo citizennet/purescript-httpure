@@ -99,11 +99,10 @@ writeSpec :: TestHelpers.Test
 writeSpec =
   Spec.describe "write" do
     Spec.it "writes the headers to the response" do
-      header <-
-        EffectClass.liftEffect do
-          mock <- TestHelpers.mockResponse
-          Headers.write mock $ Headers.header "X-Test" "test"
-          pure $ TestHelpers.getResponseHeader "X-Test" mock
+      header <- EffectClass.liftEffect do
+        mock <- TestHelpers.mockResponse
+        Headers.write mock $ Headers.header "X-Test" "test"
+        pure $ TestHelpers.getResponseHeader "X-Test" mock
       header ?= "test"
 
 emptySpec :: TestHelpers.Test

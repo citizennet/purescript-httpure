@@ -47,8 +47,7 @@ handleRequest ::
   HTTP.Response ->
   Effect.Effect Unit
 handleRequest router request httpresponse =
-  void $ Aff.runAff (\_ -> pure unit)
-    $ Request.fromHTTPRequest request
+  void $ Aff.runAff (\_ -> pure unit) $ Request.fromHTTPRequest request
     >>= onError500 router
     >>= Response.send httpresponse
 
@@ -121,5 +120,4 @@ serveSecure port cert key router onStarted = do
   where
   sslOpts key' cert' =
     HTTPS.key := HTTPS.keyString key'
-      <> HTTPS.cert
-      := HTTPS.certString cert'
+      <> HTTPS.cert := HTTPS.certString cert'

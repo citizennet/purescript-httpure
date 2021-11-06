@@ -945,10 +945,10 @@ purescript-psa@^0.8.2:
   resolved "https://registry.yarnpkg.com/purescript-psa/-/purescript-psa-0.8.2.tgz#ee20c40f02cd0c5ed6dd3dd93ef02d9c466f17bc"
   integrity sha512-4Olf0aQQrNCfcDLXQI3gJgINEQ+3U+4QPLmQ2LHX2L/YOXSwM7fOGIUs/wMm/FQnwERUyQmHKQTJKB4LIjE2fg==
 
-purty@^7.0.0:
-  version "7.0.0"
-  resolved "https://registry.yarnpkg.com/purty/-/purty-7.0.0.tgz#3a714a2155f543118c6831e1fb41b84d17de2b59"
-  integrity sha512-gHHghPEjRY39GUJ8KnOMRfPArJILGCXwEhX6BmEdNiLgZuCjLLBLyawGiKFjYMfy8H5Dsk5NbgwIGslrPrernA==
+purs-tidy@^0.6.2:
+  version "0.6.2"
+  resolved "https://registry.yarnpkg.com/purs-tidy/-/purs-tidy-0.6.2.tgz#3f17b5a1fe47183a2c41b2640b1fe2aff9ca5a1d"
+  integrity sha512-vakkmCDlb9G8A7m6azxjbUfuwz6Lomn93RRWcqNrQbNIHDwBs05pfLZb5XslqcNbP5UIJ4wfL+YhL1/GlfNoBw==
 
 querystring-es3@~0.2.0:
   version "0.2.1"

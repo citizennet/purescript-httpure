@@ -94,11 +94,9 @@ serveSecure'Spec =
   sslOptions = do
     cert <- FSSync.readTextFile Encoding.UTF8 "./test/Mocks/Certificate.cer"
     key <- FSSync.readTextFile Encoding.UTF8 "./test/Mocks/Key.key"
-    pure
-      $ HTTPS.key
-      := HTTPS.keyString key
-      <> HTTPS.cert
-      := HTTPS.certString cert
+    pure $
+      HTTPS.key := HTTPS.keyString key
+        <> HTTPS.cert := HTTPS.certString cert
 
 serverSpec :: TestHelpers.Test
 serverSpec =
