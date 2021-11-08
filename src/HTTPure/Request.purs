@@ -24,7 +24,7 @@ type Request =
   , path :: Path.Path
   , query :: Query.Query
   , headers :: Headers.Headers
-  , body :: String
+  , body :: Body.RequestBody
   , httpVersion :: Version.Version
   , url :: String
   }
@@ -49,13 +49,13 @@ fullPath request = "/" <> path <> questionMark <> queryParams
 -- | `Request` object.
 fromHTTPRequest :: HTTP.Request -> Aff.Aff Request
 fromHTTPRequest request = do
-  body <- Body.read request
+  --body <- Body.read request
   pure $
     { method: Method.read request
     , path: Path.read request
     , query: Query.read request
     , headers: Headers.read request
-    , body
+    , body: Body.mkBody request
     , httpVersion: Version.read request
     , url: HTTP.requestURL request
     }

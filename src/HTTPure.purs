@@ -1,5 +1,6 @@
 module HTTPure
-  ( module HTTPure.Headers
+  ( module HTTPure.Body
+  , module HTTPure.Headers
   , module HTTPure.Lookup
   , module HTTPure.Method
   , module HTTPure.Path
@@ -10,6 +11,7 @@ module HTTPure
   , module HTTPure.Status
   ) where
 
+import HTTPure.Body (readAsString, readAsBuffer)
 import HTTPure.Headers (Headers, empty, header, headers)
 import HTTPure.Lookup (at, (!@), has, (!?), lookup, (!!))
 import HTTPure.Method (Method(..))

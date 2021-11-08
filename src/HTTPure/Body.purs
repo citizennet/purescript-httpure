@@ -1,8 +1,16 @@
 module HTTPure.Body
   ( class Body
+  , class ReadBody
+  , RequestBodyF(..)
+  , RequestBody(..)
   , defaultHeaders
-  , read
+  --, read
   , write
+  , readBody
+  , readAsString
+  , readAsBuffer
+  , readString
+  , mkBody
   ) where
 
 import Prelude
@@ -16,6 +24,39 @@ import Node.Encoding as Encoding
 import Node.HTTP as HTTP
 import Node.Stream as Stream
 import Type.Equality as TypeEquals
+import Type.Proxy (Proxy(..))
+import Data.Exists (Exists, mkExists, runExists)
+import Data.Newtype (class Newtype, un)
+
+data RequestBodyF :: Type -> Type
+data RequestBodyF b = RequestBodyF HTTP.Request
+
+newtype RequestBody = RequestBody (Exists RequestBodyF)
+
+instance Newtype RequestBody (Exists RequestBodyF)
+
+class ReadBody b where
+  readBody :: HTTP.Request -> Aff.Aff b
+
+instance ReadBody String where
+  readBody = readString
+
+instance ReadBody Buffer.Buffer where
+  readBody = readBuffer
+
+mkBody :: HTTP.Request -> RequestBody
+mkBody httpRequest = mkExists (RequestBodyF httpRequest) # RequestBody
+
+getBody :: forall b. ReadBody b => Proxy b -> RequestBody -> Aff.Aff b
+getBody _ = un RequestBody >>> runExists \(RequestBodyF req) -> readBody req
+
+readAsString :: RequestBody -> Aff.Aff String
+readAsString = getBody (Proxy :: Proxy String)
+
+readAsBuffer :: RequestBody -> Aff.Aff Buffer.Buffer
+readAsBuffer = getBody (Proxy :: Proxy Buffer.Buffer)
+
+
 
 -- | Types that implement the `Body` class can be used as a body to an HTTPure
 -- | response, and can be used with all the response helpers.
@@ -79,8 +120,27 @@ instance bodyChunked ::
       pure Aff.nonCanceler
 
 -- | Extract the contents of the body of the HTTP `Request`.
-read :: HTTP.Request -> Aff.Aff String
-read request =
+-- read :: HTTP.Request -> Aff.Aff String
+-- read request =
+--   Aff.makeAff \done -> do
+--     let
+--       stream = HTTP.requestAsStream request
+--     bufs <- Ref.new []
+--     Stream.onData stream \buf ->
+--       void $ Ref.modify (_ <> [ buf ]) bufs
+--     Stream.onEnd stream do
+--       body <- Ref.read bufs >>= Buffer.concat >>= Buffer.toString Encoding.UTF8
+--       done $ Either.Right body
+--     pure Aff.nonCanceler
+
+readString :: HTTP.Request -> Aff.Aff String
+readString = readRaw (Buffer.toString Encoding.UTF8)
+
+readBuffer :: HTTP.Request -> Aff.Aff Buffer.Buffer
+readBuffer = readRaw pure
+
+readRaw :: forall body. (Buffer.Buffer -> Effect.Effect body) -> HTTP.Request -> Aff.Aff body
+readRaw transform request =
   Aff.makeAff \done -> do
     let
       stream = HTTP.requestAsStream request
@@ -88,6 +148,6 @@ read request =
     Stream.onData stream \buf ->
       void $ Ref.modify (_ <> [ buf ]) bufs
     Stream.onEnd stream do
-      body <- Ref.read bufs >>= Buffer.concat >>= Buffer.toString Encoding.UTF8
+      body <- Ref.read bufs >>= Buffer.concat >>= transform
       done $ Either.Right body
     pure Aff.nonCanceler

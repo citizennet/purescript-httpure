@@ -4,6 +4,7 @@ import Prelude
 import Data.Tuple as Tuple
 import Foreign.Object as Object
 import Test.Spec as Spec
+import HTTPure.Body as Body
 import HTTPure.Headers as Headers
 import HTTPure.Method as Method
 import HTTPure.Request as Request
@@ -28,7 +29,8 @@ fromHTTPRequestSpec =
       mock.headers ?= Headers.headers mockHeaders
     Spec.it "contains the correct body" do
       mock <- mockRequest
-      mock.body ?= "body"
+      mockBody <- Body.readAsString mock.body
+      mockBody ?= "body"
     Spec.it "contains the correct httpVersion" do
       mock <- mockRequest
       mock.httpVersion ?= Version.HTTP1_1
