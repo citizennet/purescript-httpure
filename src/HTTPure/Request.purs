@@ -49,7 +49,6 @@ fullPath request = "/" <> path <> questionMark <> queryParams
 -- | `Request` object.
 fromHTTPRequest :: HTTP.Request -> Aff.Aff Request
 fromHTTPRequest request = do
-  --body <- Body.read request
   pure $
     { method: Method.read request
     , path: Path.read request
