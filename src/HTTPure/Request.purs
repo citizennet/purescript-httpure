@@ -48,8 +48,7 @@ fullPath request = "/" <> path <> questionMark <> queryParams
 -- | Given an HTTP `Request` object, this method will convert it to an HTTPure
 -- | `Request` object.
 fromHTTPRequest :: HTTP.Request -> Aff.Aff Request
-fromHTTPRequest request = do
-  pure $
+fromHTTPRequest request = pure
     { method: Method.read request
     , path: Path.read request
     , query: Query.read request

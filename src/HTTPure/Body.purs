@@ -120,15 +120,15 @@ instance bodyChunked ::
 
 -- | Extract the contents of the body of the HTTP `Request` as a `UTF8 String`
 internalReadString :: HTTP.Request -> Aff.Aff String
-internalReadString = internalReadRaw (Buffer.toString Encoding.UTF8)
+internalReadString = internalRead (Buffer.toString Encoding.UTF8)
 
 -- | Extract the contents of the body of the HTTP `Request` as a `Buffer`
 internalReadBuffer :: HTTP.Request -> Aff.Aff Buffer.Buffer
-internalReadBuffer = internalReadRaw pure
+internalReadBuffer = internalRead pure
 
 -- | Extract the contents of the body of the HTTP `Request`.
-internalReadRaw :: forall body. (Buffer.Buffer -> Effect.Effect body) -> HTTP.Request -> Aff.Aff body
-internalReadRaw transform request =
+internalRead :: forall body. (Buffer.Buffer -> Effect.Effect body) -> HTTP.Request -> Aff.Aff body
+internalRead transform request =
   Aff.makeAff \done -> do
     let
       stream = HTTP.requestAsStream request
