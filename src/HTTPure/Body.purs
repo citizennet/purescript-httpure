@@ -1,15 +1,10 @@
 module HTTPure.Body
   ( class Body
-  , class ReadBody
-  , readBody
-  , RequestBodyF(..)
-  , RequestBody(..)
   , defaultHeaders
   , write
   , readAsString
   , readAsBuffer
-  , internalReadString
-  , mkBody
+  , read
   ) where
 
 import Prelude
@@ -23,39 +18,14 @@ import Node.Encoding as Encoding
 import Node.HTTP as HTTP
 import Node.Stream as Stream
 import Type.Equality as TypeEquals
-import Type.Proxy (Proxy(..))
-import Data.Exists (Exists, mkExists, runExists)
-import Data.Newtype (class Newtype, un)
-
-data RequestBodyF :: Type -> Type
-data RequestBodyF b = RequestBodyF HTTP.Request
-
-newtype RequestBody = RequestBody (Exists RequestBodyF)
-
-instance Newtype RequestBody (Exists RequestBodyF)
-
-class ReadBody b where
-  readBody :: HTTP.Request -> Aff.Aff b
-
-instance ReadBody String where
-  readBody = internalReadString
-
-instance ReadBody Buffer.Buffer where
-  readBody = internalReadBuffer
-
-mkBody :: HTTP.Request -> RequestBody
-mkBody httpRequest = mkExists (RequestBodyF httpRequest) # RequestBody
-
-getBody :: forall b. ReadBody b => Proxy b -> RequestBody -> Aff.Aff b
-getBody _ = un RequestBody >>> runExists \(RequestBodyF req) -> readBody req
 
 -- | Read the request body as a `String`
-readAsString :: RequestBody -> Aff.Aff String
-readAsString = getBody (Proxy :: Proxy String)
+readAsString :: Stream.Readable () -> Aff.Aff String
+readAsString = internalRead (Buffer.toString Encoding.UTF8)
 
 -- | Read the request body as a `Buffer`
-readAsBuffer :: RequestBody -> Aff.Aff Buffer.Buffer
-readAsBuffer = getBody (Proxy :: Proxy Buffer.Buffer)
+readAsBuffer :: Stream.Readable () -> Aff.Aff Buffer.Buffer
+readAsBuffer = internalRead pure
 
 -- | Types that implement the `Body` class can be used as a body to an HTTPure
 -- | response, and can be used with all the response helpers.
@@ -118,20 +88,10 @@ instance bodyChunked ::
       Stream.onEnd stream $ done $ Either.Right unit
       pure Aff.nonCanceler
 
--- | Extract the contents of the body of the HTTP `Request` as a `UTF8 String`
-internalReadString :: HTTP.Request -> Aff.Aff String
-internalReadString = internalRead (Buffer.toString Encoding.UTF8)
-
--- | Extract the contents of the body of the HTTP `Request` as a `Buffer`
-internalReadBuffer :: HTTP.Request -> Aff.Aff Buffer.Buffer
-internalReadBuffer = internalRead pure
-
 -- | Extract the contents of the body of the HTTP `Request`.
-internalRead :: forall body. (Buffer.Buffer -> Effect.Effect body) -> HTTP.Request -> Aff.Aff body
-internalRead transform request =
+internalRead :: forall body. (Buffer.Buffer -> Effect.Effect body) -> Stream.Readable () -> Aff.Aff body
+internalRead transform stream =
   Aff.makeAff \done -> do
-    let
-      stream = HTTP.requestAsStream request
     bufs <- Ref.new []
     Stream.onData stream \buf ->
       void $ Ref.modify (_ <> [ buf ]) bufs
@@ -139,3 +99,6 @@ internalRead transform request =
       body <- Ref.read bufs >>= Buffer.concat >>= transform
       done $ Either.Right body
     pure Aff.nonCanceler
+
+read :: HTTP.Request -> Stream.Readable ()
+read = HTTP.requestAsStream

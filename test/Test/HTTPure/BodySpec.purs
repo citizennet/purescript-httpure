@@ -15,7 +15,7 @@ readSpec =
   Spec.describe "read" do
     Spec.it "is the body of the Request" do
       request <- TestHelpers.mockRequest "" "GET" "" "test" []
-      body <- Body.internalReadString request
+      body <- Body.readAsString (Body.read request)
       body ?= "test"
 
 defaultHeadersSpec :: TestHelpers.Test

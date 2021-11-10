@@ -9,6 +9,7 @@ import Effect.Aff as Aff
 import Data.String as String
 import Foreign.Object as Object
 import Node.HTTP as HTTP
+import Node.Stream as Stream
 import HTTPure.Body as Body
 import HTTPure.Headers as Headers
 import HTTPure.Method as Method
@@ -24,7 +25,7 @@ type Request =
   , path :: Path.Path
   , query :: Query.Query
   , headers :: Headers.Headers
-  , body :: Body.RequestBody
+  , body :: Stream.Readable ()
   , httpVersion :: Version.Version
   , url :: String
   }
@@ -53,7 +54,7 @@ fromHTTPRequest request = pure
     , path: Path.read request
     , query: Query.read request
     , headers: Headers.read request
-    , body: Body.mkBody request
+    , body: Body.read request
     , httpVersion: Version.read request
     , url: HTTP.requestURL request
     }
