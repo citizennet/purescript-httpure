@@ -24,7 +24,7 @@ jobs:
         run: nix-shell
 
       - name: Build
-        run: nix-shell --run build
+        run: nix-shell --run build test
 
       - name: Test
         run: nix-shell --run check-code

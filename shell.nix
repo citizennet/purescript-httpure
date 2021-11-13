@@ -25,7 +25,14 @@ let
       unstable-packages-overlay
     ];
   };
-  build = pkgs.writeShellScriptBin "build" "spago build";
+  build = pkgs.writeShellScriptBin "build" ''
+    if [ "$1" == "test" ]
+    then
+      spago -x test.dhall build
+    else
+      spago build
+    fi
+  '';
   check = pkgs.writeShellScriptBin "check" "check-format && check-code";
   check-code = pkgs.writeShellScriptBin "check-code" "spago -x test.dhall test";
   check-format = pkgs.writeShellScriptBin "check-format" "purs-tidy check src test docs";
