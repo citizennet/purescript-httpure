@@ -1,14 +1,26 @@
 {
+    "easy-purescript-nix": {
+        "branch": "master",
+        "description": "Easy PureScript (and other tools) with Nix",
+        "homepage": "",
+        "owner": "justinwoo",
+        "repo": "easy-purescript-nix",
+        "rev": "7802db65618c2ead3a55121355816b4c41d276d9",
+        "sha256": "0n99hxxcp9yc8yvx7bx4ac6askinfark7dnps3hzz5v9skrvq15q",
+        "type": "tarball",
+        "url": "https://github.com/justinwoo/easy-purescript-nix/archive/7802db65618c2ead3a55121355816b4c41d276d9.tar.gz",
+        "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
+    },
     "nixpkgs": {
         "branch": "release-20.09",
         "description": "A read-only mirror of NixOS/nixpkgs tracking the released channels. Send issues and PRs to",
         "homepage": "https://github.com/NixOS/nixpkgs",
         "owner": "NixOS",
         "repo": "nixpkgs",
-        "rev": "1ac507ba981970c8e864624542e31eb1f4049751",
-        "sha256": "1r05lrkvmjhygpmxj4h0rmvz53c7zmy5lff5az09bi1nwqm1xr42",
+        "rev": "1c1f5649bb9c1b0d98637c8c365228f57126f361",
+        "sha256": "0f2nvdijyxfgl5kwyb4465pppd5vkhqxddx6v40k2s0z9jfhj0xl",
         "type": "tarball",
-        "url": "https://github.com/NixOS/nixpkgs/archive/1ac507ba981970c8e864624542e31eb1f4049751.tar.gz",
+        "url": "https://github.com/NixOS/nixpkgs/archive/1c1f5649bb9c1b0d98637c8c365228f57126f361.tar.gz",
         "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
     },
     "nixpkgs-unstable": {
@@ -17,10 +29,10 @@
         "homepage": "",
         "owner": "NixOS",
         "repo": "nixpkgs",
-        "rev": "5df05c902cde398e056eb6271d5fe13e418db4c6",
-        "sha256": "12plc7k251z1dmmrd29lyrpw0xmjvmf79yj568aapzrcki5mrw74",
+        "rev": "8f39ad3da14ce78daf249c8291a4e43a17bbcf98",
+        "sha256": "1sdfb6bq8n0v5m6962cz5nfw3hkcrlzc1xnw6b0xnkr3sxxj6m34",
         "type": "tarball",
-        "url": "https://github.com/NixOS/nixpkgs/archive/5df05c902cde398e056eb6271d5fe13e418db4c6.tar.gz",
+        "url": "https://github.com/NixOS/nixpkgs/archive/8f39ad3da14ce78daf249c8291a4e43a17bbcf98.tar.gz",
         "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
     }
 }
