@@ -28,7 +28,7 @@ check our [contributing guide](./Contributing.md).
 ## Installation
 
 ```bash
-psc-package install httpure
+spago install httpure
 ```
 
 ## Quick Start

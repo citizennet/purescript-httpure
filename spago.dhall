@@ -1,0 +1,31 @@
+{ name = "httpure"
+, dependencies =
+  [ "aff"
+  , "arrays"
+  , "bifunctors"
+  , "console"
+  , "effect"
+  , "either"
+  , "foldable-traversable"
+  , "foreign-object"
+  , "js-uri"
+  , "maybe"
+  , "newtype"
+  , "node-buffer"
+  , "node-fs"
+  , "node-http"
+  , "node-streams"
+  , "options"
+  , "ordered-collections"
+  , "prelude"
+  , "psci-support"
+  , "refs"
+  , "strings"
+  , "tuples"
+  , "type-equality"
+  ]
+, packages = ./packages.dhall
+, sources = [ "src/**/*.purs" ]
+, license = "MIT"
+, repository = "https://github.com/cprussin/purescript-httpure.git"
+}

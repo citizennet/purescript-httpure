@@ -1,7 +1,4 @@
-/out
-/bower_components
-/node_modules
-/output
-/.psa-stash
 /.psci_modules
-/.psc-ide-port
+/.spago/
+/generated-docs
+/output
