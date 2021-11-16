@@ -9,6 +9,7 @@ import Effect.Aff as Aff
 import Data.String as String
 import Foreign.Object as Object
 import Node.HTTP as HTTP
+import Node.Stream as Stream
 import HTTPure.Body as Body
 import HTTPure.Headers as Headers
 import HTTPure.Method as Method
@@ -24,7 +25,7 @@ type Request =
   , path :: Path.Path
   , query :: Query.Query
   , headers :: Headers.Headers
-  , body :: String
+  , body :: Stream.Readable ()
   , httpVersion :: Version.Version
   , url :: String
   }
@@ -48,14 +49,12 @@ fullPath request = "/" <> path <> questionMark <> queryParams
 -- | Given an HTTP `Request` object, this method will convert it to an HTTPure
 -- | `Request` object.
 fromHTTPRequest :: HTTP.Request -> Aff.Aff Request
-fromHTTPRequest request = do
-  body <- Body.read request
-  pure $
-    { method: Method.read request
-    , path: Path.read request
-    , query: Query.read request
-    , headers: Headers.read request
-    , body
-    , httpVersion: Version.read request
-    , url: HTTP.requestURL request
-    }
+fromHTTPRequest request = pure
+  { method: Method.read request
+  , path: Path.read request
+  , query: Query.read request
+  , headers: Headers.read request
+  , body: Body.read request
+  , httpVersion: Version.read request
+  , url: HTTP.requestURL request
+  }

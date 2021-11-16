@@ -40,7 +40,7 @@ request ::
   String ->
   Object.Object String ->
   String ->
-  String ->
+  Buffer.Buffer ->
   Aff.Aff HTTPClient.Response
 request secure port method headers path body =
   Aff.makeAff \done -> do
@@ -48,7 +48,7 @@ request secure port method headers path body =
     let
       stream = HTTPClient.requestAsStream req
     void
-      $ Stream.writeString stream Encoding.UTF8 body
+      $ Stream.write stream body
       $ Stream.end stream
       $ pure unit
     pure Aff.nonCanceler
@@ -61,6 +61,31 @@ request secure port method headers path body =
       <> HTTPClient.path := path
       <> HTTPClient.headers := HTTPClient.RequestHeaders headers
       <> HTTPClient.rejectUnauthorized := false
+
+-- | Same as `request` but without.
+request' ::
+  Boolean ->
+  Int ->
+  String ->
+  Object.Object String ->
+  String ->
+  Aff.Aff HTTPClient.Response
+request' secure port method headers path =
+  EffectClass.liftEffect (Buffer.create 0)
+    >>= request secure port method headers path
+
+-- | Same as `request` but with a `String` body.
+requestString ::
+  Boolean ->
+  Int ->
+  String ->
+  Object.Object String ->
+  String ->
+  String ->
+  Aff.Aff HTTPClient.Response
+requestString secure port method headers path body = do
+  EffectClass.liftEffect (Buffer.fromString body Encoding.UTF8)
+    >>= request secure port method headers path
 
 -- | Convert a request to an Aff containing the `Buffer with the response body.
 toBuffer :: HTTPClient.Response -> Aff.Aff Buffer.Buffer
@@ -91,7 +116,7 @@ get ::
   Object.Object String ->
   String ->
   Aff.Aff String
-get port headers path = request false port "GET" headers path "" >>= toString
+get port headers path = request' false port "GET" headers path >>= toString
 
 -- | Like `get` but return a response body in a `Buffer`
 getBinary ::
@@ -99,7 +124,7 @@ getBinary ::
   Object.Object String ->
   String ->
   Aff.Aff Buffer.Buffer
-getBinary port headers path = request false port "GET" headers path "" >>= toBuffer
+getBinary port headers path = request' false port "GET" headers path >>= toBuffer
 
 -- | Run an HTTPS GET with the given url and return an Aff that contains the
 -- | string with the response body.
@@ -108,7 +133,7 @@ get' ::
   Object.Object String ->
   String ->
   Aff.Aff String
-get' port headers path = request true port "GET" headers path "" >>= toString
+get' port headers path = request' true port "GET" headers path >>= toString
 
 -- | Run an HTTP POST with the given url and body and return an Aff that
 -- | contains the string with the response body.
@@ -118,7 +143,17 @@ post ::
   String ->
   String ->
   Aff.Aff String
-post port headers path = request false port "POST" headers path >=> toString
+post port headers path = requestString false port "POST" headers path >=> toString
+
+-- | Run an HTTP POST with the given url and binary buffer body and return an
+-- | Aff that contains the string with the response body.
+postBinary ::
+  Int ->
+  Object.Object String ->
+  String ->
+  Buffer.Buffer ->
+  Aff.Aff String
+postBinary port headers path = request false port "POST" headers path >=> toString
 
 -- | Convert a request to an Aff containing the string with the given header
 -- | value.
@@ -137,14 +172,14 @@ getHeader ::
   String ->
   String ->
   Aff.Aff String
-getHeader port headers path header = extractHeader header <$> request false port "GET" headers path ""
+getHeader port headers path header = extractHeader header <$> request' false port "GET" headers path
 
 getStatus ::
   Int ->
   Object.Object String ->
   String ->
   Aff.Aff Int
-getStatus port headers path = HTTPClient.statusCode <$> request false port "GET" headers path ""
+getStatus port headers path = HTTPClient.statusCode <$> request' false port "GET" headers path
 
 -- | Mock an HTTP Request object
 foreign import mockRequestImpl ::

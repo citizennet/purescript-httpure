@@ -1,22 +1,39 @@
 module Test.HTTPure.BodySpec where
 
 import Prelude
+import Data.Maybe (Maybe(Nothing), fromMaybe)
 import Effect.Class as EffectClass
 import Node.Buffer as Buffer
 import Node.Encoding as Encoding
+import Node.Stream as Stream
 import Test.Spec as Spec
 import HTTPure.Body as Body
 import HTTPure.Headers as Headers
 import Test.HTTPure.TestHelpers as TestHelpers
-import Test.HTTPure.TestHelpers ((?=))
+import Test.HTTPure.TestHelpers ((?=), stringToStream)
 
 readSpec :: TestHelpers.Test
 readSpec =
   Spec.describe "read" do
     Spec.it "is the body of the Request" do
-      request <- TestHelpers.mockRequest "" "GET" "" "test" []
-      body <- Body.read request
-      body ?= "test"
+      body <- Body.read <$> TestHelpers.mockRequest "" "GET" "" "test" []
+      string <- EffectClass.liftEffect $ fromMaybe "" <$> Stream.readString body Nothing Encoding.UTF8
+      string ?= "test"
+
+toStringSpec :: TestHelpers.Test
+toStringSpec =
+  Spec.describe "toString" do
+    Spec.it "slurps Streams into Strings" do
+      string <- Body.toString $ stringToStream "foobar"
+      string ?= "foobar"
+
+toBufferSpec :: TestHelpers.Test
+toBufferSpec =
+  Spec.describe "toBuffer" do
+    Spec.it "slurps Streams into Buffers" do
+      buf <- Body.toBuffer $ stringToStream "foobar"
+      string <- EffectClass.liftEffect $ Buffer.toString Encoding.UTF8 buf
+      string ?= "foobar"
 
 defaultHeadersSpec :: TestHelpers.Test
 defaultHeadersSpec =
@@ -73,4 +90,6 @@ bodySpec =
   Spec.describe "Body" do
     defaultHeadersSpec
     readSpec
+    toStringSpec
+    toBufferSpec
     writeSpec
