@@ -1,4 +1,4 @@
-module Examples.Binary.Main where
+module Examples.BinaryResponse.Main where
 
 import Prelude
 import Effect.Console as Console
@@ -7,7 +7,7 @@ import HTTPure as HTTPure
 
 -- | The path to the file containing the response to send
 filePath :: String
-filePath = "./docs/Examples/Binary/circle.png"
+filePath = "./docs/Examples/BinaryResponse/circle.png"
 
 responseHeaders :: HTTPure.Headers
 responseHeaders = HTTPure.header "Content-Type" "image/png"

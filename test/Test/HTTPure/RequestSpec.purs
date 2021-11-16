@@ -28,8 +28,7 @@ fromHTTPRequestSpec =
       mock <- mockRequest
       mock.headers ?= Headers.headers mockHeaders
     Spec.it "contains the correct body" do
-      mock <- mockRequest
-      mockBody <- Body.readAsString mock.body
+      mockBody <- mockRequest >>= _.body >>> Body.toString
       mockBody ?= "body"
     Spec.it "contains the correct httpVersion" do
       mock <- mockRequest

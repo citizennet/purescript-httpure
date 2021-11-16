@@ -50,11 +50,11 @@ fullPath request = "/" <> path <> questionMark <> queryParams
 -- | `Request` object.
 fromHTTPRequest :: HTTP.Request -> Aff.Aff Request
 fromHTTPRequest request = pure
-    { method: Method.read request
-    , path: Path.read request
-    , query: Query.read request
-    , headers: Headers.read request
-    , body: Body.read request
-    , httpVersion: Version.read request
-    , url: HTTP.requestURL request
-    }
+  { method: Method.read request
+  , path: Path.read request
+  , query: Query.read request
+  , headers: Headers.read request
+  , body: Body.read request
+  , httpVersion: Version.read request
+  , url: HTTP.requestURL request
+  }

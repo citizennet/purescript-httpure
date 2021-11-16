@@ -9,7 +9,8 @@ import Test.Spec as Spec
 import Test.HTTPure.TestHelpers as TestHelpers
 import Test.HTTPure.TestHelpers ((?=))
 import Examples.AsyncResponse.Main as AsyncResponse
-import Examples.Binary.Main as Binary
+import Examples.BinaryRequest.Main as BinaryRequest
+import Examples.BinaryResponse.Main as BinaryResponse
 import Examples.Chunked.Main as Chunked
 import Examples.CustomStack.Main as CustomStack
 import Examples.Headers.Main as Headers
@@ -29,13 +30,22 @@ asyncResponseSpec =
     EffectClass.liftEffect $ close $ pure unit
     response ?= "hello world!"
 
-binarySpec :: TestHelpers.Test
-binarySpec =
-  Spec.it "runs the binary example" do
-    close <- EffectClass.liftEffect Binary.main
+binaryRequestSpec :: TestHelpers.Test
+binaryRequestSpec =
+  Spec.it "runs the binary request example" do
+    close <- EffectClass.liftEffect BinaryRequest.main
+    binaryBuf <- FS.readFile BinaryResponse.filePath
+    response <- TestHelpers.postBinary 8080 Object.empty "/" binaryBuf
+    EffectClass.liftEffect $ close $ pure unit
+    response ?= "d5e776724dd545d8b54123b46362a553d10257cee688ef1be62166c984b34405"
+
+binaryResponseSpec :: TestHelpers.Test
+binaryResponseSpec =
+  Spec.it "runs the binary response example" do
+    close <- EffectClass.liftEffect BinaryResponse.main
     responseBuf <- TestHelpers.getBinary 8080 Object.empty "/"
     EffectClass.liftEffect $ close $ pure unit
-    binaryBuf <- FS.readFile Binary.filePath
+    binaryBuf <- FS.readFile BinaryResponse.filePath
     expected <- EffectClass.liftEffect $ Buffer.toArray binaryBuf
     response <- EffectClass.liftEffect $ Buffer.toArray responseBuf
     response ?= expected
@@ -144,7 +154,8 @@ integrationSpec :: TestHelpers.Test
 integrationSpec =
   Spec.describe "Integration" do
     asyncResponseSpec
-    binarySpec
+    binaryRequestSpec
+    binaryResponseSpec
     chunkedSpec
     customStackSpec
     headersSpec
