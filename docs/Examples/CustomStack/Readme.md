@@ -7,5 +7,11 @@ globally-available environment during routing.
 To run the example server, run:
 
 ```bash
-make example EXAMPLE=CustomStack
+nix-shell --run 'example CustomStack'
+```
+
+Or, without nix:
+
+```bash
+spago -x test.dhall run --main Examples.CustomStack.Main
 ```

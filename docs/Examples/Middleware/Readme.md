@@ -9,5 +9,11 @@ the response, and one that handles requests to a given path.
 To run the example server, run:
 
 ```bash
-make example EXAMPLE=Middleware
+nix-shell --run 'example Middleware'
+```
+
+Or, without nix:
+
+```bash
+spago -x test.dhall run --main Examples.Middleware.Main
 ```

@@ -8,5 +8,11 @@ example where the response is driven by the contents of a query parameter.
 To run the example server, run:
 
 ```bash
-make example EXAMPLE=QueryParameters
+nix-shell --run 'example QueryParameters'
+```
+
+Or, without nix:
+
+```bash
+spago -x test.dhall run --main Examples.QueryParameters.Main
 ```

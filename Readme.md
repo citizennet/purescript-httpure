@@ -61,7 +61,13 @@ HTTPure ships with a number of [examples](./docs/Examples). To run an example,
 in the project root, run:
 
 ```bash
-make example EXAMPLE=<Example Name>
+nix-shell --run 'example <Example Name>'
+```
+
+Or, without `nix`:
+
+```bash
+spago -x test.dhall run --main Examples.<Example Name>.Main
 ```
 
 Each example's startup banner will include information on routes available on
@@ -72,7 +78,13 @@ the example server.
 To run the test suite, in the project root run:
 
 ```bash
-make test
+nix-shell --run check
+```
+
+Or, if `nix` isn't your thing:
+
+```bash
+purs-tidy check src test docs && spago -x test.dhall test
 ```
 
 ## Contributing

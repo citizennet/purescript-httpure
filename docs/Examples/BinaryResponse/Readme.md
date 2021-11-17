@@ -6,5 +6,11 @@ file as binary data on any URL.
 To run the server, run:
 
 ```bash
-make example EXAMPLE=BinaryResponse
+nix-shell --run 'example BinaryResponse'
+```
+
+Or, without nix:
+
+```bash
+spago -x test.dhall run --main Examples.BinaryResponse.Main
 ```

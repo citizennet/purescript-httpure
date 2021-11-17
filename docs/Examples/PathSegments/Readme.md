@@ -7,5 +7,11 @@ that routes based on the value of specific segments.
 To run the example server, run:
 
 ```bash
-make example EXAMPLE=PathSegments
+nix-shell --run 'example PathSegments'
+```
+
+Or, without nix:
+
+```bash
+spago -x test.dhall run --main Examples.PathSegments.Main
 ```

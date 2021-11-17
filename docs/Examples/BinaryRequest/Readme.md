@@ -6,5 +6,11 @@ binary file and send back the file's sha256 checksum.
 To run the server, run:
 
 ```bash
-make example EXAMPLE=BinaryRequest
+nix-shell --run 'example BinaryRequest'
+```
+
+Or, without nix:
+
+```bash
+spago -x test.dhall run --main Examples.BinaryRequest.Main
 ```

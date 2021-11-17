@@ -9,5 +9,11 @@ certificate errors when testing.
 To run the example server, run:
 
 ```bash
-make example EXAMPLE=SSL
+nix-shell --run 'example SSL'
+```
+
+Or, without nix:
+
+```bash
+spago -x test.dhall run --main Examples.SSL.Main
 ```

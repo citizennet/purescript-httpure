@@ -8,5 +8,11 @@ file [Hello](./Hello).
 To run the example server, run:
 
 ```bash
-make example EXAMPLE=AsyncResponse
+nix-shell --run 'example AsyncResponse'
+```
+
+Or, without nix:
+
+```bash
+spago -x test.dhall run --main Examples.AsyncResponse.Main
 ```

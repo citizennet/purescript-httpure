@@ -8,5 +8,11 @@ value 'hello world!'.
 To run the example server, run:
 
 ```bash
-make example EXAMPLE=Headers
+nix-shell --run 'example Headers'
+```
+
+Or, without nix:
+
+```bash
+spago -x test.dhall run --main Examples.Headers.Main
 ```

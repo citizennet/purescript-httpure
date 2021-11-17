@@ -6,5 +6,11 @@ making any request.
 To run the example server, run:
 
 ```bash
-make example EXAMPLE=HelloWorld
+nix-shell --run 'example HelloWorld'
+```
+
+Or, without nix:
+
+```bash
+spago -x test.dhall run --main Examples.HelloWorld.Main
 ```

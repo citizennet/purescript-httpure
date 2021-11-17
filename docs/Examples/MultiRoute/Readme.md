@@ -7,5 +7,11 @@ return 'hello' when requesting /hello with an HTTP GET, and it will return
 To run the example server, run:
 
 ```bash
-make example EXAMPLE=MultiRoute
+nix-shell --run 'example MultiRoute'
+```
+
+Or, without nix:
+
+```bash
+spago -x test.dhall run --main Examples.MultiRoute.Main
 ```
