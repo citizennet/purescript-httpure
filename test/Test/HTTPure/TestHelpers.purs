@@ -1,36 +1,51 @@
 module Test.HTTPure.TestHelpers where
 
 import Prelude
-import Effect as Effect
-import Effect.Aff as Aff
-import Effect.Class as EffectClass
-import Effect.Ref as Ref
-import Data.Array as Array
-import Data.Either as Either
-import Data.List as List
-import Data.Maybe as Maybe
+import Effect (Effect)
+import Effect.Aff (Aff, makeAff, nonCanceler)
+import Effect.Class (liftEffect)
+import Effect.Ref (new, modify_, read)
+import Data.Array (fromFoldable) as Array
+import Data.Either (Either(Right))
+import Data.List (List(Nil, Cons), reverse)
+import Data.Maybe (fromMaybe)
 import Data.Options ((:=))
-import Data.String as StringUtil
-import Data.Tuple as Tuple
-import Foreign.Object as Object
-import Node.Buffer as Buffer
-import Node.Encoding as Encoding
-import Node.HTTP as HTTP
-import Node.HTTP.Client as HTTPClient
-import Node.Stream as Stream
-import Test.Spec as Spec
-import Test.Spec.Assertions as Assertions
-import Unsafe.Coerce as Coerce
+import Data.String (toLower)
+import Data.Tuple (Tuple)
+import Foreign.Object (fromFoldable) as Object
+import Foreign.Object (Object, lookup)
+import Node.Buffer (toString) as Buffer
+import Node.Buffer (Buffer, create, fromString, concat)
+import Node.Encoding (Encoding(UTF8))
+import Node.HTTP (Response) as HTTP
+import Node.HTTP (Request)
+import Node.HTTP.Client (Response, request) as HTTPClient
+import Node.HTTP.Client
+  ( RequestHeaders(RequestHeaders)
+  , requestAsStream
+  , protocol
+  , method
+  , hostname
+  , port
+  , path
+  , headers
+  , rejectUnauthorized
+  , statusCode
+  , responseHeaders
+  , responseAsStream
+  )
+import Node.Stream (Readable, write, end, onData, onEnd)
+import Test.Spec (Spec)
+import Test.Spec.Assertions (shouldEqual)
+import Unsafe.Coerce (unsafeCoerce)
 
-infix 1 Assertions.shouldEqual as ?=
+infix 1 shouldEqual as ?=
 
 -- | The type for integration tests.
-type Test
-  = Spec.Spec Unit
+type Test = Spec Unit
 
 -- | The type for the entire test suite.
-type TestSuite
-  = Effect.Effect Unit
+type TestSuite = Effect Unit
 
 -- | Given a URL, a failure handler, and a success handler, create an HTTP
 -- | client request.
@@ -38,40 +53,40 @@ request ::
   Boolean ->
   Int ->
   String ->
-  Object.Object String ->
+  Object String ->
   String ->
-  Buffer.Buffer ->
-  Aff.Aff HTTPClient.Response
-request secure port method headers path body =
-  Aff.makeAff \done -> do
-    req <- HTTPClient.request options $ Either.Right >>> done
+  Buffer ->
+  Aff HTTPClient.Response
+request secure port' method' headers' path' body =
+  makeAff \done -> do
+    req <- HTTPClient.request options $ Right >>> done
     let
-      stream = HTTPClient.requestAsStream req
+      stream = requestAsStream req
     void
-      $ Stream.write stream body
-      $ Stream.end stream
+      $ write stream body
+      $ end stream
       $ pure unit
-    pure Aff.nonCanceler
+    pure nonCanceler
   where
   options =
-    HTTPClient.protocol := (if secure then "https:" else "http:")
-      <> HTTPClient.method := method
-      <> HTTPClient.hostname := "localhost"
-      <> HTTPClient.port := port
-      <> HTTPClient.path := path
-      <> HTTPClient.headers := HTTPClient.RequestHeaders headers
-      <> HTTPClient.rejectUnauthorized := false
+    protocol := (if secure then "https:" else "http:")
+      <> method := method'
+      <> hostname := "localhost"
+      <> port := port'
+      <> path := path'
+      <> headers := RequestHeaders headers'
+      <> rejectUnauthorized := false
 
 -- | Same as `request` but without.
 request' ::
   Boolean ->
   Int ->
   String ->
-  Object.Object String ->
+  Object String ->
   String ->
-  Aff.Aff HTTPClient.Response
+  Aff HTTPClient.Response
 request' secure port method headers path =
-  EffectClass.liftEffect (Buffer.create 0)
+  liftEffect (create 0)
     >>= request secure port method headers path
 
 -- | Same as `request` but with a `String` body.
@@ -79,107 +94,107 @@ requestString ::
   Boolean ->
   Int ->
   String ->
-  Object.Object String ->
+  Object String ->
   String ->
   String ->
-  Aff.Aff HTTPClient.Response
+  Aff HTTPClient.Response
 requestString secure port method headers path body = do
-  EffectClass.liftEffect (Buffer.fromString body Encoding.UTF8)
+  liftEffect (fromString body UTF8)
     >>= request secure port method headers path
 
 -- | Convert a request to an Aff containing the `Buffer with the response body.
-toBuffer :: HTTPClient.Response -> Aff.Aff Buffer.Buffer
+toBuffer :: HTTPClient.Response -> Aff Buffer
 toBuffer response =
-  Aff.makeAff \done -> do
+  makeAff \done -> do
     let
-      stream = HTTPClient.responseAsStream response
-    chunks <- Ref.new List.Nil
-    Stream.onData stream $ \new -> Ref.modify_ (List.Cons new) chunks
-    Stream.onEnd stream $ Ref.read chunks
-      >>= List.reverse
+      stream = responseAsStream response
+    chunks <- new Nil
+    onData stream $ \new -> modify_ (Cons new) chunks
+    onEnd stream $ read chunks
+      >>= reverse
         >>> Array.fromFoldable
-        >>> Buffer.concat
-      >>= Either.Right
+        >>> concat
+      >>= Right
         >>> done
-    pure Aff.nonCanceler
+    pure nonCanceler
 
 -- | Convert a request to an Aff containing the string with the response body.
-toString :: HTTPClient.Response -> Aff.Aff String
+toString :: HTTPClient.Response -> Aff String
 toString resp = do
   buf <- toBuffer resp
-  EffectClass.liftEffect $ Buffer.toString Encoding.UTF8 buf
+  liftEffect $ Buffer.toString UTF8 buf
 
 -- | Run an HTTP GET with the given url and return an Aff that contains the
 -- | string with the response body.
 get ::
   Int ->
-  Object.Object String ->
+  Object String ->
   String ->
-  Aff.Aff String
+  Aff String
 get port headers path = request' false port "GET" headers path >>= toString
 
 -- | Like `get` but return a response body in a `Buffer`
 getBinary ::
   Int ->
-  Object.Object String ->
+  Object String ->
   String ->
-  Aff.Aff Buffer.Buffer
+  Aff Buffer
 getBinary port headers path = request' false port "GET" headers path >>= toBuffer
 
 -- | Run an HTTPS GET with the given url and return an Aff that contains the
 -- | string with the response body.
 get' ::
   Int ->
-  Object.Object String ->
+  Object String ->
   String ->
-  Aff.Aff String
+  Aff String
 get' port headers path = request' true port "GET" headers path >>= toString
 
 -- | Run an HTTP POST with the given url and body and return an Aff that
 -- | contains the string with the response body.
 post ::
   Int ->
-  Object.Object String ->
+  Object String ->
   String ->
   String ->
-  Aff.Aff String
+  Aff String
 post port headers path = requestString false port "POST" headers path >=> toString
 
 -- | Run an HTTP POST with the given url and binary buffer body and return an
 -- | Aff that contains the string with the response body.
 postBinary ::
   Int ->
-  Object.Object String ->
+  Object String ->
   String ->
-  Buffer.Buffer ->
-  Aff.Aff String
+  Buffer ->
+  Aff String
 postBinary port headers path = request false port "POST" headers path >=> toString
 
 -- | Convert a request to an Aff containing the string with the given header
 -- | value.
 extractHeader :: String -> HTTPClient.Response -> String
-extractHeader header = unmaybe <<< lookup <<< HTTPClient.responseHeaders
+extractHeader header = unmaybe <<< lookup' <<< responseHeaders
   where
-  unmaybe = Maybe.fromMaybe ""
+  unmaybe = fromMaybe ""
 
-  lookup = Object.lookup $ StringUtil.toLower header
+  lookup' = lookup $ toLower header
 
 -- | Run an HTTP GET with the given url and return an Aff that contains the
 -- | string with the header value for the given header.
 getHeader ::
   Int ->
-  Object.Object String ->
+  Object String ->
   String ->
   String ->
-  Aff.Aff String
+  Aff String
 getHeader port headers path header = extractHeader header <$> request' false port "GET" headers path
 
 getStatus ::
   Int ->
-  Object.Object String ->
+  Object String ->
   String ->
-  Aff.Aff Int
-getStatus port headers path = HTTPClient.statusCode <$> request' false port "GET" headers path
+  Aff Int
+getStatus port headers path = statusCode <$> request' false port "GET" headers path
 
 -- | Mock an HTTP Request object
 foreign import mockRequestImpl ::
@@ -187,8 +202,8 @@ foreign import mockRequestImpl ::
   String ->
   String ->
   String ->
-  Object.Object String ->
-  Effect.Effect HTTP.Request
+  Object String ->
+  Effect Request
 
 -- | Mock an HTTP Request object
 mockRequest ::
@@ -196,29 +211,29 @@ mockRequest ::
   String ->
   String ->
   String ->
-  Array (Tuple.Tuple String String) ->
-  Aff.Aff HTTP.Request
-mockRequest httpVersion method url body = EffectClass.liftEffect <<< mockRequestImpl httpVersion method url body <<< Object.fromFoldable
+  Array (Tuple String String) ->
+  Aff Request
+mockRequest httpVersion method url body = liftEffect <<< mockRequestImpl httpVersion method url body <<< Object.fromFoldable
 
 -- | Mock an HTTP Response object
-foreign import mockResponse :: Effect.Effect HTTP.Response
+foreign import mockResponse :: Effect HTTP.Response
 
 -- | Get the current body from an HTTP Response object (note this will only work
 -- | with an object returned from mockResponse).
 getResponseBody :: HTTP.Response -> String
-getResponseBody = _.body <<< Coerce.unsafeCoerce
+getResponseBody = _.body <<< unsafeCoerce
 
 -- | Get the currently set status from an HTTP Response object.
 getResponseStatus :: HTTP.Response -> Int
-getResponseStatus = _.statusCode <<< Coerce.unsafeCoerce
+getResponseStatus = _.statusCode <<< unsafeCoerce
 
 -- | Get all current headers on the HTTP Response object.
-getResponseHeaders :: HTTP.Response -> Object.Object String
-getResponseHeaders = Coerce.unsafeCoerce <<< _.headers <<< Coerce.unsafeCoerce
+getResponseHeaders :: HTTP.Response -> Object String
+getResponseHeaders = unsafeCoerce <<< _.headers <<< unsafeCoerce
 
 -- | Get the current value for the header on the HTTP Response object.
 getResponseHeader :: String -> HTTP.Response -> String
-getResponseHeader header = Maybe.fromMaybe "" <<< Object.lookup header <<< getResponseHeaders
+getResponseHeader header = fromMaybe "" <<< lookup header <<< getResponseHeaders
 
 -- | Create a stream out of a string.
-foreign import stringToStream :: String -> Stream.Readable ()
+foreign import stringToStream :: String -> Readable ()

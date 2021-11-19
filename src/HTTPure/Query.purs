@@ -4,14 +4,14 @@ module HTTPure.Query
   ) where
 
 import Prelude
-import Data.Array as Array
-import Data.Bifunctor as Bifunctor
-import Data.Maybe as Maybe
-import Data.String as String
-import Data.Tuple as Tuple
-import Foreign.Object as Object
-import Node.HTTP as HTTP
-import HTTPure.Utils as Utils
+import Data.Array (filter, head, tail)
+import Data.Bifunctor (bimap)
+import Data.Maybe (fromMaybe)
+import Data.String (Pattern(Pattern), split, joinWith)
+import Data.Tuple (Tuple(Tuple))
+import Foreign.Object (Object, fromFoldable)
+import Node.HTTP (Request, requestURL)
+import HTTPure.Utils (replacePlus, urlDecode)
 
 -- | The `Query` type is a `Object` of `Strings`, with one entry per query
 -- | parameter in the request. For any query parameters that don't have values
@@ -21,27 +21,19 @@ import HTTPure.Utils as Utils
 -- | [Lookup.purs](./Lookup.purs) because `lookupObject` is defined for any
 -- | `Object` of `Monoids`. So you can do something like `query !! "foo"` to get
 -- | the value of the query parameter "foo".
-type Query
-  = Object.Object String
+type Query = Object String
 
 -- | The `Map` of query segments in the given HTTP `Request`.
-read :: HTTP.Request -> Query
-read = HTTP.requestURL >>> split "?" >>> last >>> split "&" >>> nonempty >>> toObject
+read :: Request -> Query
+read = requestURL >>> split' "?" >>> last >>> split' "&" >>> nonempty >>> toObject
   where
-  toObject = map toTuple >>> Object.fromFoldable
-
-  nonempty = Array.filter ((/=) "")
-
-  split = String.Pattern >>> String.split
-
-  first = Array.head >>> Maybe.fromMaybe ""
-
-  last = Array.tail >>> Maybe.fromMaybe [] >>> String.joinWith ""
-
-  decode = Utils.replacePlus >>> Utils.urlDecode
-
-  decodeKeyValue = Bifunctor.bimap decode decode
-
-  toTuple item = decodeKeyValue $ Tuple.Tuple (first itemParts) (last itemParts)
+  toObject = map toTuple >>> fromFoldable
+  nonempty = filter ((/=) "")
+  split' = Pattern >>> split
+  first = head >>> fromMaybe ""
+  last = tail >>> fromMaybe [] >>> joinWith ""
+  decode = replacePlus >>> urlDecode
+  decodeKeyValue = bimap decode decode
+  toTuple item = decodeKeyValue $ Tuple (first itemParts) (last itemParts)
     where
-    itemParts = split "=" item
+    itemParts = split' "=" item

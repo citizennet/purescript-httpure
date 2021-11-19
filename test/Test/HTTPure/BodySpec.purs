@@ -2,92 +2,90 @@ module Test.HTTPure.BodySpec where
 
 import Prelude
 import Data.Maybe (Maybe(Nothing), fromMaybe)
-import Effect.Class as EffectClass
-import Node.Buffer as Buffer
-import Node.Encoding as Encoding
-import Node.Stream as Stream
-import Test.Spec as Spec
-import HTTPure.Body as Body
-import HTTPure.Headers as Headers
-import Test.HTTPure.TestHelpers as TestHelpers
-import Test.HTTPure.TestHelpers ((?=), stringToStream)
+import Effect.Class (liftEffect)
+import Node.Buffer (toString) as Buffer
+import Node.Buffer (Buffer, fromString)
+import Node.Encoding (Encoding(UTF8))
+import Node.Stream (readString)
+import Test.Spec (describe, it)
+import HTTPure.Body (read, toString, toBuffer, defaultHeaders, write)
+import HTTPure.Headers (header)
+import Test.HTTPure.TestHelpers (Test, (?=), mockRequest, mockResponse, getResponseBody, stringToStream)
 
-readSpec :: TestHelpers.Test
+readSpec :: Test
 readSpec =
-  Spec.describe "read" do
-    Spec.it "is the body of the Request" do
-      body <- Body.read <$> TestHelpers.mockRequest "" "GET" "" "test" []
-      string <- EffectClass.liftEffect $ fromMaybe "" <$> Stream.readString body Nothing Encoding.UTF8
+  describe "read" do
+    it "is the body of the Request" do
+      body <- read <$> mockRequest "" "GET" "" "test" []
+      string <- liftEffect $ fromMaybe "" <$> readString body Nothing UTF8
       string ?= "test"
 
-toStringSpec :: TestHelpers.Test
+toStringSpec :: Test
 toStringSpec =
-  Spec.describe "toString" do
-    Spec.it "slurps Streams into Strings" do
-      string <- Body.toString $ stringToStream "foobar"
+  describe "toString" do
+    it "slurps Streams into Strings" do
+      string <- toString $ stringToStream "foobar"
       string ?= "foobar"
 
-toBufferSpec :: TestHelpers.Test
+toBufferSpec :: Test
 toBufferSpec =
-  Spec.describe "toBuffer" do
-    Spec.it "slurps Streams into Buffers" do
-      buf <- Body.toBuffer $ stringToStream "foobar"
-      string <- EffectClass.liftEffect $ Buffer.toString Encoding.UTF8 buf
+  describe "toBuffer" do
+    it "slurps Streams into Buffers" do
+      buf <- toBuffer $ stringToStream "foobar"
+      string <- liftEffect $ Buffer.toString UTF8 buf
       string ?= "foobar"
 
-defaultHeadersSpec :: TestHelpers.Test
+defaultHeadersSpec :: Test
 defaultHeadersSpec =
-  Spec.describe "defaultHeaders" do
-    Spec.describe "String" do
-      Spec.describe "with an ASCII string" do
-        Spec.it "has the correct Content-Length header" do
-          headers <- EffectClass.liftEffect $ Body.defaultHeaders "ascii"
-          headers ?= Headers.header "Content-Length" "5"
-      Spec.describe "with a UTF-8 string" do
-        Spec.it "has the correct Content-Length header" do
-          headers <- EffectClass.liftEffect $ Body.defaultHeaders "\x2603"
-          headers ?= Headers.header "Content-Length" "3"
-    Spec.describe "Buffer" do
-      Spec.it "has the correct Content-Length header" do
-        buf :: Buffer.Buffer <- EffectClass.liftEffect $ Buffer.fromString "foobar" Encoding.UTF8
-        headers <- EffectClass.liftEffect $ Body.defaultHeaders buf
-        headers ?= Headers.header "Content-Length" "6"
-    Spec.describe "Readable" do
-      Spec.it "specifies the Transfer-Encoding header" do
-        let
-          body = TestHelpers.stringToStream "test"
-        headers <- EffectClass.liftEffect $ Body.defaultHeaders body
-        headers ?= Headers.header "Transfer-Encoding" "chunked"
+  describe "defaultHeaders" do
+    describe "String" do
+      describe "with an ASCII string" do
+        it "has the correct Content-Length header" do
+          headers <- liftEffect $ defaultHeaders "ascii"
+          headers ?= header "Content-Length" "5"
+      describe "with a UTF-8 string" do
+        it "has the correct Content-Length header" do
+          headers <- liftEffect $ defaultHeaders "\x2603"
+          headers ?= header "Content-Length" "3"
+    describe "Buffer" do
+      it "has the correct Content-Length header" do
+        buf :: Buffer <- liftEffect $ fromString "foobar" UTF8
+        headers <- liftEffect $ defaultHeaders buf
+        headers ?= header "Content-Length" "6"
+    describe "Readable" do
+      it "specifies the Transfer-Encoding header" do
+        headers <- liftEffect $ defaultHeaders $ stringToStream "test"
+        headers ?= header "Transfer-Encoding" "chunked"
 
-writeSpec :: TestHelpers.Test
+writeSpec :: Test
 writeSpec =
-  Spec.describe "write" do
-    Spec.describe "String" do
-      Spec.it "writes the String to the Response body" do
+  describe "write" do
+    describe "String" do
+      it "writes the String to the Response body" do
         body <- do
-          resp <- EffectClass.liftEffect TestHelpers.mockResponse
-          Body.write "test" resp
-          pure $ TestHelpers.getResponseBody resp
+          resp <- liftEffect mockResponse
+          write "test" resp
+          pure $ getResponseBody resp
         body ?= "test"
-    Spec.describe "Buffer" do
-      Spec.it "writes the Buffer to the Response body" do
+    describe "Buffer" do
+      it "writes the Buffer to the Response body" do
         body <- do
-          resp <- EffectClass.liftEffect TestHelpers.mockResponse
-          buf :: Buffer.Buffer <- EffectClass.liftEffect $ Buffer.fromString "test" Encoding.UTF8
-          Body.write buf resp
-          pure $ TestHelpers.getResponseBody resp
+          resp <- liftEffect mockResponse
+          buf :: Buffer <- liftEffect $ fromString "test" UTF8
+          write buf resp
+          pure $ getResponseBody resp
         body ?= "test"
-    Spec.describe "Readable" do
-      Spec.it "pipes the input stream to the Response body" do
+    describe "Readable" do
+      it "pipes the input stream to the Response body" do
         body <- do
-          resp <- EffectClass.liftEffect TestHelpers.mockResponse
-          Body.write (TestHelpers.stringToStream "test") resp
-          pure $ TestHelpers.getResponseBody resp
+          resp <- liftEffect mockResponse
+          write (stringToStream "test") resp
+          pure $ getResponseBody resp
         body ?= "test"
 
-bodySpec :: TestHelpers.Test
+bodySpec :: Test
 bodySpec =
-  Spec.describe "Body" do
+  describe "Body" do
     defaultHeadersSpec
     readSpec
     toStringSpec

@@ -4,7 +4,7 @@ module HTTPure.Version
   ) where
 
 import Prelude
-import Node.HTTP as HTTP
+import Node.HTTP (Request, httpVersion)
 
 -- | These are the HTTP versions that HTTPure understands. There are five
 -- | commonly known versions which are explicitly named.
@@ -30,8 +30,8 @@ instance showVersion :: Show Version where
   show (Other version) = "HTTP/" <> version
 
 -- | Take an HTTP `Request` and extract the `Version` for that request.
-read :: HTTP.Request -> Version
-read request = case HTTP.httpVersion request of
+read :: Request -> Version
+read = httpVersion >>> case _ of
   "0.9" -> HTTP0_9
   "1.0" -> HTTP1_0
   "1.1" -> HTTP1_1

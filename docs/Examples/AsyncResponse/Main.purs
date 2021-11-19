@@ -1,26 +1,26 @@
 module Examples.AsyncResponse.Main where
 
 import Prelude
-import Effect.Console as Console
-import HTTPure as HTTPure
-import Node.Encoding as Encoding
-import Node.FS.Aff as FSAff
+import Effect.Console (log)
+import HTTPure (ServerM, Request, ResponseM, serve, ok)
+import Node.Encoding (Encoding(UTF8))
+import Node.FS.Aff (readTextFile)
 
 -- | The path to the file containing the response to send
 filePath :: String
 filePath = "./docs/Examples/AsyncResponse/Hello"
 
 -- | Say 'hello world!' when run
-sayHello :: HTTPure.Request -> HTTPure.ResponseM
-sayHello = const $ FSAff.readTextFile Encoding.UTF8 filePath >>= HTTPure.ok
+sayHello :: Request -> ResponseM
+sayHello = const $ readTextFile UTF8 filePath >>= ok
 
 -- | Boot up the server
-main :: HTTPure.ServerM
+main :: ServerM
 main =
-  HTTPure.serve 8080 sayHello do
-    Console.log $ " ┌────────────────────────────────────────────┐"
-    Console.log $ " │ Server now up on port 8080                 │"
-    Console.log $ " │                                            │"
-    Console.log $ " │ To test, run:                              │"
-    Console.log $ " │  > curl localhost:8080   # => hello world! │"
-    Console.log $ " └────────────────────────────────────────────┘"
+  serve 8080 sayHello do
+    log " ┌────────────────────────────────────────────┐"
+    log " │ Server now up on port 8080                 │"
+    log " │                                            │"
+    log " │ To test, run:                              │"
+    log " │  > curl localhost:8080   # => hello world! │"
+    log " └────────────────────────────────────────────┘"

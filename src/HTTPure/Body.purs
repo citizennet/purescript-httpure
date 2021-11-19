@@ -8,37 +8,39 @@ module HTTPure.Body
   ) where
 
 import Prelude
-import Data.Either as Either
-import Effect as Effect
+import Data.Either (Either(Right))
+import Effect (Effect)
 import Effect.Class (liftEffect)
-import Effect.Aff as Aff
-import Effect.Ref as Ref
-import HTTPure.Headers as Headers
-import Node.Buffer as Buffer
-import Node.Encoding as Encoding
-import Node.HTTP as HTTP
-import Node.Stream as Stream
-import Type.Equality as TypeEquals
+import Effect.Aff (Aff, makeAff, nonCanceler)
+import Effect.Ref (read) as Ref
+import Effect.Ref (new, modify)
+import HTTPure.Headers (Headers, header)
+import Node.Buffer (toString) as Buffer
+import Node.Buffer (Buffer, concat, fromString, size)
+import Node.Encoding (Encoding(UTF8))
+import Node.HTTP (Request, Response, requestAsStream, responseAsStream)
+import Node.Stream (write) as Stream
+import Node.Stream (Stream, Readable, onData, onEnd, writeString, pipe, end)
+import Type.Equality (class TypeEquals, to)
 
 -- | Read the body `Readable` stream out of the incoming request
-read :: HTTP.Request -> Stream.Readable ()
-read = HTTP.requestAsStream
+read :: Request -> Readable ()
+read = requestAsStream
 
 -- | Slurp the entire `Readable` stream into a `String`
-toString :: Stream.Readable () -> Aff.Aff String
-toString = toBuffer >=> Buffer.toString Encoding.UTF8 >>> liftEffect
+toString :: Readable () -> Aff String
+toString = toBuffer >=> Buffer.toString UTF8 >>> liftEffect
 
 -- | Slurp the entire `Readable` stream into a `Buffer`
-toBuffer :: Stream.Readable () -> Aff.Aff Buffer.Buffer
+toBuffer :: Readable () -> Aff Buffer
 toBuffer stream =
-  Aff.makeAff \done -> do
-    bufs <- Ref.new []
-    Stream.onData stream \buf ->
-      void $ Ref.modify (_ <> [ buf ]) bufs
-    Stream.onEnd stream do
-      body <- Ref.read bufs >>= Buffer.concat
-      done $ Either.Right body
-    pure Aff.nonCanceler
+  makeAff \done -> do
+    bufs <- new []
+    onData stream \buf -> void $ modify (_ <> [ buf ]) bufs
+    onEnd stream do
+      body <- Ref.read bufs >>= concat
+      done $ Right body
+    pure nonCanceler
 
 -- | Types that implement the `Body` class can be used as a body to an HTTPure
 -- | response, and can be used with all the response helpers.
@@ -47,10 +49,10 @@ class Body b where
   -- | things like `Content-Type`, `Content-Length`, and `Transfer-Encoding`.
   -- | Note that any headers passed in a response helper such as `ok'` will take
   -- | precedence over these.
-  defaultHeaders :: b -> Effect.Effect Headers.Headers
+  defaultHeaders :: b -> Effect Headers
   -- | Given a body value and a Node HTTP `Response` value, write the body value
   -- | to the Node response.
-  write :: b -> HTTP.Response -> Aff.Aff Unit
+  write :: b -> Response -> Aff Unit
 
 -- | The instance for `String` will convert the string to a buffer first in
 -- | order to determine it's additional headers.  This is to ensure that the
@@ -59,44 +61,32 @@ class Body b where
 -- | response stream and closing the response stream.
 instance bodyString :: Body String where
   defaultHeaders body = do
-    buf :: Buffer.Buffer <- Buffer.fromString body Encoding.UTF8
+    buf :: Buffer <- fromString body UTF8
     defaultHeaders buf
-  write body response =
-    Aff.makeAff \done -> do
-      let
-        stream = HTTP.responseAsStream response
-      void $ Stream.writeString stream Encoding.UTF8 body
-        $ Stream.end stream
-        $ done
-        $ Either.Right unit
-      pure Aff.nonCanceler
+  write body response = makeAff \done -> do
+    let stream = responseAsStream response
+    void $ writeString stream UTF8 body $ end stream $ done $ Right unit
+    pure nonCanceler
 
 -- | The instance for `Buffer` is trivial--we add a `Content-Length` header
 -- | using `Buffer.size`, and to send the response, we just write the buffer to
 -- | the stream and end the stream.
-instance bodyBuffer :: Body Buffer.Buffer where
-  defaultHeaders buf = Headers.header "Content-Length" <$> show <$> Buffer.size buf
-  write body response =
-    Aff.makeAff \done -> do
-      let
-        stream = HTTP.responseAsStream response
-      void $ Stream.write stream body
-        $ Stream.end stream
-        $ done
-        $ Either.Right unit
-      pure Aff.nonCanceler
+instance bodyBuffer :: Body Buffer where
+  defaultHeaders buf = header "Content-Length" <$> show <$> size buf
+  write body response = makeAff \done -> do
+    let stream = responseAsStream response
+    void $ Stream.write stream body $ end stream $ done $ Right unit
+    pure nonCanceler
 
 -- | This instance can be used to send chunked data.  Here, we add a
 -- | `Transfer-Encoding` header to indicate chunked data.  To write the data, we
 -- | simply pipe the newtype-wrapped `Stream` to the response.
 instance bodyChunked ::
-  TypeEquals.TypeEquals (Stream.Stream r) (Stream.Readable ()) =>
-  Body (Stream.Stream r) where
-  defaultHeaders _ = pure $ Headers.header "Transfer-Encoding" "chunked"
-  write body response =
-    Aff.makeAff \done -> do
-      let
-        stream = TypeEquals.to body
-      void $ Stream.pipe stream $ HTTP.responseAsStream response
-      Stream.onEnd stream $ done $ Either.Right unit
-      pure Aff.nonCanceler
+  TypeEquals (Stream r) (Readable ()) =>
+  Body (Stream r) where
+  defaultHeaders _ = pure $ header "Transfer-Encoding" "chunked"
+  write body response = makeAff \done -> do
+    let stream = to body
+    void $ pipe stream $ responseAsStream response
+    onEnd stream $ done $ Right unit
+    pure nonCanceler

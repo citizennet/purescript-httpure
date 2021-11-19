@@ -1,106 +1,95 @@
 module Test.HTTPure.ServerSpec where
 
 import Prelude
-import Effect.Class as EffectClass
-import Effect.Exception as Exception
-import Control.Monad.Except as Except
-import Data.Maybe as Maybe
+import Effect.Class (liftEffect)
+import Effect.Exception (error)
+import Control.Monad.Except (throwError)
+import Data.Maybe (Maybe(Nothing))
 import Data.Options ((:=))
-import Data.String as String
-import Foreign.Object as Object
-import Node.Encoding as Encoding
-import Node.HTTP.Secure as HTTPS
-import Node.FS.Sync as FSSync
-import Test.Spec as Spec
-import Test.Spec.Assertions as Assertions
-import HTTPure.Request as Request
-import HTTPure.Response as Response
-import HTTPure.Server as Server
-import Test.HTTPure.TestHelpers as TestHelpers
-import Test.HTTPure.TestHelpers ((?=))
+import Data.String (joinWith)
+import Foreign.Object (empty)
+import Node.Encoding (Encoding(UTF8))
+import Node.HTTP.Secure (key, keyString, cert, certString)
+import Node.FS.Sync (readTextFile)
+import Test.Spec (describe, it)
+import Test.Spec.Assertions (expectError)
+import HTTPure.Request (Request)
+import HTTPure.Response (ResponseM, ok)
+import HTTPure.Server (serve, serve', serveSecure, serveSecure')
+import Test.HTTPure.TestHelpers (Test, (?=), get, get', getStatus)
 
-mockRouter :: Request.Request -> Response.ResponseM
-mockRouter { path } = Response.ok $ "/" <> String.joinWith "/" path
+mockRouter :: Request -> ResponseM
+mockRouter { path } = ok $ "/" <> joinWith "/" path
 
-errorRouter :: Request.Request -> Response.ResponseM
-errorRouter _ = Except.throwError $ Exception.error "fail!"
-
-serveSpec :: TestHelpers.Test
+serveSpec :: Test
 serveSpec =
-  Spec.describe "serve" do
-    Spec.it "boots a server on the given port" do
-      close <- EffectClass.liftEffect $ Server.serve 8080 mockRouter $ pure unit
-      out <- TestHelpers.get 8080 Object.empty "/test"
-      EffectClass.liftEffect $ close $ pure unit
+  describe "serve" do
+    it "boots a server on the given port" do
+      close <- liftEffect $ serve 8080 mockRouter $ pure unit
+      out <- get 8080 empty "/test"
+      liftEffect $ close $ pure unit
       out ?= "/test"
-    Spec.it "responds with a 500 upon unhandled exceptions" do
-      close <- EffectClass.liftEffect $ Server.serve 8080 errorRouter $ pure unit
-      status <- TestHelpers.getStatus 8080 Object.empty "/"
-      EffectClass.liftEffect $ close $ pure unit
+    it "responds with a 500 upon unhandled exceptions" do
+      let router _ = throwError $ error "fail!"
+      close <- liftEffect $ serve 8080 router $ pure unit
+      status <- getStatus 8080 empty "/"
+      liftEffect $ close $ pure unit
       status ?= 500
 
-serve'Spec :: TestHelpers.Test
+serve'Spec :: Test
 serve'Spec =
-  Spec.describe "serve'" do
-    Spec.it "boots a server with the given options" do
+  describe "serve'" do
+    it "boots a server with the given options" do
+      let options = { hostname: "localhost", port: 8080, backlog: Nothing }
       close <-
-        EffectClass.liftEffect
-          $ Server.serve' options mockRouter
+        liftEffect
+          $ serve' options mockRouter
           $ pure unit
-      out <- TestHelpers.get 8080 Object.empty "/test"
-      EffectClass.liftEffect $ close $ pure unit
+      out <- get 8080 empty "/test"
+      liftEffect $ close $ pure unit
       out ?= "/test"
-  where
-  options = { hostname: "localhost", port: 8080, backlog: Maybe.Nothing }
 
-serveSecureSpec :: TestHelpers.Test
+serveSecureSpec :: Test
 serveSecureSpec =
-  Spec.describe "serveSecure" do
-    Spec.describe "with valid key and cert files" do
-      Spec.it "boots a server on the given port" do
+  describe "serveSecure" do
+    describe "with valid key and cert files" do
+      it "boots a server on the given port" do
         close <-
-          EffectClass.liftEffect
-            $ Server.serveSecure 8080 cert key mockRouter
+          liftEffect
+            $ serveSecure 8080 "./test/Mocks/Certificate.cer" "./test/Mocks/Key.key" mockRouter
             $ pure unit
-        out <- TestHelpers.get' 8080 Object.empty "/test"
-        EffectClass.liftEffect $ close $ pure unit
+        out <- get' 8080 empty "/test"
+        liftEffect $ close $ pure unit
         out ?= "/test"
-    Spec.describe "with invalid key and cert files" do
-      Spec.it "throws" do
-        Assertions.expectError $ EffectClass.liftEffect
-          $ Server.serveSecure 8080 "" "" mockRouter
+    describe "with invalid key and cert files" do
+      it "throws" do
+        expectError $ liftEffect
+          $ serveSecure 8080 "" "" mockRouter
           $ pure unit
-  where
-  cert = "./test/Mocks/Certificate.cer"
 
-  key = "./test/Mocks/Key.key"
-
-serveSecure'Spec :: TestHelpers.Test
+serveSecure'Spec :: Test
 serveSecure'Spec =
-  Spec.describe "serveSecure'" do
-    Spec.describe "with valid key and cert files" do
-      Spec.it "boots a server on the given port" do
-        sslOpts <- EffectClass.liftEffect $ sslOptions
+  describe "serveSecure'" do
+    describe "with valid key and cert files" do
+      it "boots a server on the given port" do
+        let
+          options = { hostname: "localhost", port: 8080, backlog: Nothing }
+          sslOptions = do
+            cert' <- readTextFile UTF8 "./test/Mocks/Certificate.cer"
+            key' <- readTextFile UTF8 "./test/Mocks/Key.key"
+            pure $ key := keyString key' <> cert := certString cert'
+        sslOpts <- liftEffect $ sslOptions
         close <-
-          EffectClass.liftEffect
-            $ Server.serveSecure' sslOpts (options 8080) mockRouter
+          liftEffect
+            $ serveSecure' sslOpts options mockRouter
             $ pure unit
-        out <- TestHelpers.get' 8080 Object.empty "/test"
-        EffectClass.liftEffect $ close $ pure unit
+        out <- get' 8080 empty "/test"
+        liftEffect $ close $ pure unit
         out ?= "/test"
-  where
-  options port = { hostname: "localhost", port, backlog: Maybe.Nothing }
 
-  sslOptions = do
-    cert <- FSSync.readTextFile Encoding.UTF8 "./test/Mocks/Certificate.cer"
-    key <- FSSync.readTextFile Encoding.UTF8 "./test/Mocks/Key.key"
-    pure $
-      HTTPS.key := HTTPS.keyString key
-        <> HTTPS.cert := HTTPS.certString cert
-
-serverSpec :: TestHelpers.Test
+serverSpec :: Test
 serverSpec =
-  Spec.describe "Server" do
+  describe "Server" do
     serveSpec
     serve'Spec
     serveSecureSpec

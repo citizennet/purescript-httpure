@@ -1,25 +1,25 @@
 module Examples.MultiRoute.Main where
 
 import Prelude
-import Effect.Console as Console
-import HTTPure as HTTPure
+import Effect.Console (log)
+import HTTPure (Request, ResponseM, ServerM, serve, ok, notFound)
 
 -- | Specify the routes
-router :: HTTPure.Request -> HTTPure.ResponseM
-router { path: [ "hello" ] } = HTTPure.ok "hello"
-router { path: [ "goodbye" ] } = HTTPure.ok "goodbye"
-router _ = HTTPure.notFound
+router :: Request -> ResponseM
+router { path: [ "hello" ] } = ok "hello"
+router { path: [ "goodbye" ] } = ok "goodbye"
+router _ = notFound
 
 -- | Boot up the server
-main :: HTTPure.ServerM
+main :: ServerM
 main =
-  HTTPure.serve 8080 router do
-    Console.log $ " ┌────────────────────────────────┐"
-    Console.log $ " │ Server now up on port 8080     │"
-    Console.log $ " │                                │"
-    Console.log $ " │ To test, run:                  │"
-    Console.log $ " │  > curl localhost:8080/hello   │"
-    Console.log $ " │    # => hello                  │"
-    Console.log $ " │  > curl localhost:8080/goodbye │"
-    Console.log $ " │    # => goodbye                │"
-    Console.log $ " └────────────────────────────────┘"
+  serve 8080 router do
+    log " ┌────────────────────────────────┐"
+    log " │ Server now up on port 8080     │"
+    log " │                                │"
+    log " │ To test, run:                  │"
+    log " │  > curl localhost:8080/hello   │"
+    log " │    # => hello                  │"
+    log " │  > curl localhost:8080/goodbye │"
+    log " │    # => goodbye                │"
+    log " └────────────────────────────────┘"
