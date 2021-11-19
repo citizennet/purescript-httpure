@@ -4,34 +4,34 @@ import Prelude
 import Control.Monad.Reader (class MonadAsk, ReaderT, asks, runReaderT)
 import Effect.Aff (Aff)
 import Effect.Aff.Class (class MonadAff)
-import Effect.Console as Console
-import HTTPure as HTTPure
+import Effect.Console (log)
+import HTTPure (Request, Response, ResponseM, ServerM, serve, ok)
 
 -- | A type to hold the environment for our ReaderT
 type Env = { name :: String }
 
 -- | A middleware that introduces a ReaderT
 readerMiddleware ::
-  (HTTPure.Request -> ReaderT Env Aff HTTPure.Response) ->
-  HTTPure.Request ->
-  HTTPure.ResponseM
+  (Request -> ReaderT Env Aff Response) ->
+  Request ->
+  ResponseM
 readerMiddleware router request = do
   runReaderT (router request) { name: "joe" }
 
 -- | Say 'hello, joe' when run
-sayHello :: forall m. MonadAff m => MonadAsk Env m => HTTPure.Request -> m HTTPure.Response
+sayHello :: forall m. MonadAff m => MonadAsk Env m => Request -> m Response
 sayHello _ = do
   name <- asks _.name
-  HTTPure.ok $ "hello, " <> name
+  ok $ "hello, " <> name
 
 -- | Boot up the server
-main :: HTTPure.ServerM
+main :: ServerM
 main =
-  HTTPure.serve 8080 (readerMiddleware sayHello) do
-    Console.log $ " ┌───────────────────────────────────────┐"
-    Console.log $ " │ Server now up on port 8080            │"
-    Console.log $ " │                                       │"
-    Console.log $ " │ To test, run:                         │"
-    Console.log $ " │  > curl -v localhost:8080             │"
-    Console.log $ " │    # => hello, joe                    │"
-    Console.log $ " └───────────────────────────────────────┘"
+  serve 8080 (readerMiddleware sayHello) do
+    log " ┌───────────────────────────────────────┐"
+    log " │ Server now up on port 8080            │"
+    log " │                                       │"
+    log " │ To test, run:                         │"
+    log " │  > curl -v localhost:8080             │"
+    log " │    # => hello, joe                    │"
+    log " └───────────────────────────────────────┘"

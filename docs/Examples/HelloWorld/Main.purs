@@ -1,16 +1,16 @@
 module Examples.HelloWorld.Main where
 
 import Prelude
-import Effect.Console as Console
-import HTTPure as HTTPure
+import Effect.Console (log)
+import HTTPure (ServerM, serve, ok)
 
 -- | Boot up the server
-main :: HTTPure.ServerM
+main :: ServerM
 main =
-  HTTPure.serve 8080 (const $ HTTPure.ok "hello world!") do
-    Console.log $ " ┌────────────────────────────────────────────┐"
-    Console.log $ " │ Server now up on port 8080                 │"
-    Console.log $ " │                                            │"
-    Console.log $ " │ To test, run:                              │"
-    Console.log $ " │  > curl localhost:8080   # => hello world! │"
-    Console.log $ " └────────────────────────────────────────────┘"
+  serve 8080 (const $ ok "hello world!") do
+    log " ┌────────────────────────────────────────────┐"
+    log " │ Server now up on port 8080                 │"
+    log " │                                            │"
+    log " │ To test, run:                              │"
+    log " │  > curl localhost:8080   # => hello world! │"
+    log " └────────────────────────────────────────────┘"

@@ -1,22 +1,31 @@
 module Examples.Post.Main where
 
 import Prelude
-import Effect.Console as Console
-import HTTPure as HTTPure
+import Effect.Console (log)
+import HTTPure
+  ( Request
+  , ResponseM
+  , ServerM
+  , Method(Post)
+  , serve
+  , ok
+  , notFound
+  , toString
+  )
 
 -- | Route to the correct handler
-router :: HTTPure.Request -> HTTPure.ResponseM
-router { body, method: HTTPure.Post } = HTTPure.toString body >>= HTTPure.ok
-router _ = HTTPure.notFound
+router :: Request -> ResponseM
+router { body, method: Post } = toString body >>= ok
+router _ = notFound
 
 -- | Boot up the server
-main :: HTTPure.ServerM
+main :: ServerM
 main =
-  HTTPure.serve 8080 router do
-    Console.log $ " ┌───────────────────────────────────────────┐"
-    Console.log $ " │ Server now up on port 8080                │"
-    Console.log $ " │                                           │"
-    Console.log $ " │ To test, run:                             │"
-    Console.log $ " │  > curl -XPOST --data test localhost:8080 │"
-    Console.log $ " │    # => test                              │"
-    Console.log $ " └───────────────────────────────────────────┘"
+  serve 8080 router do
+    log " ┌───────────────────────────────────────────┐"
+    log " │ Server now up on port 8080                │"
+    log " │                                           │"
+    log " │ To test, run:                             │"
+    log " │  > curl -XPOST --data test localhost:8080 │"
+    log " │    # => test                              │"
+    log " └───────────────────────────────────────────┘"

@@ -5,15 +5,15 @@ module HTTPure.Utils
   ) where
 
 import Prelude
-import Data.Maybe as Maybe
-import Data.String as String
-import JSURI as JSURI
+import Data.Maybe (fromMaybe)
+import Data.String (Pattern(Pattern), Replacement(Replacement), replaceAll)
+import JSURI (encodeURIComponent, decodeURIComponent) as JSURI
 
 encodeURIComponent :: String -> String
-encodeURIComponent s = Maybe.fromMaybe s $ JSURI.encodeURIComponent s
+encodeURIComponent s = fromMaybe s $ JSURI.encodeURIComponent s
 
 replacePlus :: String -> String
-replacePlus = String.replaceAll (String.Pattern "+") (String.Replacement "%20")
+replacePlus = replaceAll (Pattern "+") (Replacement "%20")
 
 urlDecode :: String -> String
-urlDecode s = Maybe.fromMaybe s $ JSURI.decodeURIComponent s
+urlDecode s = fromMaybe s $ JSURI.decodeURIComponent s

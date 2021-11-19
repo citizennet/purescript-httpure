@@ -5,28 +5,34 @@ module HTTPure.Request
   ) where
 
 import Prelude
-import Effect.Aff as Aff
-import Data.String as String
-import Foreign.Object as Object
-import Node.HTTP as HTTP
-import Node.Stream as Stream
-import HTTPure.Body as Body
-import HTTPure.Headers as Headers
-import HTTPure.Method as Method
-import HTTPure.Path as Path
-import HTTPure.Query as Query
+import Effect.Aff (Aff)
+import Data.String (joinWith)
+import Foreign.Object (isEmpty, toArrayWithKey)
+import Node.HTTP (requestURL)
+import Node.HTTP (Request) as HTTP
+import Node.Stream (Readable)
+import HTTPure.Body (read) as Body
+import HTTPure.Headers (Headers)
+import HTTPure.Headers (read) as Headers
+import HTTPure.Method (Method)
+import HTTPure.Method (read) as Method
+import HTTPure.Path (Path)
+import HTTPure.Path (read) as Path
+import HTTPure.Query (Query)
+import HTTPure.Query (read) as Query
 import HTTPure.Utils (encodeURIComponent)
-import HTTPure.Version as Version
+import HTTPure.Version (Version)
+import HTTPure.Version (read) as Version
 
 -- | The `Request` type is a `Record` type that includes fields for accessing
 -- | the different parts of the HTTP request.
 type Request =
-  { method :: Method.Method
-  , path :: Path.Path
-  , query :: Query.Query
-  , headers :: Headers.Headers
-  , body :: Stream.Readable ()
-  , httpVersion :: Version.Version
+  { method :: Method
+  , path :: Path
+  , query :: Query
+  , headers :: Headers
+  , body :: Readable ()
+  , httpVersion :: Version
   , url :: String
   }
 
@@ -36,19 +42,15 @@ type Request =
 fullPath :: Request -> String
 fullPath request = "/" <> path <> questionMark <> queryParams
   where
-  path = String.joinWith "/" request.path
-
-  questionMark = if Object.isEmpty request.query then "" else "?"
-
-  queryParams = String.joinWith "&" queryParamsArr
-
-  queryParamsArr = Object.toArrayWithKey stringifyQueryParam request.query
-
+  path = joinWith "/" request.path
+  questionMark = if isEmpty request.query then "" else "?"
+  queryParams = joinWith "&" queryParamsArr
+  queryParamsArr = toArrayWithKey stringifyQueryParam request.query
   stringifyQueryParam key value = encodeURIComponent key <> "=" <> encodeURIComponent value
 
 -- | Given an HTTP `Request` object, this method will convert it to an HTTPure
 -- | `Request` object.
-fromHTTPRequest :: HTTP.Request -> Aff.Aff Request
+fromHTTPRequest :: HTTP.Request -> Aff Request
 fromHTTPRequest request = pure
   { method: Method.read request
   , path: Path.read request
@@ -56,5 +58,5 @@ fromHTTPRequest request = pure
   , headers: Headers.read request
   , body: Body.read request
   , httpVersion: Version.read request
-  , url: HTTP.requestURL request
+  , url: requestURL request
   }

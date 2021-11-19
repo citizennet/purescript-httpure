@@ -24,7 +24,7 @@ You can create an HTTPure server without SSL using `HTTPure.serve`:
 
 ```purescript
 main :: HTTPure.ServerM
-main = HTTPure.serve 8080 router $ Console.log "Server up"
+main = HTTPure.serve 8080 router $ log "Server up"
 ```
 
 Most of the [examples](./Examples), besides [the SSL Example](./Examples/SSL),
@@ -35,7 +35,7 @@ You can also create a server using a custom
 
 ```purescript
 main :: HTTPure.ServerM
-main = HTTPure.serve' customOptions router $ Console.log "Server up"
+main = HTTPure.serve' customOptions router $ log "Server up"
 ```
 
 ## SSL
@@ -48,7 +48,7 @@ path to a cert file and a path to a key file after the port number:
 main :: HTTPure.ServerM
 main =
   HTTPure.serveSecure 8080 "./Certificate.cer" "./Key.key" router $
-    Console.log "Server up"
+    log "Server up"
 ```
 
 You can look at [the SSL Example](./Examples/SSL/Main.purs), which uses this
@@ -62,12 +62,13 @@ You can also create a server using a
 main :: HTTPure.ServerM
 main =
   HTTPure.serveSecure' customSSLOptions customOptions router $
-    Console.log "Server up"
+    log "Server up"
 ```
 
 ## Shutdown hook
 
 To gracefully shut down a server you can add a shutdown hook. For this you will need to add the following dependencies:
+
 ```
 posix-types
 node-process
@@ -78,17 +79,17 @@ Then take the closing handler returned by `serve` and create a `SIGINT` and `SIG
 ```purescript
 import Prelude
 
-import Data.Posix.Signal (Signal(..))
+import Data.Posix.Signal (Signal(SIGINT, SIGTERM))
 import Effect (Effect)
-import Effect.Console as Console
-import HTTPure as HTTPure
+import Effect.Console (log)
+import HTTPure (serve, ok)
 import Node.Process (onSignal)
 
 main :: Effect Unit
 main = do 
-  closingHandler <- HTTPure.serve 8080 (const $ HTTPure.ok "hello world!") do
-    Console.log $ "Server now up on port 8080"
+  closingHandler <- serve 8080 (const $ ok "hello world!") do
+    log $ "Server now up on port 8080"
 
-  onSignal SIGINT $ closingHandler $ Console.log "Received SIGINT, stopping service now."  
-  onSignal SIGTERM $ closingHandler $ Console.log "Received SIGTERM, stopping service now."  
+  onSignal SIGINT $ closingHandler $ log "Received SIGINT, stopping service now."
+  onSignal SIGTERM $ closingHandler $ log "Received SIGTERM, stopping service now."
 ```

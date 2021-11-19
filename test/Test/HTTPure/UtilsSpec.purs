@@ -1,13 +1,16 @@
 module Test.HTTPure.UtilsSpec where
 
-import Test.Spec as Spec
-import HTTPure.Utils as Utils
-import Test.HTTPure.TestHelpers as TestHelpers
-import Test.HTTPure.TestHelpers ((?=))
+import Test.Spec (describe, it)
+import HTTPure.Utils (replacePlus)
+import Test.HTTPure.TestHelpers (Test, (?=))
 
-utilsSpec :: TestHelpers.Test
+replacePlusSpec :: Test
+replacePlusSpec =
+  describe "replacePlus" do
+    it "should replace all pluses" do
+      replacePlus "foo+bar+baz" ?= "foo%20bar%20baz"
+
+utilsSpec :: Test
 utilsSpec =
-  Spec.describe "replacePlus" do
-    Spec.it "should replace all pluses" do
-      Utils.replacePlus "HTTPPure+is+A+purescript+HTTP+server+framework"
-        ?= "HTTPPure%20is%20A%20purescript%20HTTP%20server%20framework"
+  describe "Utils" do
+    replacePlusSpec

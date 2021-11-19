@@ -4,7 +4,7 @@ module HTTPure.Method
   ) where
 
 import Prelude
-import Node.HTTP as HTTP
+import Node.HTTP (Request, requestMethod)
 
 -- | These are the HTTP methods that HTTPure understands.
 data Method
@@ -34,8 +34,8 @@ instance showMethod :: Show Method where
   show Patch = "Patch"
 
 -- | Take an HTTP `Request` and extract the `Method` for that request.
-read :: HTTP.Request -> Method
-read request = case HTTP.requestMethod request of
+read :: Request -> Method
+read = requestMethod >>> case _ of
   "POST" -> Post
   "PUT" -> Put
   "DELETE" -> Delete

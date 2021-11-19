@@ -1,37 +1,37 @@
 module Test.Main where
 
 import Prelude
-import Effect.Aff as Aff
-import Test.Spec as Spec
-import Test.Spec.Reporter as Reporter
-import Test.Spec.Runner as Runner
-import Test.HTTPure.BodySpec as BodySpec
-import Test.HTTPure.HeadersSpec as HeadersSpec
-import Test.HTTPure.LookupSpec as LookupSpec
-import Test.HTTPure.MethodSpec as MethodSpec
-import Test.HTTPure.PathSpec as PathSpec
-import Test.HTTPure.QuerySpec as QuerySpec
-import Test.HTTPure.RequestSpec as RequestSpec
-import Test.HTTPure.ResponseSpec as ResponseSpec
-import Test.HTTPure.ServerSpec as ServerSpec
-import Test.HTTPure.StatusSpec as StatusSpec
-import Test.HTTPure.UtilsSpec as UtilsSpec
-import Test.HTTPure.VersionSpec as VersionSpec
-import Test.HTTPure.IntegrationSpec as IntegrationSpec
-import Test.HTTPure.TestHelpers as TestHelpers
+import Effect.Aff (launchAff_)
+import Test.Spec (describe)
+import Test.Spec.Reporter (specReporter)
+import Test.Spec.Runner (runSpec)
+import Test.HTTPure.BodySpec (bodySpec)
+import Test.HTTPure.HeadersSpec (headersSpec)
+import Test.HTTPure.LookupSpec (lookupSpec)
+import Test.HTTPure.MethodSpec (methodSpec)
+import Test.HTTPure.PathSpec (pathSpec)
+import Test.HTTPure.QuerySpec (querySpec)
+import Test.HTTPure.RequestSpec (requestSpec)
+import Test.HTTPure.ResponseSpec (responseSpec)
+import Test.HTTPure.ServerSpec (serverSpec)
+import Test.HTTPure.StatusSpec (statusSpec)
+import Test.HTTPure.UtilsSpec (utilsSpec)
+import Test.HTTPure.VersionSpec (versionSpec)
+import Test.HTTPure.IntegrationSpec (integrationSpec)
+import Test.HTTPure.TestHelpers (TestSuite)
 
-main :: TestHelpers.TestSuite
-main = Aff.launchAff_ $ Runner.runSpec [ Reporter.specReporter ] $ Spec.describe "HTTPure" do
-  BodySpec.bodySpec
-  HeadersSpec.headersSpec
-  LookupSpec.lookupSpec
-  MethodSpec.methodSpec
-  PathSpec.pathSpec
-  QuerySpec.querySpec
-  RequestSpec.requestSpec
-  ResponseSpec.responseSpec
-  ServerSpec.serverSpec
-  StatusSpec.statusSpec
-  UtilsSpec.utilsSpec
-  VersionSpec.versionSpec
-  IntegrationSpec.integrationSpec
+main :: TestSuite
+main = launchAff_ $ runSpec [ specReporter ] $ describe "HTTPure" do
+  bodySpec
+  headersSpec
+  lookupSpec
+  methodSpec
+  pathSpec
+  querySpec
+  requestSpec
+  responseSpec
+  serverSpec
+  statusSpec
+  utilsSpec
+  versionSpec
+  integrationSpec

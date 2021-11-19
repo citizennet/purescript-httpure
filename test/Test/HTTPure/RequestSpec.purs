@@ -1,83 +1,82 @@
 module Test.HTTPure.RequestSpec where
 
 import Prelude
-import Data.Tuple as Tuple
-import Foreign.Object as Object
-import Test.Spec as Spec
-import HTTPure.Body as Body
-import HTTPure.Headers as Headers
-import HTTPure.Method as Method
-import HTTPure.Request as Request
-import HTTPure.Version as Version
-import Test.HTTPure.TestHelpers as TestHelpers
-import Test.HTTPure.TestHelpers ((?=))
+import Data.Tuple (Tuple(Tuple))
+import Foreign.Object (singleton)
+import Test.Spec (describe, it)
+import HTTPure.Body (toString)
+import HTTPure.Headers (headers)
+import HTTPure.Method (Method(Post))
+import HTTPure.Request (fromHTTPRequest, fullPath)
+import HTTPure.Version (Version(HTTP1_1))
+import Test.HTTPure.TestHelpers (Test, (?=), mockRequest)
 
-fromHTTPRequestSpec :: TestHelpers.Test
+fromHTTPRequestSpec :: Test
 fromHTTPRequestSpec =
-  Spec.describe "fromHTTPRequest" do
-    Spec.it "contains the correct method" do
-      mock <- mockRequest
-      mock.method ?= Method.Post
-    Spec.it "contains the correct path" do
-      mock <- mockRequest
+  describe "fromHTTPRequest" do
+    it "contains the correct method" do
+      mock <- mockRequest'
+      mock.method ?= Post
+    it "contains the correct path" do
+      mock <- mockRequest'
       mock.path ?= [ "test" ]
-    Spec.it "contains the correct query" do
-      mock <- mockRequest
-      mock.query ?= Object.singleton "a" "b"
-    Spec.it "contains the correct headers" do
-      mock <- mockRequest
-      mock.headers ?= Headers.headers mockHeaders
-    Spec.it "contains the correct body" do
-      mockBody <- mockRequest >>= _.body >>> Body.toString
+    it "contains the correct query" do
+      mock <- mockRequest'
+      mock.query ?= singleton "a" "b"
+    it "contains the correct headers" do
+      mock <- mockRequest'
+      mock.headers ?= headers mockHeaders
+    it "contains the correct body" do
+      mockBody <- mockRequest' >>= _.body >>> toString
       mockBody ?= "body"
-    Spec.it "contains the correct httpVersion" do
-      mock <- mockRequest
-      mock.httpVersion ?= Version.HTTP1_1
+    it "contains the correct httpVersion" do
+      mock <- mockRequest'
+      mock.httpVersion ?= HTTP1_1
   where
-  mockHeaders = [ Tuple.Tuple "Test" "test" ]
+  mockHeaders = [ Tuple "Test" "test" ]
 
-  mockHTTPRequest = TestHelpers.mockRequest "1.1" "POST" "/test?a=b" "body" mockHeaders
+  mockHTTPRequest = mockRequest "1.1" "POST" "/test?a=b" "body" mockHeaders
 
-  mockRequest = mockHTTPRequest >>= Request.fromHTTPRequest
+  mockRequest' = mockHTTPRequest >>= fromHTTPRequest
 
-fullPathSpec :: TestHelpers.Test
+fullPathSpec :: Test
 fullPathSpec =
-  Spec.describe "fullPath" do
-    Spec.describe "without query parameters" do
-      Spec.it "is correct" do
-        mock <- mockRequest "/foo/bar"
-        Request.fullPath mock ?= "/foo/bar"
-    Spec.describe "with empty path segments" do
-      Spec.it "strips the empty segments" do
-        mock <- mockRequest "//foo////bar/"
-        Request.fullPath mock ?= "/foo/bar"
-    Spec.describe "with only query parameters" do
-      Spec.it "is correct" do
-        mock <- mockRequest "?a=b&c=d"
-        Request.fullPath mock ?= "/?a=b&c=d"
-    Spec.describe "with only empty query parameters" do
-      Spec.it "is has the default value of '' for the empty parameters" do
-        mock <- mockRequest "?a"
-        Request.fullPath mock ?= "/?a="
-    Spec.describe "with query parameters that have special characters" do
-      Spec.it "percent encodes query params" do
-        mock <- mockRequest "?a=%3Fx%3Dtest"
-        Request.fullPath mock ?= "/?a=%3Fx%3Dtest"
-    Spec.describe "with empty query parameters" do
-      Spec.it "strips out the empty arameters" do
-        mock <- mockRequest "?a=b&&&"
-        Request.fullPath mock ?= "/?a=b"
-    Spec.describe "with a mix of segments and query parameters" do
-      Spec.it "is correct" do
-        mock <- mockRequest "/foo///bar/?&a=b&&c"
-        Request.fullPath mock ?= "/foo/bar?a=b&c="
+  describe "fullPath" do
+    describe "without query parameters" do
+      it "is correct" do
+        mock <- mockRequest' "/foo/bar"
+        fullPath mock ?= "/foo/bar"
+    describe "with empty path segments" do
+      it "strips the empty segments" do
+        mock <- mockRequest' "//foo////bar/"
+        fullPath mock ?= "/foo/bar"
+    describe "with only query parameters" do
+      it "is correct" do
+        mock <- mockRequest' "?a=b&c=d"
+        fullPath mock ?= "/?a=b&c=d"
+    describe "with only empty query parameters" do
+      it "is has the default value of '' for the empty parameters" do
+        mock <- mockRequest' "?a"
+        fullPath mock ?= "/?a="
+    describe "with query parameters that have special characters" do
+      it "percent encodes query params" do
+        mock <- mockRequest' "?a=%3Fx%3Dtest"
+        fullPath mock ?= "/?a=%3Fx%3Dtest"
+    describe "with empty query parameters" do
+      it "strips out the empty arameters" do
+        mock <- mockRequest' "?a=b&&&"
+        fullPath mock ?= "/?a=b"
+    describe "with a mix of segments and query parameters" do
+      it "is correct" do
+        mock <- mockRequest' "/foo///bar/?&a=b&&c"
+        fullPath mock ?= "/foo/bar?a=b&c="
   where
-  mockHTTPRequest path = TestHelpers.mockRequest "" "POST" path "body" []
+  mockHTTPRequest path = mockRequest "" "POST" path "body" []
 
-  mockRequest path = mockHTTPRequest path >>= Request.fromHTTPRequest
+  mockRequest' path = mockHTTPRequest path >>= fromHTTPRequest
 
-requestSpec :: TestHelpers.Test
+requestSpec :: Test
 requestSpec =
-  Spec.describe "Request" do
+  describe "Request" do
     fromHTTPRequestSpec
     fullPathSpec

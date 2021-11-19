@@ -1,36 +1,35 @@
 module Examples.Chunked.Main where
 
 import Prelude
-import Effect.Aff as Aff
-import Effect.Class as EffectClass
-import Effect.Console as Console
-import HTTPure as HTTPure
-import Node.ChildProcess as ChildProcess
-import Node.Stream as Stream
+import Effect.Aff (Aff)
+import Effect.Class (liftEffect)
+import Effect.Console (log)
+import HTTPure (ServerM, Request, ResponseM, serve, ok)
+import Node.ChildProcess (stdout, spawn, defaultSpawnOptions)
+import Node.Stream (Readable)
 
 -- | Run a script and return it's stdout stream
-runScript :: String -> Aff.Aff (Stream.Readable ())
+runScript :: String -> Aff (Readable ())
 runScript script =
-  EffectClass.liftEffect $ ChildProcess.stdout
-    <$> ChildProcess.spawn "sh" [ "-c", script ] ChildProcess.defaultSpawnOptions
+  liftEffect $ stdout <$> spawn "sh" [ "-c", script ] defaultSpawnOptions
 
 -- | Say 'hello world!' in chunks when run
-sayHello :: HTTPure.Request -> HTTPure.ResponseM
-sayHello = const $ runScript "echo 'hello '; sleep 1; echo 'world!'" >>= HTTPure.ok
+sayHello :: Request -> ResponseM
+sayHello = const $ runScript "echo 'hello '; sleep 1; echo 'world!'" >>= ok
 
 -- | Boot up the server
-main :: HTTPure.ServerM
+main :: ServerM
 main =
-  HTTPure.serve 8080 sayHello do
-    Console.log $ " ┌──────────────────────────────────────┐"
-    Console.log $ " │ Server now up on port 8080           │"
-    Console.log $ " │                                      │"
-    Console.log $ " │ To test, run:                        │"
-    Console.log $ " │  > curl -Nv localhost:8080           │"
-    Console.log $ " │    # => ...                          │"
-    Console.log $ " │    # => < Transfer-Encoding: chunked │"
-    Console.log $ " │    # => ...                          │"
-    Console.log $ " │    # => hello                        │"
-    Console.log $ " │    (1 second pause)                  │"
-    Console.log $ " │    # => world!                       │"
-    Console.log $ " └──────────────────────────────────────┘"
+  serve 8080 sayHello do
+    log " ┌──────────────────────────────────────┐"
+    log " │ Server now up on port 8080           │"
+    log " │                                      │"
+    log " │ To test, run:                        │"
+    log " │  > curl -Nv localhost:8080           │"
+    log " │    # => ...                          │"
+    log " │    # => < Transfer-Encoding: chunked │"
+    log " │    # => ...                          │"
+    log " │    # => hello                        │"
+    log " │    (1 second pause)                  │"
+    log " │    # => world!                       │"
+    log " └──────────────────────────────────────┘"

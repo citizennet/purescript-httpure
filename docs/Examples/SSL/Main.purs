@@ -1,8 +1,8 @@
 module Examples.SSL.Main where
 
 import Prelude
-import Effect.Console as Console
-import HTTPure as HTTPure
+import Effect.Console (log)
+import HTTPure (Request, ResponseM, ServerM, serveSecure, ok)
 
 -- | The path to the certificate file
 cert :: String
@@ -13,17 +13,17 @@ key :: String
 key = "./docs/Examples/SSL/Key.key"
 
 -- | Say 'hello world!' when run
-sayHello :: HTTPure.Request -> HTTPure.ResponseM
-sayHello _ = HTTPure.ok "hello world!"
+sayHello :: Request -> ResponseM
+sayHello _ = ok "hello world!"
 
 -- | Boot up the server
-main :: HTTPure.ServerM
+main :: ServerM
 main =
-  HTTPure.serveSecure 8080 cert key sayHello do
-    Console.log $ " ┌───────────────────────────────────────────┐"
-    Console.log $ " │ Server now up on port 8080                │"
-    Console.log $ " │                                           │"
-    Console.log $ " │ To test, run:                             │"
-    Console.log $ " │  > curl --insecure https://localhost:8080 │"
-    Console.log $ " │    # => hello world!                      │"
-    Console.log $ " └───────────────────────────────────────────┘"
+  serveSecure 8080 cert key sayHello do
+    log " ┌───────────────────────────────────────────┐"
+    log " │ Server now up on port 8080                │"
+    log " │                                           │"
+    log " │ To test, run:                             │"
+    log " │  > curl --insecure https://localhost:8080 │"
+    log " │    # => hello world!                      │"
+    log " └───────────────────────────────────────────┘"

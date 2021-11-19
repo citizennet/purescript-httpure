@@ -69,16 +69,15 @@ module HTTPure.Status
   ) where
 
 import Prelude
-import Effect as Effect
-import Node.HTTP as HTTP
+import Effect (Effect)
+import Node.HTTP (Response, setStatusCode)
 
 -- | The `Status` type enumerates all valid HTTP response status codes.
-type Status
-  = Int
+type Status = Int
 
 -- | Write a status to a given HTTP `Response`.
-write :: HTTP.Response -> Status -> Effect.Effect Unit
-write = HTTP.setStatusCode
+write :: Response -> Status -> Effect Unit
+write = setStatusCode
 
 ---------
 -- 1xx --
