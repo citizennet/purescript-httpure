@@ -13,7 +13,6 @@ import Data.Array (index)
 import Data.Map (Map)
 import Data.Map (lookup) as Map
 import Data.Maybe (Maybe, fromMaybe, isJust)
-import Data.Monoid (class Monoid, mempty)
 import Data.String.CaseInsensitive (CaseInsensitiveString(CaseInsensitiveString))
 import Foreign.Object (Object)
 import Foreign.Object (lookup) as Object
