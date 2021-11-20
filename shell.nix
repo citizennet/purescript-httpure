@@ -12,17 +12,13 @@ let
       '';
     };
   };
-  purs-tidy-overlay = pkgs: _: {
-    inherit (import sources.easy-purescript-nix { inherit pkgs; }) purs-tidy;
-  };
-  unstable-packages-overlay = _: _: {
-    inherit (import sources.nixpkgs-unstable {}) purescript;
+  easy-purescript-nix-overlay = pkgs: _: {
+    inherit (import sources.easy-purescript-nix { inherit pkgs; }) purescript purs-tidy spago;
   };
   pkgs = import sources.nixpkgs {
     overlays = [
       niv-overlay
-      purs-tidy-overlay
-      unstable-packages-overlay
+      easy-purescript-nix-overlay
     ];
   };
   build = pkgs.writeShellScriptBin "build" ''
