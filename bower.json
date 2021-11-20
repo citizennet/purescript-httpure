@@ -1,0 +1,41 @@
+{
+    "name": "purescript-httpure",
+    "license": [
+        "MIT"
+    ],
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/cprussin/purescript-httpure.git"
+    },
+    "ignore": [
+        "**/.*",
+        "node_modules",
+        "bower_components",
+        "output"
+    ],
+    "dependencies": {
+        "purescript-aff": "^v6.0.0",
+        "purescript-arrays": "^v6.0.1",
+        "purescript-bifunctors": "^v5.0.0",
+        "purescript-console": "^v5.0.0",
+        "purescript-effect": "^v3.0.0",
+        "purescript-either": "^v5.0.0",
+        "purescript-foldable-traversable": "^v5.0.1",
+        "purescript-foreign-object": "^v3.0.0",
+        "purescript-js-uri": "https://github.com/purescript-contrib/purescript-js-uri.git#v2.0.0",
+        "purescript-maybe": "^v5.0.0",
+        "purescript-newtype": "^v4.0.0",
+        "purescript-node-buffer": "^v7.0.1",
+        "purescript-node-fs": "^v6.1.0",
+        "purescript-node-http": "^v6.0.0",
+        "purescript-node-streams": "^v5.0.0",
+        "purescript-options": "^v6.0.0",
+        "purescript-ordered-collections": "^v2.0.1",
+        "purescript-prelude": "^v5.0.1",
+        "purescript-psci-support": "^v5.0.0",
+        "purescript-refs": "^v5.0.0",
+        "purescript-strings": "^v5.0.0",
+        "purescript-tuples": "^v6.0.1",
+        "purescript-type-equality": "^v4.0.0"
+    }
+}
