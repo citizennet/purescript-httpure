@@ -1,3 +1,8 @@
+0.13.0 / 2021-11-20
+===================
+- Ensure correct ordering on stream operations
+- Add support for non-string requests (thanks **@sigma-andex**)
+
 0.12.0 / 2021-03-20
 ===================
 - Bump all dependency versions
