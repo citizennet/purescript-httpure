@@ -82,7 +82,7 @@ instance bodyBuffer :: Body Buffer where
 -- | `Transfer-Encoding` header to indicate chunked data.  To write the data, we
 -- | simply pipe the newtype-wrapped `Stream` to the response.
 instance bodyChunked ::
-  TypeEquals (Stream r) (Readable ()) =>
+  TypeEquals (Stream r) (Readable s) =>
   Body (Stream r) where
   defaultHeaders _ = pure $ header "Transfer-Encoding" "chunked"
   write body response = makeAff \done -> do
