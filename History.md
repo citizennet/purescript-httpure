@@ -1,3 +1,7 @@
+0.13.1 / 2021-11-29
+===================
+- Support Duplex streams as responses (thanks **@arthurxavierx**)
+
 0.13.0 / 2021-11-20
 ===================
 - Ensure correct ordering on stream operations
