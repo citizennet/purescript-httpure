@@ -2,14 +2,15 @@ module Examples.BinaryRequest.Main where
 
 import Prelude
 import Effect.Console (log)
+import HTTPure (Request, ResponseM, ServerM, ok, serve)
+import HTTPure.Request (readBodyAsBuffer)
 import Node.Buffer (Buffer)
-import HTTPure (Request, ResponseM, ServerM, toBuffer, serve, ok)
 
 foreign import sha256sum :: Buffer -> String
 
 -- | Respond with file's sha256sum
 router :: Request -> ResponseM
-router { body } = toBuffer body >>= sha256sum >>> ok
+router request = readBodyAsBuffer request >>= sha256sum >>> ok
 
 -- | Boot up the server
 main :: ServerM

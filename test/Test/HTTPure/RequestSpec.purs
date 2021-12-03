@@ -3,13 +3,12 @@ module Test.HTTPure.RequestSpec where
 import Prelude
 import Data.Tuple (Tuple(Tuple))
 import Foreign.Object (singleton)
-import Test.Spec (describe, it)
-import HTTPure.Body (toString)
 import HTTPure.Headers (headers)
 import HTTPure.Method (Method(Post))
-import HTTPure.Request (fromHTTPRequest, fullPath)
+import HTTPure.Request (fromHTTPRequest, fullPath, readBodyAsString)
 import HTTPure.Version (Version(HTTP1_1))
 import Test.HTTPure.TestHelpers (Test, (?=), mockRequest)
+import Test.Spec (describe, it)
 
 fromHTTPRequestSpec :: Test
 fromHTTPRequestSpec =
@@ -27,7 +26,7 @@ fromHTTPRequestSpec =
       mock <- mockRequest'
       mock.headers ?= headers mockHeaders
     it "contains the correct body" do
-      mockBody <- mockRequest' >>= _.body >>> toString
+      mockBody <- mockRequest' >>= readBodyAsString
       mockBody ?= "body"
     it "contains the correct httpVersion" do
       mock <- mockRequest'
