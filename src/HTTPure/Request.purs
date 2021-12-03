@@ -1,17 +1,18 @@
 module HTTPure.Request
-  ( Request
+  ( Body(..)
+  , Request
   , fromHTTPRequest
   , fullPath
   ) where
 
 import Prelude
-import Effect.Aff (Aff)
+import Data.Maybe (Maybe(..))
 import Data.String (joinWith)
+import Effect.Aff (Aff)
+import Effect.Class (liftEffect)
+import Effect.Ref (Ref)
 import Foreign.Object (isEmpty, toArrayWithKey)
-import Node.HTTP (requestURL)
-import Node.HTTP (Request) as HTTP
-import Node.Stream (Readable)
-import HTTPure.Body (read) as Body
+import HTTPure.Body (read, toBuffer) as Body
 import HTTPure.Headers (Headers)
 import HTTPure.Headers (read) as Headers
 import HTTPure.Method (Method)
@@ -23,6 +24,12 @@ import HTTPure.Query (read) as Query
 import HTTPure.Utils (encodeURIComponent)
 import HTTPure.Version (Version)
 import HTTPure.Version (read) as Version
+import Node.Buffer (Buffer)
+import Node.Buffer as Buffer
+import Node.Encoding (Encoding(..))
+import Node.HTTP (Request) as HTTP
+import Node.HTTP (requestURL)
+import Node.Stream (Readable)
 
 -- | The `Request` type is a `Record` type that includes fields for accessing
 -- | the different parts of the HTTP request.
@@ -31,9 +38,15 @@ type Request =
   , path :: Path
   , query :: Query
   , headers :: Headers
-  , body :: Readable ()
+  , body :: Ref Body
   , httpVersion :: Version
   , url :: String
+  }
+
+type Body =
+  { buffer :: Maybe Buffer
+  , stream :: Readable ()
+  , string :: Maybe String
   }
 
 -- | Return the full resolved path, including query parameters. This may not
@@ -51,12 +64,21 @@ fullPath request = "/" <> path <> questionMark <> queryParams
 -- | Given an HTTP `Request` object, this method will convert it to an HTTPure
 -- | `Request` object.
 fromHTTPRequest :: HTTP.Request -> Aff Request
-fromHTTPRequest request = pure
-  { method: Method.read request
-  , path: Path.read request
-  , query: Query.read request
-  , headers: Headers.read request
-  , body: Body.read request
-  , httpVersion: Version.read request
-  , url: requestURL request
-  }
+fromHTTPRequest request = do
+  body <-
+    liftEffect
+      $ Ref.new
+          { buffer: Nothing
+          , stream: Body.read request
+          , string: Nothing
+          }
+  pure
+    { method: Method.read request
+    , path: Path.read request
+    , query: Query.read request
+    , headers: Headers.read request
+    , body
+    , httpVersion: Version.read request
+    , url: requestURL request
+    }
+
