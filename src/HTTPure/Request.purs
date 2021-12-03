@@ -3,6 +3,9 @@ module HTTPure.Request
   , Request
   , fromHTTPRequest
   , fullPath
+  , readBodyAsBuffer
+  , readBodyAsStream
+  , readBodyAsString
   ) where
 
 import Prelude
@@ -11,6 +14,7 @@ import Data.String (joinWith)
 import Effect.Aff (Aff)
 import Effect.Class (liftEffect)
 import Effect.Ref (Ref)
+import Effect.Ref (read, modify_, new) as Ref
 import Foreign.Object (isEmpty, toArrayWithKey)
 import HTTPure.Body (read, toBuffer) as Body
 import HTTPure.Headers (Headers)
@@ -81,4 +85,39 @@ fromHTTPRequest request = do
     , httpVersion: Version.read request
     , url: requestURL request
     }
+
+readBodyAsBuffer :: Request -> Aff Buffer
+readBodyAsBuffer request = do
+  body <-
+    liftEffect
+      $ Ref.read request.body
+  case body.buffer of
+    Nothing -> do
+      buffer <- Body.toBuffer body.stream
+      liftEffect
+        $ Ref.modify_ (_ { buffer = Just buffer }) request.body
+      pure buffer
+    Just buffer -> pure buffer
+
+readBodyAsStream :: Request -> Aff (Readable ())
+readBodyAsStream request = do
+  body <-
+    liftEffect
+      $ Ref.read request.body
+  pure body.stream
+
+readBodyAsString :: Request -> Aff String
+readBodyAsString request = do
+  body <-
+    liftEffect
+      $ Ref.read request.body
+  case body.string of
+    Nothing -> do
+      buffer <- readBodyAsBuffer request
+      string <- liftEffect
+        $ Buffer.toString UTF8 buffer
+      liftEffect
+        $ Ref.modify_ (_ { string = Just string }) request.body
+      pure string
+    Just string -> pure string
 
