@@ -2,11 +2,14 @@ module Test.HTTPure.RequestSpec where
 
 import Prelude
 import Data.Tuple (Tuple(Tuple))
+import Effect.Class (liftEffect)
 import Foreign.Object (singleton)
 import HTTPure.Headers (headers)
 import HTTPure.Method (Method(Post))
-import HTTPure.Request (fromHTTPRequest, fullPath, readBodyAsString)
+import HTTPure.Request (fromHTTPRequest, fullPath, readBodyAsBuffer, readBodyAsString)
 import HTTPure.Version (Version(HTTP1_1))
+import Node.Buffer as Buffer
+import Node.Encoding (Encoding(..))
 import Test.HTTPure.TestHelpers (Test, (?=), mockRequest)
 import Test.Spec (describe, it)
 
@@ -74,8 +77,44 @@ fullPathSpec =
 
   mockRequest' path = mockHTTPRequest path >>= fromHTTPRequest
 
+readBodyAsBufferSpec :: Test
+readBodyAsBufferSpec =
+  describe "readBodyAsBuffer" do
+    it "is idempotent" do
+      mock <- mockRequest'
+      buffer1 <- readBodyAsBuffer mock
+      buffer2 <- readBodyAsBuffer mock
+      string1 <- toString buffer1
+      string2 <- toString buffer2
+      string1 ?= string2
+  where
+  mockHeaders = [ Tuple "Test" "test" ]
+
+  mockHTTPRequest = mockRequest "1.1" "POST" "/test?a=b" "body" mockHeaders
+
+  mockRequest' = mockHTTPRequest >>= fromHTTPRequest
+
+  toString = liftEffect <<< Buffer.toString UTF8
+
+readBodyAsStringSpec :: Test
+readBodyAsStringSpec =
+  describe "readBodyAsString" do
+    it "is idempotent" do
+      mock <- mockRequest'
+      string1 <- readBodyAsString mock
+      string2 <- readBodyAsString mock
+      string1 ?= string2
+  where
+  mockHeaders = [ Tuple "Test" "test" ]
+
+  mockHTTPRequest = mockRequest "1.1" "POST" "/test?a=b" "body" mockHeaders
+
+  mockRequest' = mockHTTPRequest >>= fromHTTPRequest
+
 requestSpec :: Test
 requestSpec =
   describe "Request" do
     fromHTTPRequestSpec
     fullPathSpec
+    readBodyAsBufferSpec
+    readBodyAsStringSpec
