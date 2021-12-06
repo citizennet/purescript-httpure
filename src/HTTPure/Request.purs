@@ -5,7 +5,7 @@ module HTTPure.Request
   ) where
 
 import Prelude
-import Data.Maybe (Maybe(..))
+import Data.Maybe (Maybe(Nothing))
 import Data.String (joinWith)
 import Effect.Aff (Aff)
 import Effect.Class (liftEffect)
