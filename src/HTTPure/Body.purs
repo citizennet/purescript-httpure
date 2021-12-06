@@ -1,5 +1,6 @@
 module HTTPure.Body
   ( class Body
+  , RequestBody
   , defaultHeaders
   , write
   , read
@@ -9,19 +10,26 @@ module HTTPure.Body
 
 import Prelude
 import Data.Either (Either(Right))
+import Data.Maybe (Maybe)
 import Effect (Effect)
-import Effect.Class (liftEffect)
 import Effect.Aff (Aff, makeAff, nonCanceler)
-import Effect.Ref (read) as Ref
+import Effect.Class (liftEffect)
 import Effect.Ref (new, modify)
+import Effect.Ref (read) as Ref
 import HTTPure.Headers (Headers, header)
-import Node.Buffer (toString) as Buffer
 import Node.Buffer (Buffer, concat, fromString, size)
+import Node.Buffer (toString) as Buffer
 import Node.Encoding (Encoding(UTF8))
 import Node.HTTP (Request, Response, requestAsStream, responseAsStream)
-import Node.Stream (write) as Stream
 import Node.Stream (Stream, Readable, onData, onEnd, writeString, pipe, end)
+import Node.Stream (write) as Stream
 import Type.Equality (class TypeEquals, to)
+
+type RequestBody =
+  { buffer :: Maybe Buffer
+  , stream :: Readable ()
+  , string :: Maybe String
+  }
 
 -- | Read the body `Readable` stream out of the incoming request
 read :: Request -> Readable ()

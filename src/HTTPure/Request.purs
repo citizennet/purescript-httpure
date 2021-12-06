@@ -1,6 +1,5 @@
 module HTTPure.Request
-  ( Body(..)
-  , Request
+  ( Request
   , fromHTTPRequest
   , fullPath
   , readBodyAsBuffer
@@ -16,6 +15,7 @@ import Effect.Class (liftEffect)
 import Effect.Ref (Ref)
 import Effect.Ref (read, modify_, new) as Ref
 import Foreign.Object (isEmpty, toArrayWithKey)
+import HTTPure.Body (RequestBody)
 import HTTPure.Body (read, toBuffer) as Body
 import HTTPure.Headers (Headers)
 import HTTPure.Headers (read) as Headers
@@ -42,15 +42,9 @@ type Request =
   , path :: Path
   , query :: Query
   , headers :: Headers
-  , body :: Ref Body
+  , body :: Ref RequestBody
   , httpVersion :: Version
   , url :: String
-  }
-
-type Body =
-  { buffer :: Maybe Buffer
-  , stream :: Readable ()
-  , string :: Maybe String
   }
 
 -- | Return the full resolved path, including query parameters. This may not
