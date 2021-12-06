@@ -6,6 +6,7 @@ module HTTPure.Body
   , read
   , toString
   , toBuffer
+  , toStream
   ) where
 
 import Prelude
@@ -49,6 +50,9 @@ toBuffer stream =
       body <- Ref.read bufs >>= concat
       done $ Right body
     pure nonCanceler
+
+toStream :: RequestBody -> Readable ()
+toStream = _.stream
 
 -- | Types that implement the `Body` class can be used as a body to an HTTPure
 -- | response, and can be used with all the response helpers.
