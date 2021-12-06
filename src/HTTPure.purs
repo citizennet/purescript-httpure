@@ -11,7 +11,7 @@ module HTTPure
   , module HTTPure.Status
   ) where
 
-import HTTPure.Body (toString, toBuffer)
+import HTTPure.Body (toBuffer, toStream, toString)
 import HTTPure.Headers (Headers, empty, header, headers)
 import HTTPure.Lookup (at, (!@), has, (!?), lookup, (!!))
 import HTTPure.Method (Method(..))

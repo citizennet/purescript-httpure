@@ -4,19 +4,19 @@ module HTTPure.Body
   , defaultHeaders
   , write
   , read
-  , toString
   , toBuffer
   , toStream
+  , toString
   ) where
 
 import Prelude
 import Data.Either (Either(Right))
-import Data.Maybe (Maybe)
+import Data.Maybe (Maybe(Just, Nothing))
 import Effect (Effect)
 import Effect.Aff (Aff, makeAff, nonCanceler)
 import Effect.Class (liftEffect)
-import Effect.Ref (new, modify)
-import Effect.Ref (read) as Ref
+import Effect.Ref (Ref)
+import Effect.Ref (read, modify, new, write) as Ref
 import HTTPure.Headers (Headers, header)
 import Node.Buffer (Buffer, concat, fromString, size)
 import Node.Buffer (toString) as Buffer
@@ -27,30 +27,63 @@ import Node.Stream (write) as Stream
 import Type.Equality (class TypeEquals, to)
 
 type RequestBody =
-  { buffer :: Maybe Buffer
+  { buffer :: Ref (Maybe Buffer)
   , stream :: Readable ()
-  , string :: Maybe String
+  , string :: Ref (Maybe String)
   }
 
 -- | Read the body `Readable` stream out of the incoming request
 read :: Request -> Readable ()
 read = requestAsStream
 
--- | Slurp the entire `Readable` stream into a `String`
-toString :: Readable () -> Aff String
-toString = toBuffer >=> Buffer.toString UTF8 >>> liftEffect
+-- | Turn `RequestBody` into a `String`
+-- |
+-- | This drains the `Readable` stream in `RequestBody` for the first time
+-- | and returns cached result from then on.
+toString :: RequestBody -> Aff String
+toString requestBody = do
+  maybeString <-
+    liftEffect
+      $ Ref.read requestBody.string
+  case maybeString of
+    Nothing -> do
+      buffer <- toBuffer requestBody
+      string <- liftEffect
+        $ Buffer.toString UTF8 buffer
+      liftEffect
+        $ Ref.write (Just string) requestBody.string
+      pure string
+    Just string -> pure string
 
--- | Slurp the entire `Readable` stream into a `Buffer`
-toBuffer :: Readable () -> Aff Buffer
-toBuffer stream =
-  makeAff \done -> do
-    bufs <- new []
-    onData stream \buf -> void $ modify (_ <> [ buf ]) bufs
-    onEnd stream do
-      body <- Ref.read bufs >>= concat
-      done $ Right body
-    pure nonCanceler
+-- | Turn `RequestBody` into a `Buffer`
+-- |
+-- | This drains the `Readable` stream in `RequestBody` for the first time
+-- | and returns cached result from then on.
+toBuffer :: RequestBody -> Aff Buffer
+toBuffer requestBody = do
+  maybeBuffer <-
+    liftEffect
+      $ Ref.read requestBody.buffer
+  case maybeBuffer of
+    Nothing -> do
+      buffer <- streamToBuffer requestBody.stream
+      liftEffect
+        $ Ref.write (Just buffer) requestBody.buffer
+      pure buffer
+    Just buffer -> pure buffer
+  where
+  -- | Slurp the entire `Readable` stream into a `Buffer`
+  streamToBuffer :: Readable () -> Aff Buffer
+  streamToBuffer stream =
+    makeAff \done -> do
+      bufs <- Ref.new []
+      onData stream \buf -> void $ Ref.modify (_ <> [ buf ]) bufs
+      onEnd stream do
+        body <- Ref.read bufs >>= concat
+        done $ Right body
+      pure nonCanceler
 
+-- | Return the `Readable` stream directly from `RequestBody`
 toStream :: RequestBody -> Readable ()
 toStream = _.stream
 
