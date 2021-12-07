@@ -1,3 +1,7 @@
+0.14.0 / 2021-12-06
+===================
+- Cache Body `toBuffer`/`toString` results (thanks **@boygao1992**)
+
 0.13.1 / 2021-11-29
 ===================
 - Support Duplex streams as responses (thanks **@arthurxavierx**)
