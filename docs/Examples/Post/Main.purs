@@ -2,11 +2,20 @@ module Examples.Post.Main where
 
 import Prelude
 import Effect.Console (log)
-import HTTPure (Method(Post), Request, ResponseM, ServerM, notFound, ok, serve, toString)
+import HTTPure
+  ( Request
+  , ResponseM
+  , ServerM
+  , Method(Post)
+  , serve
+  , ok
+  , notFound
+  , toString
+  )
 
 -- | Route to the correct handler
 router :: Request -> ResponseM
-router request@{ method: Post } = toString request.body >>= ok
+router { body, method: Post } = toString body >>= ok
 router _ = notFound
 
 -- | Boot up the server
