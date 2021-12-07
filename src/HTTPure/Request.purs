@@ -5,12 +5,11 @@ module HTTPure.Request
   ) where
 
 import Prelude
-import Effect.Aff (Aff)
 import Data.String (joinWith)
+import Effect.Aff (Aff)
+import Effect.Class (liftEffect)
 import Foreign.Object (isEmpty, toArrayWithKey)
-import Node.HTTP (requestURL)
-import Node.HTTP (Request) as HTTP
-import Node.Stream (Readable)
+import HTTPure.Body (RequestBody)
 import HTTPure.Body (read) as Body
 import HTTPure.Headers (Headers)
 import HTTPure.Headers (read) as Headers
@@ -23,6 +22,8 @@ import HTTPure.Query (read) as Query
 import HTTPure.Utils (encodeURIComponent)
 import HTTPure.Version (Version)
 import HTTPure.Version (read) as Version
+import Node.HTTP (Request) as HTTP
+import Node.HTTP (requestURL)
 
 -- | The `Request` type is a `Record` type that includes fields for accessing
 -- | the different parts of the HTTP request.
@@ -31,7 +32,7 @@ type Request =
   , path :: Path
   , query :: Query
   , headers :: Headers
-  , body :: Readable ()
+  , body :: RequestBody
   , httpVersion :: Version
   , url :: String
   }
@@ -51,12 +52,15 @@ fullPath request = "/" <> path <> questionMark <> queryParams
 -- | Given an HTTP `Request` object, this method will convert it to an HTTPure
 -- | `Request` object.
 fromHTTPRequest :: HTTP.Request -> Aff Request
-fromHTTPRequest request = pure
-  { method: Method.read request
-  , path: Path.read request
-  , query: Query.read request
-  , headers: Headers.read request
-  , body: Body.read request
-  , httpVersion: Version.read request
-  , url: requestURL request
-  }
+fromHTTPRequest request = do
+  body <- liftEffect $ Body.read request
+  pure
+    { method: Method.read request
+    , path: Path.read request
+    , query: Query.read request
+    , headers: Headers.read request
+    , body
+    , httpVersion: Version.read request
+    , url: requestURL request
+    }
+

@@ -1,39 +1,69 @@
 module Test.HTTPure.BodySpec where
 
 import Prelude
+
 import Data.Maybe (Maybe(Nothing), fromMaybe)
+import Effect.Aff (Aff)
 import Effect.Class (liftEffect)
-import Node.Buffer (toString) as Buffer
+import Effect.Ref (new) as Ref
+import HTTPure.Body (RequestBody, defaultHeaders, read, toBuffer, toStream, toString, write)
+import HTTPure.Headers (header)
 import Node.Buffer (Buffer, fromString)
+import Node.Buffer (toString) as Buffer
 import Node.Encoding (Encoding(UTF8))
 import Node.Stream (readString)
-import Test.Spec (describe, it)
-import HTTPure.Body (read, toString, toBuffer, defaultHeaders, write)
-import HTTPure.Headers (header)
 import Test.HTTPure.TestHelpers (Test, (?=), mockRequest, mockResponse, getResponseBody, stringToStream)
+import Test.Spec (describe, it)
+
+mockRequestBody :: String -> Aff RequestBody
+mockRequestBody body =
+  liftEffect do
+    buffer <- Ref.new Nothing
+    string <- Ref.new Nothing
+    pure
+      { buffer
+      , stream: stringToStream body
+      , string
+      }
 
 readSpec :: Test
 readSpec =
   describe "read" do
     it "is the body of the Request" do
-      body <- read <$> mockRequest "" "GET" "" "test" []
-      string <- liftEffect $ fromMaybe "" <$> readString body Nothing UTF8
+      body <- (liftEffect <<< read) =<< mockRequest "" "GET" "" "test" []
+      string <- liftEffect $ fromMaybe "" <$> readString (toStream body) Nothing UTF8
       string ?= "test"
 
 toStringSpec :: Test
 toStringSpec =
   describe "toString" do
-    it "slurps Streams into Strings" do
-      string <- toString $ stringToStream "foobar"
+    it "turns RequestBody into a String" do
+      requestBody <- mockRequestBody "foobar"
+      string <- toString requestBody
       string ?= "foobar"
+    it "is idempotent" do
+      requestBody <- mockRequestBody "foobar"
+      string1 <- toString requestBody
+      string2 <- toString requestBody
+      string1 ?= string2
 
 toBufferSpec :: Test
 toBufferSpec =
   describe "toBuffer" do
-    it "slurps Streams into Buffers" do
-      buf <- toBuffer $ stringToStream "foobar"
+    it "turns RequestBody into a Buffer" do
+      requestBody <- mockRequestBody "foobar"
+      buf <- toBuffer requestBody
       string <- liftEffect $ Buffer.toString UTF8 buf
       string ?= "foobar"
+    it "is idempotent" do
+      requestBody <- mockRequestBody "foobar"
+      buffer1 <- toBuffer requestBody
+      buffer2 <- toBuffer requestBody
+      string1 <- bufferToString buffer1
+      string2 <- bufferToString buffer2
+      string1 ?= string2
+  where
+  bufferToString = liftEffect <<< Buffer.toString UTF8
 
 defaultHeadersSpec :: Test
 defaultHeadersSpec =
