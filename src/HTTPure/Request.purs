@@ -5,11 +5,9 @@ module HTTPure.Request
   ) where
 
 import Prelude
-import Data.Maybe (Maybe(Nothing))
 import Data.String (joinWith)
 import Effect.Aff (Aff)
 import Effect.Class (liftEffect)
-import Effect.Ref (new) as Ref
 import Foreign.Object (isEmpty, toArrayWithKey)
 import HTTPure.Body (RequestBody)
 import HTTPure.Body (read) as Body
@@ -55,15 +53,7 @@ fullPath request = "/" <> path <> questionMark <> queryParams
 -- | `Request` object.
 fromHTTPRequest :: HTTP.Request -> Aff Request
 fromHTTPRequest request = do
-  body <-
-    liftEffect do
-      buffer <- Ref.new Nothing
-      string <- Ref.new Nothing
-      pure
-        { buffer
-        , stream: Body.read request
-        , string
-        }
+  body <- liftEffect $ Body.read request
   pure
     { method: Method.read request
     , path: Path.read request

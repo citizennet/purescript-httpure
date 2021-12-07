@@ -6,7 +6,7 @@ import Data.Maybe (Maybe(Nothing), fromMaybe)
 import Effect.Aff (Aff)
 import Effect.Class (liftEffect)
 import Effect.Ref (new) as Ref
-import HTTPure.Body (RequestBody, defaultHeaders, read, toBuffer, toString, write)
+import HTTPure.Body (RequestBody, defaultHeaders, read, toBuffer, toStream, toString, write)
 import HTTPure.Headers (header)
 import Node.Buffer (Buffer, fromString)
 import Node.Buffer (toString) as Buffer
@@ -30,8 +30,8 @@ readSpec :: Test
 readSpec =
   describe "read" do
     it "is the body of the Request" do
-      body <- read <$> mockRequest "" "GET" "" "test" []
-      string <- liftEffect $ fromMaybe "" <$> readString body Nothing UTF8
+      body <- (liftEffect <<< read) =<< mockRequest "" "GET" "" "test" []
+      string <- liftEffect $ fromMaybe "" <$> readString (toStream body) Nothing UTF8
       string ?= "test"
 
 toStringSpec :: Test

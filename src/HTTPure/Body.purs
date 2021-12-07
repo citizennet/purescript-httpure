@@ -33,8 +33,15 @@ type RequestBody =
   }
 
 -- | Read the body `Readable` stream out of the incoming request
-read :: Request -> Readable ()
-read = requestAsStream
+read :: Request -> Effect RequestBody
+read request = do
+  buffer <- Ref.new Nothing
+  string <- Ref.new Nothing
+  pure
+    { buffer
+    , stream: requestAsStream request
+    , string
+    }
 
 -- | Turn `RequestBody` into a `String`
 -- |
