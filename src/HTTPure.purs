@@ -1,6 +1,7 @@
 module HTTPure
   ( module HTTPure.Body
-  , module HTTPure.Headers
+  , module HTTPure.RequestHeaders
+  , module HTTPure.ResponseHeaders
   , module HTTPure.Lookup
   , module HTTPure.Method
   , module HTTPure.Path
@@ -12,12 +13,13 @@ module HTTPure
   ) where
 
 import HTTPure.Body (toBuffer, toStream, toString)
-import HTTPure.Headers (Headers, empty, header, headers)
+import HTTPure.ResponseHeaders (ResponseHeaders, empty, header, headers)
 import HTTPure.Lookup (at, (!@), has, (!?), lookup, (!!))
 import HTTPure.Method (Method(..))
 import HTTPure.Path (Path)
 import HTTPure.Query (Query)
 import HTTPure.Request (Request, fullPath)
+import HTTPure.RequestHeaders (RequestHeaders, read)
 import HTTPure.Response
   ( Response
   , ResponseM

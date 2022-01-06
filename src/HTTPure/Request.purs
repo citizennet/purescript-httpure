@@ -11,8 +11,8 @@ import Effect.Class (liftEffect)
 import Foreign.Object (isEmpty, toArrayWithKey)
 import HTTPure.Body (RequestBody)
 import HTTPure.Body (read) as Body
-import HTTPure.Headers (Headers)
-import HTTPure.Headers (read) as Headers
+import HTTPure.RequestHeaders (RequestHeaders)
+import HTTPure.RequestHeaders (read) as Headers
 import HTTPure.Method (Method)
 import HTTPure.Method (read) as Method
 import HTTPure.Path (Path)
@@ -31,7 +31,7 @@ type Request =
   { method :: Method
   , path :: Path
   , query :: Query
-  , headers :: Headers
+  , headers :: RequestHeaders
   , body :: RequestBody
   , httpVersion :: Version
   , url :: String

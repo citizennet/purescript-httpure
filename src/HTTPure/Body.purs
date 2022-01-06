@@ -17,7 +17,7 @@ import Effect.Aff (Aff, makeAff, nonCanceler)
 import Effect.Class (liftEffect)
 import Effect.Ref (Ref)
 import Effect.Ref (read, modify, new, write) as Ref
-import HTTPure.Headers (Headers, header)
+import HTTPure.ResponseHeaders (ResponseHeaders, header)
 import Node.Buffer (Buffer, concat, fromString, size)
 import Node.Buffer (toString) as Buffer
 import Node.Encoding (Encoding(UTF8))
@@ -101,7 +101,7 @@ class Body b where
   -- | things like `Content-Type`, `Content-Length`, and `Transfer-Encoding`.
   -- | Note that any headers passed in a response helper such as `ok'` will take
   -- | precedence over these.
-  defaultHeaders :: b -> Effect Headers
+  defaultHeaders :: b -> Effect ResponseHeaders
   -- | Given a body value and a Node HTTP `Response` value, write the body value
   -- | to the Node response.
   write :: b -> Response -> Aff Unit
