@@ -7,7 +7,7 @@ import Effect.Aff (Aff)
 import Effect.Class (liftEffect)
 import Effect.Ref (new) as Ref
 import HTTPure.Body (RequestBody, defaultHeaders, read, toBuffer, toStream, toString, write)
-import HTTPure.Headers (header)
+import HTTPure.ResponseHeaders (header)
 import Node.Buffer (Buffer, fromString)
 import Node.Buffer (toString) as Buffer
 import Node.Encoding (Encoding(UTF8))

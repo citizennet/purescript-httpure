@@ -3,13 +3,13 @@ module Examples.BinaryResponse.Main where
 import Prelude
 import Effect.Console (log)
 import Node.FS.Aff (readFile)
-import HTTPure (ServerM, Request, ResponseM, Headers, serve, ok', header)
+import HTTPure (ServerM, Request, ResponseM, ResponseHeaders, serve, ok', header)
 
 -- | The path to the file containing the response to send
 filePath :: String
 filePath = "./docs/Examples/BinaryResponse/circle.png"
 
-responseHeaders :: Headers
+responseHeaders :: ResponseHeaders
 responseHeaders = header "Content-Type" "image/png"
 
 -- | Respond with image data when run

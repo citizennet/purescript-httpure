@@ -2,10 +2,12 @@ module Test.HTTPure.HeadersSpec where
 
 import Prelude
 import Effect.Class (liftEffect)
+import Data.Array.NonEmpty (singleton)
 import Data.Maybe (Maybe(Nothing, Just))
 import Data.Tuple (Tuple(Tuple))
 import Test.Spec (describe, it)
-import HTTPure.Headers (header, headers, empty, read, write)
+import HTTPure.RequestHeaders (read, empty)
+import HTTPure.ResponseHeaders (header, headers, write)
 import HTTPure.Lookup ((!!))
 import Test.HTTPure.TestHelpers as TestHelpers
 import Test.HTTPure.TestHelpers ((?=))
@@ -16,17 +18,17 @@ lookupSpec =
     describe "when the string is in the header set" do
       describe "when searching with lowercase" do
         it "is Just the string" do
-          header "x-test" "test" !! "x-test" ?= Just "test"
+          header "x-test" "test" !! "x-test" ?= Just (singleton "test")
       describe "when searching with uppercase" do
         it "is Just the string" do
-          header "x-test" "test" !! "X-Test" ?= Just "test"
+          header "x-test" "test" !! "X-Test" ?= Just (singleton "test")
       describe "when the string is uppercase" do
         describe "when searching with lowercase" do
           it "is Just the string" do
-            header "X-Test" "test" !! "x-test" ?= Just "test"
+            header "X-Test" "test" !! "x-test" ?= Just (singleton "test")
         describe "when searching with uppercase" do
           it "is Just the string" do
-            header "X-Test" "test" !! "X-Test" ?= Just "test"
+            header "X-Test" "test" !! "X-Test" ?= Just (singleton "test")
     describe "when the string is not in the header set" do
       it "is Nothing" do
         ((empty !! "X-Test") :: Maybe String) ?= Nothing
@@ -87,7 +89,7 @@ readSpec =
       it "is a Map with the contents of the headers" do
         let testHeader = [ Tuple "X-Test" "test" ]
         request <- TestHelpers.mockRequest "" "" "" "" testHeader
-        read request ?= headers testHeader
+        TestHelpers.convertToResponseHeader (read request) ?= headers testHeader
 
 writeSpec :: TestHelpers.Test
 writeSpec =

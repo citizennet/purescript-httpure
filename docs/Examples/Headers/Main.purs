@@ -2,10 +2,10 @@ module Examples.Headers.Main where
 
 import Prelude
 import Effect.Console (log)
-import HTTPure (ServerM, Headers, Request, ResponseM, (!@), header, serve, ok')
+import HTTPure (ServerM, ResponseHeaders, Request, ResponseM, (!@), header, serve, ok')
 
 -- | The headers that will be included in every response.
-responseHeaders :: Headers
+responseHeaders :: ResponseHeaders
 responseHeaders = header "X-Example" "hello world!"
 
 -- | Route to the correct handler

@@ -9,7 +9,7 @@ import Node.HTTP (responseAsStream)
 import Node.Stream (writeString, end)
 import Test.Spec (describe, it)
 import HTTPure.Body (defaultHeaders)
-import HTTPure.Headers (header)
+import HTTPure.ResponseHeaders (header)
 import HTTPure.Response (send, response, response', emptyResponse, emptyResponse')
 import Test.HTTPure.TestHelpers
   ( Test

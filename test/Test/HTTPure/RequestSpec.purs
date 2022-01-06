@@ -5,11 +5,11 @@ import Data.Tuple (Tuple(Tuple))
 import Foreign.Object (singleton)
 import Test.Spec (describe, it)
 import HTTPure.Body (toString)
-import HTTPure.Headers (headers)
+import HTTPure.ResponseHeaders (headers)
 import HTTPure.Method (Method(Post))
 import HTTPure.Request (fromHTTPRequest, fullPath)
 import HTTPure.Version (Version(HTTP1_1))
-import Test.HTTPure.TestHelpers (Test, (?=), mockRequest)
+import Test.HTTPure.TestHelpers (Test, (?=), convertToResponseHeader, mockRequest)
 
 fromHTTPRequestSpec :: Test
 fromHTTPRequestSpec =
@@ -25,7 +25,7 @@ fromHTTPRequestSpec =
       mock.query ?= singleton "a" "b"
     it "contains the correct headers" do
       mock <- mockRequest'
-      mock.headers ?= headers mockHeaders
+      convertToResponseHeader mock.headers ?= headers mockHeaders
     it "contains the correct body" do
       mockBody <- mockRequest' >>= _.body >>> toString
       mockBody ?= "body"

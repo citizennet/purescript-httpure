@@ -1,39 +1,33 @@
 module Test.HTTPure.TestHelpers where
 
 import Prelude
+
+import Data.Array (fromFoldable) as Array
+import Data.Array.NonEmpty as NonEmptyArray
+import Data.Either (Either(Right))
+import Data.FoldableWithIndex (foldlWithIndex)
+import Data.List (List(Nil, Cons), reverse)
+import Data.Map as Map
+import Data.Maybe (fromMaybe)
+import Data.Options ((:=))
+import Data.String (toLower)
+import Data.String.CaseInsensitive (CaseInsensitiveString(..))
+import Data.Tuple (Tuple)
 import Effect (Effect)
 import Effect.Aff (Aff, makeAff, nonCanceler)
 import Effect.Class (liftEffect)
 import Effect.Ref (new, modify_, read)
-import Data.Array (fromFoldable) as Array
-import Data.Either (Either(Right))
-import Data.List (List(Nil, Cons), reverse)
-import Data.Maybe (fromMaybe)
-import Data.Options ((:=))
-import Data.String (toLower)
-import Data.Tuple (Tuple)
-import Foreign.Object (fromFoldable) as Object
 import Foreign.Object (Object, lookup)
-import Node.Buffer (toString) as Buffer
+import Foreign.Object as Object
+import HTTPure.RequestHeaders (RequestHeaders(..)) as HTTPure
+import HTTPure.ResponseHeaders (ResponseHeaders(..)) as HTTPure
 import Node.Buffer (Buffer, create, fromString, concat)
+import Node.Buffer (toString) as Buffer
 import Node.Encoding (Encoding(UTF8))
-import Node.HTTP (Response) as HTTP
 import Node.HTTP (Request)
+import Node.HTTP (Response) as HTTP
+import Node.HTTP.Client (RequestHeaders(RequestHeaders), requestAsStream, protocol, method, hostname, port, path, headers, rejectUnauthorized, statusCode, responseHeaders, responseAsStream)
 import Node.HTTP.Client (Response, request) as HTTPClient
-import Node.HTTP.Client
-  ( RequestHeaders(RequestHeaders)
-  , requestAsStream
-  , protocol
-  , method
-  , hostname
-  , port
-  , path
-  , headers
-  , rejectUnauthorized
-  , statusCode
-  , responseHeaders
-  , responseAsStream
-  )
 import Node.Stream (Readable, write, end, onData, onEnd)
 import Test.Spec (Spec)
 import Test.Spec.Assertions (shouldEqual)
@@ -237,3 +231,9 @@ getResponseHeader header = fromMaybe "" <<< lookup header <<< getResponseHeaders
 
 -- | Create a stream out of a string.
 foreign import stringToStream :: String -> Readable ()
+
+convertToResponseHeader :: HTTPure.RequestHeaders -> HTTPure.ResponseHeaders
+convertToResponseHeader (HTTPure.RequestHeaders requestHeaders) =
+  HTTPure.ResponseHeaders $ foldlWithIndex insertValue Map.empty requestHeaders
+  where
+  insertValue k o v = Map.insert (CaseInsensitiveString k) (NonEmptyArray.singleton v) o
