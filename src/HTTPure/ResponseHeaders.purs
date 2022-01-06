@@ -70,6 +70,8 @@ headers = foldl insertField Map.empty >>> ResponseHeaders
   where
   insertField x (Tuple key value) = insert (CaseInsensitiveString key) (NonEmptyArray.singleton value) x
 
+-- | Convert an `Array` of `Tuples` of `Strings` and `NonEmptyArray Strings`
+-- | to a `ResponseHeaders` object.
 headers' :: Array (Tuple String (NonEmptyArray String)) -> ResponseHeaders
 headers' = foldl insertField Map.empty >>> ResponseHeaders
   where
@@ -79,5 +81,6 @@ headers' = foldl insertField Map.empty >>> ResponseHeaders
 header :: String -> String -> ResponseHeaders
 header key = NonEmptyArray.singleton >>> singleton (CaseInsensitiveString key) >>> ResponseHeaders
 
+-- | Create a header from a key-value pair.
 header' :: String -> NonEmptyArray String -> ResponseHeaders
 header' key = singleton (CaseInsensitiveString key) >>> ResponseHeaders
