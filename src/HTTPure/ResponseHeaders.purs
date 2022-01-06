@@ -23,7 +23,7 @@ import Data.TraversableWithIndex (traverseWithIndex)
 import Data.Tuple (Tuple(Tuple))
 import Effect (Effect)
 import HTTPure.Lookup (class Lookup, (!!))
-import Node.HTTP (Response, setHeader, setHeaders)
+import Node.HTTP (Response, setHeader)
 
 -- | The `ResponseHeaders` type is just sugar for a `Map` of `Strings`
 -- | that represents the set of headers in an HTTP request or response.
@@ -41,7 +41,7 @@ instance lookupResponseHeaders :: Lookup ResponseHeaders String (NonEmptyArray S
 instance showResponseHeaders :: Show ResponseHeaders where
   show (ResponseHeaders responseHeaders) = foldMapWithIndex showField responseHeaders <> "\n"
     where
-    showField key value = unwrap key <> ": " <> NonEmptyArray.intercalate " " value <> "\n"
+    showField key value = unwrap key <> ": " <> NonEmptyArray.intercalate "," value <> "\n"
 
 -- | Compare two `ResponseHeaders` objects by comparing the underlying
 -- | `Objects`.

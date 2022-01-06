@@ -2,12 +2,12 @@ module Test.HTTPure.HeadersSpec where
 
 import Prelude
 import Effect.Class (liftEffect)
-import Data.Array.NonEmpty (singleton)
+import Data.Array.NonEmpty (fromArray, singleton)
 import Data.Maybe (Maybe(Nothing, Just))
 import Data.Tuple (Tuple(Tuple))
 import Test.Spec (describe, it)
 import HTTPure.RequestHeaders (read, empty)
-import HTTPure.ResponseHeaders (header, headers, write)
+import HTTPure.ResponseHeaders (header, header', headers, write)
 import HTTPure.Lookup ((!!))
 import Test.HTTPure.TestHelpers as TestHelpers
 import Test.HTTPure.TestHelpers ((?=))
@@ -112,6 +112,8 @@ headerSpec =
   describe "header" do
     it "creates a singleton Headers" do
       show (header "X-Test" "test") ?= "X-Test: test\n\n"
+    it "creates a multi-value Headers" do
+      show <<< header' "X-Test" <$> fromArray ["test1", "test2"] ?= Just "X-Test: test1,test2\n\n"
 
 headersFunctionSpec :: TestHelpers.Test
 headersFunctionSpec =
