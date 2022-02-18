@@ -1,12 +1,13 @@
 "use strict";
+import * as ztream from 'stream'
 
-exports.mockRequestImpl = function(httpVersion) {
+export function mockRequestImpl(httpVersion) {
   return function(method) {
     return function(url) {
       return function(body) {
         return function(headers) {
           return function() {
-            var stream = new require('stream').Readable({
+            var stream = new ztream.Readable({
               read: function(size) {
                 this.push(body);
                 this.push(null);
@@ -23,9 +24,9 @@ exports.mockRequestImpl = function(httpVersion) {
       };
     };
   };
-};
+}
 
-exports.mockResponse = function() {
+export function mockResponse() {
   return {
     body: "",
     headers: {},
@@ -51,10 +52,10 @@ exports.mockResponse = function() {
       this.headers[header] = val;
     }
   };
-};
+}
 
-exports.stringToStream = function (str) {
-  var stream = new require('stream').Readable();
+export function stringToStream(str) {
+  var stream = new ztream.Readable();
   stream._read = function () {};
   stream.push(str);
   stream.push(null);
