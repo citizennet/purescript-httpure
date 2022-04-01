@@ -1,4 +1,3 @@
-"use strict";
 import * as ztream from 'stream'
 
 export function mockRequestImpl(httpVersion) {

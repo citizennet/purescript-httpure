@@ -1,5 +1,3 @@
-'use strict';
-
 import crypto from 'crypto';
 
 export function sha256sum(buffer) {
