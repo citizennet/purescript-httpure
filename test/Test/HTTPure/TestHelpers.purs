@@ -64,8 +64,9 @@ request secure port' method' headers' path' body =
       stream = requestAsStream req
     void
       $ write stream body
+      $ const 
       $ end stream
-      $ pure unit
+      $ const $ pure unit
     pure nonCanceler
   where
   options =

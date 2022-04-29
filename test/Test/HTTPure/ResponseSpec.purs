@@ -30,7 +30,7 @@ sendSpec =
         , writeBody:
             \response -> makeAff \done -> do
               stream <- pure $ responseAsStream response
-              void $ writeString stream UTF8 "test" $ end stream $ done $ Right unit
+              void $ writeString stream UTF8 "test" $ const (end stream $ const (done $ Right unit))
               pure nonCanceler
         }
     it "writes the headers" do

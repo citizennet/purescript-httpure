@@ -117,7 +117,7 @@ instance bodyString :: Body String where
     defaultHeaders buf
   write body response = makeAff \done -> do
     let stream = responseAsStream response
-    void $ writeString stream UTF8 body $ end stream $ done $ Right unit
+    void $ writeString stream UTF8 body $ const (end stream (const $ done $ Right unit))
     pure nonCanceler
 
 -- | The instance for `Buffer` is trivial--we add a `Content-Length` header
@@ -127,7 +127,7 @@ instance bodyBuffer :: Body Buffer where
   defaultHeaders buf = header "Content-Length" <$> show <$> size buf
   write body response = makeAff \done -> do
     let stream = responseAsStream response
-    void $ Stream.write stream body $ end stream $ done $ Right unit
+    void $ Stream.write stream body $ const (end stream (const $ done $ Right unit))
     pure nonCanceler
 
 -- | This instance can be used to send chunked data.  Here, we add a
