@@ -32,4 +32,4 @@ jobs:
 
       - name: Run tests
         run: |
-          spago test
+          spago -x test.dhall test
