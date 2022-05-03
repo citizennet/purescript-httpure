@@ -28,6 +28,11 @@ let
     pulp build
   '';
 
+  # Generate a new bower.json file from the spago.dhall file
+  generate-bower = pkgs.writeShellScriptBin "generate-bower" ''
+    spago bump-version patch --no-dry-run
+  '';
+
   check = pkgs.writeShellScriptBin "check" "check-format && check-code";
 
   check-code = pkgs.writeShellScriptBin "check-code" "spago -x test.dhall test";
@@ -78,6 +83,7 @@ in pkgs.mkShell {
     check-code
     check-format
     check-pulp
+    generate-bower
     clean
     docs
     example
