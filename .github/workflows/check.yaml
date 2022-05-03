@@ -5,13 +5,12 @@ on:
   push:
     branches:
       - main
-      - 'v[0-9]*.[0-9]*.x'
+      - "v[0-9]*.[0-9]*.x"
 
 jobs:
   Test:
     runs-on: ubuntu-latest
     steps:
-
       - name: Check out codebase
         uses: actions/checkout@v2
 
@@ -29,10 +28,12 @@ jobs:
       - name: Test
         run: nix-shell --run check-code
 
+      - name: Verify Pulp + Bower
+        run: nix-shell --run check-pulp
+
   Validate_Format:
     runs-on: ubuntu-latest
     steps:
-
       - name: Check out codebase
         uses: actions/checkout@v2
 
