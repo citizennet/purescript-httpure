@@ -1,6 +1,6 @@
 "use strict";
 
-exports.mockRequestImpl = function(httpVersion) {
+export function mockRequestImpl(httpVersion) {
   return function(method) {
     return function(url) {
       return function(body) {
@@ -23,9 +23,9 @@ exports.mockRequestImpl = function(httpVersion) {
       };
     };
   };
-};
+}
 
-exports.mockResponse = function() {
+export function mockResponse() {
   return {
     body: "",
     headers: {},
@@ -51,9 +51,9 @@ exports.mockResponse = function() {
       this.headers[header] = val;
     }
   };
-};
+}
 
-exports.stringToStream = function (str) {
+export function stringToStream(str) {
   var stream = new require('stream').Readable();
   stream._read = function () {};
   stream.push(str);
