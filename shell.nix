@@ -23,6 +23,11 @@ let
     fi
   '';
 
+  check-pulp = pkgs.writeShellScriptBin "check-pulp" ''
+    bower install
+    pulp build
+  '';
+
   check = pkgs.writeShellScriptBin "check" "check-format && check-code";
 
   check-code = pkgs.writeShellScriptBin "check-code" "spago -x test.dhall test";
@@ -60,6 +65,7 @@ in pkgs.mkShell {
 
     pkgs.nodejs-16_x
     pkgs.nodePackages.bower
+    pkgs.nixfmt
 
     pursPkgs.purescript
     pursPkgs.purs-tidy
@@ -71,6 +77,7 @@ in pkgs.mkShell {
     check
     check-code
     check-format
+    check-pulp
     clean
     docs
     example
