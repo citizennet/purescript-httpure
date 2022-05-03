@@ -1,8 +1,8 @@
 module Test.HTTPure.UtilsSpec where
 
-import Test.Spec (describe, it)
 import HTTPure.Utils (replacePlus)
 import Test.HTTPure.TestHelpers (Test, (?=))
+import Test.Spec (describe, it)
 
 replacePlusSpec :: Test
 replacePlusSpec =

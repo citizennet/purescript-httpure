@@ -1,8 +1,9 @@
 module Examples.AsyncResponse.Main where
 
 import Prelude
+
 import Effect.Console (log)
-import HTTPure (ServerM, Request, ResponseM, serve, ok)
+import HTTPure (Request, ResponseM, ServerM, ok, serve)
 import Node.Encoding (Encoding(UTF8))
 import Node.FS.Aff (readTextFile)
 

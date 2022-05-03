@@ -4,6 +4,7 @@ module HTTPure.Version
   ) where
 
 import Prelude
+
 import Node.HTTP (Request, httpVersion)
 
 -- | These are the HTTP versions that HTTPure understands. There are five

@@ -69,6 +69,7 @@ module HTTPure.Status
   ) where
 
 import Prelude
+
 import Effect (Effect)
 import Node.HTTP (Response, setStatusCode)
 

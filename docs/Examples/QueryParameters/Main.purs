@@ -1,8 +1,9 @@
 module Examples.QueryParameters.Main where
 
 import Prelude
+
 import Effect.Console (log)
-import HTTPure (Request, ResponseM, ServerM, (!@), (!?), serve, ok)
+import HTTPure (Request, ResponseM, ServerM, ok, serve, (!?), (!@))
 
 -- | Specify the routes
 router :: Request -> ResponseM

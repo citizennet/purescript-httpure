@@ -4,14 +4,15 @@ module HTTPure.Query
   ) where
 
 import Prelude
+
 import Data.Array (filter, head, tail)
 import Data.Bifunctor (bimap)
 import Data.Maybe (fromMaybe)
-import Data.String (Pattern(Pattern), split, joinWith)
+import Data.String (Pattern(Pattern), joinWith, split)
 import Data.Tuple (Tuple(Tuple))
 import Foreign.Object (Object, fromFoldable)
-import Node.HTTP (Request, requestURL)
 import HTTPure.Utils (replacePlus, urlDecode)
+import Node.HTTP (Request, requestURL)
 
 -- | The `Query` type is a `Object` of `Strings`, with one entry per query
 -- | parameter in the request. For any query parameters that don't have values

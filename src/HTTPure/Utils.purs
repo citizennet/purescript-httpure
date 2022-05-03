@@ -5,9 +5,10 @@ module HTTPure.Utils
   ) where
 
 import Prelude
+
 import Data.Maybe (fromMaybe)
 import Data.String (Pattern(Pattern), Replacement(Replacement), replaceAll)
-import JSURI (encodeURIComponent, decodeURIComponent) as JSURI
+import JSURI (decodeURIComponent, encodeURIComponent) as JSURI
 
 encodeURIComponent :: String -> String
 encodeURIComponent s = fromMaybe s $ JSURI.encodeURIComponent s

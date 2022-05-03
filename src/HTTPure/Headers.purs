@@ -8,18 +8,19 @@ module HTTPure.Headers
   ) where
 
 import Prelude
-import Effect (Effect)
-import Foreign.Object (fold)
+
 import Data.Foldable (foldl)
 import Data.FoldableWithIndex (foldMapWithIndex)
+import Data.Map (Map, insert, singleton, union)
 import Data.Map (empty) as Map
-import Data.Map (Map, singleton, union, insert)
 import Data.Newtype (class Newtype, unwrap)
 import Data.String.CaseInsensitive (CaseInsensitiveString(CaseInsensitiveString))
 import Data.TraversableWithIndex (traverseWithIndex)
 import Data.Tuple (Tuple(Tuple))
-import Node.HTTP (Request, Response, requestHeaders, setHeader)
+import Effect (Effect)
+import Foreign.Object (fold)
 import HTTPure.Lookup (class Lookup, (!!))
+import Node.HTTP (Request, Response, requestHeaders, setHeader)
 
 -- | The `Headers` type is just sugar for a `Object` of `Strings`
 -- | that represents the set of headers in an HTTP request or response.

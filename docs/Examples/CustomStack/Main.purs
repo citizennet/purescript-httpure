@@ -1,11 +1,12 @@
 module Examples.CustomStack.Main where
 
 import Prelude
+
 import Control.Monad.Reader (class MonadAsk, ReaderT, asks, runReaderT)
 import Effect.Aff (Aff)
 import Effect.Aff.Class (class MonadAff)
 import Effect.Console (log)
-import HTTPure (Request, Response, ResponseM, ServerM, serve, ok)
+import HTTPure (Request, Response, ResponseM, ServerM, ok, serve)
 
 -- | A type to hold the environment for our ReaderT
 type Env = { name :: String }
