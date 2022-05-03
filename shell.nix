@@ -37,30 +37,34 @@ let
 
   check-code = pkgs.writeShellScriptBin "check-code" "spago -x test.dhall test";
 
-  check-format =
-    pkgs.writeShellScriptBin "check-format" "purs-tidy check src test docs";
+  check-format = pkgs.writeShellScriptBin "check-format" ''
+    purs-tidy check src test docs
+    nixfmt --check *.nix
+  '';
 
   clean = pkgs.writeShellScriptBin "clean" "rm -rf output .psci_modules .spago";
 
   docs = pkgs.writeShellScriptBin "docs" "spago docs";
 
   example = pkgs.writeShellScriptBin "example" ''
-        if [ "$1" ]
-        then
-          spago -x test.dhall run --main Examples.$1.Main
-        else
-    	    echo "Which example would you like to run?\n\nAvailable examples:"
-          ls -1 ./docs/Examples | cat -n
-    	    read -rp " > " out
-          if [ "$out" ]
-          then
-            $0 $(ls -1 ./docs/Examples | sed "''${out}q;d")
-          fi
-        fi
-      '';
+    if [ "$1" ]
+    then
+      spago -x test.dhall run --main Examples.$1.Main
+    else
+      echo "Which example would you like to run?\n\nAvailable examples:"
+      ls -1 ./docs/Examples | cat -n
+      read -rp " > " out
+      if [ "$out" ]
+      then
+        $0 $(ls -1 ./docs/Examples | sed "''${out}q;d")
+      fi
+    fi
+  '';
 
-  format =
-    pkgs.writeShellScriptBin "format" "purs-tidy format-in-place src test docs";
+  format = pkgs.writeShellScriptBin "format" ''
+    purs-tidy format-in-place src test docs
+    nixfmt *.nix
+  '';
 
   repl = pkgs.writeShellScriptBin "repl" "spago repl";
 
