@@ -18,7 +18,6 @@
   , "options"
   , "ordered-collections"
   , "prelude"
-  , "psci-support"
   , "refs"
   , "strings"
   , "tuples"
