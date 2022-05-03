@@ -3,3 +3,5 @@
 /generated-docs
 /output
 /bower_components
+/.psc-ide-port
+/.psa-stash
