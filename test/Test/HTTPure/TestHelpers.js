@@ -1,4 +1,4 @@
-import * as ztream from "stream";
+import * as zstream from "stream";
 
 export function mockRequestImpl(httpVersion) {
   return function (method) {
