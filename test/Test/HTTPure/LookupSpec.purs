@@ -1,11 +1,12 @@
 module Test.HTTPure.LookupSpec where
 
 import Prelude
+
 import Data.Maybe (Maybe(Nothing, Just))
 import Foreign.Object (singleton)
-import Test.Spec (describe, it)
-import HTTPure.Lookup ((!!), (!@), (!?))
+import HTTPure.Lookup ((!!), (!?), (!@))
 import Test.HTTPure.TestHelpers (Test, (?=))
+import Test.Spec (describe, it)
 
 atSpec :: Test
 atSpec =

@@ -1,10 +1,7 @@
 module Test.HTTPure.TestHelpers where
 
 import Prelude
-import Effect (Effect)
-import Effect.Aff (Aff, makeAff, nonCanceler)
-import Effect.Class (liftEffect)
-import Effect.Ref (new, modify_, read)
+
 import Data.Array (fromFoldable) as Array
 import Data.Either (Either(Right))
 import Data.List (List(Nil, Cons), reverse)
@@ -12,29 +9,33 @@ import Data.Maybe (fromMaybe)
 import Data.Options ((:=))
 import Data.String (toLower)
 import Data.Tuple (Tuple)
-import Foreign.Object (fromFoldable) as Object
+import Effect (Effect)
+import Effect.Aff (Aff, makeAff, nonCanceler)
+import Effect.Class (liftEffect)
+import Effect.Ref (modify_, new, read)
 import Foreign.Object (Object, lookup)
+import Foreign.Object (fromFoldable) as Object
+import Node.Buffer (Buffer, concat, create, fromString)
 import Node.Buffer (toString) as Buffer
-import Node.Buffer (Buffer, create, fromString, concat)
 import Node.Encoding (Encoding(UTF8))
-import Node.HTTP (Response) as HTTP
 import Node.HTTP (Request)
-import Node.HTTP.Client (Response, request) as HTTPClient
+import Node.HTTP (Response) as HTTP
 import Node.HTTP.Client
   ( RequestHeaders(RequestHeaders)
-  , requestAsStream
-  , protocol
-  , method
-  , hostname
-  , port
-  , path
   , headers
+  , hostname
+  , method
+  , path
+  , port
+  , protocol
   , rejectUnauthorized
-  , statusCode
-  , responseHeaders
+  , requestAsStream
   , responseAsStream
+  , responseHeaders
+  , statusCode
   )
-import Node.Stream (Readable, write, end, onData, onEnd)
+import Node.HTTP.Client (Response, request) as HTTPClient
+import Node.Stream (Readable, end, onData, onEnd, write)
 import Test.Spec (Spec)
 import Test.Spec.Assertions (shouldEqual)
 import Unsafe.Coerce (unsafeCoerce)
@@ -60,11 +61,12 @@ request ::
 request secure port' method' headers' path' body =
   makeAff \done -> do
     req <- HTTPClient.request options $ Right >>> done
-    let
-      stream = requestAsStream req
+    let stream = requestAsStream req
     void
       $ write stream body
+      $ const
       $ end stream
+      $ const
       $ pure unit
     pure nonCanceler
   where

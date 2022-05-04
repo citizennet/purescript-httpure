@@ -1,26 +1,38 @@
 {
+    "alejandra": {
+        "branch": "main",
+        "description": "The Uncompromising Nix Code Formatter",
+        "homepage": "https://kamadorueda.github.io/alejandra/",
+        "owner": "kamadorueda",
+        "repo": "alejandra",
+        "rev": "00670576da082d85a51a53f58474b627ed7a5e21",
+        "sha256": "0mnf9yfbz58m9k6x5db808a8byp94yzgmmarz3zabi4xvsdihl8q",
+        "type": "tarball",
+        "url": "https://github.com/kamadorueda/alejandra/archive/00670576da082d85a51a53f58474b627ed7a5e21.tar.gz",
+        "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
+    },
     "easy-purescript-nix": {
         "branch": "master",
         "description": "Easy PureScript (and other tools) with Nix",
         "homepage": "",
         "owner": "justinwoo",
         "repo": "easy-purescript-nix",
-        "rev": "82f901ce0a2d86327e2d65993a75c2ea74f229f2",
-        "sha256": "0qsq8bj76y3bxdl2iphknjib139z0jw75xlaih7viv9kvfm9b1lx",
+        "rev": "0ad5775c1e80cdd952527db2da969982e39ff592",
+        "sha256": "0x53ads5v8zqsk4r1mfpzf5913byifdpv5shnvxpgw634ifyj1kg",
         "type": "tarball",
-        "url": "https://github.com/justinwoo/easy-purescript-nix/archive/82f901ce0a2d86327e2d65993a75c2ea74f229f2.tar.gz",
+        "url": "https://github.com/justinwoo/easy-purescript-nix/archive/0ad5775c1e80cdd952527db2da969982e39ff592.tar.gz",
         "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
     },
     "nixpkgs": {
-        "branch": "release-20.09",
+        "branch": "master",
         "description": "A read-only mirror of NixOS/nixpkgs tracking the released channels. Send issues and PRs to",
         "homepage": "https://github.com/NixOS/nixpkgs",
         "owner": "NixOS",
         "repo": "nixpkgs",
-        "rev": "f7949198dcff52265b322ca8abf7450610e7e49e",
-        "sha256": "1q7538dj47yp9azwk3bl193d0bwmsvm53rxwww4wr9qk6qljd2r7",
+        "rev": "af911e8452bd05d40674bf603332f37480ceb03d",
+        "sha256": "1wxx4zdvqxfslqvx17jz1blndybx5jkqsp5rb5qyma1y59jsbpy3",
         "type": "tarball",
-        "url": "https://github.com/NixOS/nixpkgs/archive/f7949198dcff52265b322ca8abf7450610e7e49e.tar.gz",
+        "url": "https://github.com/NixOS/nixpkgs/archive/af911e8452bd05d40674bf603332f37480ceb03d.tar.gz",
         "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
     }
 }

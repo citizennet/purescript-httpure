@@ -4,6 +4,7 @@ module HTTPure.Method
   ) where
 
 import Prelude
+
 import Node.HTTP (Request, requestMethod)
 
 -- | These are the HTTP methods that HTTPure understands.

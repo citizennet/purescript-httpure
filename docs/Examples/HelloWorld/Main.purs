@@ -1,8 +1,9 @@
 module Examples.HelloWorld.Main where
 
 import Prelude
+
 import Effect.Console (log)
-import HTTPure (ServerM, serve, ok)
+import HTTPure (ServerM, ok, serve)
 
 -- | Boot up the server
 main :: ServerM

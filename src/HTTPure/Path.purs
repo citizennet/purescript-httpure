@@ -4,11 +4,12 @@ module HTTPure.Path
   ) where
 
 import Prelude
+
 import Data.Array (filter, head)
 import Data.Maybe (fromMaybe)
 import Data.String (Pattern(Pattern), split)
-import Node.HTTP (Request, requestURL)
 import HTTPure.Utils (urlDecode)
+import Node.HTTP (Request, requestURL)
 
 -- | The `Path` type is just sugar for an `Array` of `String` segments that are
 -- | sent in a request and indicates the path of the resource being requested.

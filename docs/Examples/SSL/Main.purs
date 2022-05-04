@@ -1,8 +1,9 @@
 module Examples.SSL.Main where
 
 import Prelude
+
 import Effect.Console (log)
-import HTTPure (Request, ResponseM, ServerM, serveSecure, ok)
+import HTTPure (Request, ResponseM, ServerM, ok, serveSecure)
 
 -- | The path to the certificate file
 cert :: String

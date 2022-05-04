@@ -1,22 +1,23 @@
 module Test.HTTPure.ServerSpec where
 
 import Prelude
-import Effect.Class (liftEffect)
-import Effect.Exception (error)
+
 import Control.Monad.Except (throwError)
 import Data.Maybe (Maybe(Nothing))
 import Data.Options ((:=))
 import Data.String (joinWith)
+import Effect.Class (liftEffect)
+import Effect.Exception (error)
 import Foreign.Object (empty)
-import Node.Encoding (Encoding(UTF8))
-import Node.HTTP.Secure (key, keyString, cert, certString)
-import Node.FS.Sync (readTextFile)
-import Test.Spec (describe, it)
-import Test.Spec.Assertions (expectError)
 import HTTPure.Request (Request)
 import HTTPure.Response (ResponseM, ok)
 import HTTPure.Server (serve, serve', serveSecure, serveSecure')
-import Test.HTTPure.TestHelpers (Test, (?=), get, get', getStatus)
+import Node.Encoding (Encoding(UTF8))
+import Node.FS.Sync (readTextFile)
+import Node.HTTP.Secure (cert, certString, key, keyString)
+import Test.HTTPure.TestHelpers (Test, get, get', getStatus, (?=))
+import Test.Spec (describe, it)
+import Test.Spec.Assertions (expectError)
 
 mockRouter :: Request -> ResponseM
 mockRouter { path } = ok $ "/" <> joinWith "/" path

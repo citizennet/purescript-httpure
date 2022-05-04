@@ -5,13 +5,12 @@ on:
   push:
     branches:
       - main
-      - 'v[0-9]*.[0-9]*.x'
+      - "v[0-9]*.[0-9]*.x"
 
 jobs:
   Test:
     runs-on: ubuntu-latest
     steps:
-
       - name: Check out codebase
         uses: actions/checkout@v2
 
@@ -32,7 +31,6 @@ jobs:
   Validate_Format:
     runs-on: ubuntu-latest
     steps:
-
       - name: Check out codebase
         uses: actions/checkout@v2
 
@@ -46,3 +44,20 @@ jobs:
 
       - name: Validate Format
         run: nix-shell --run check-format
+
+  Validate_Pulp:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out codebase
+        uses: actions/checkout@v2
+
+      - name: Install nix
+        uses: cachix/install-nix-action@v15
+        with:
+          nix_path: nixpkgs=channel:nixpkgs-unstable
+
+      - name: Install environment
+        run: nix-shell
+
+      - name: Verify Pulp and bower
+        run: nix-shell --run check-pulp

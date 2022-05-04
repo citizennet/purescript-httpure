@@ -9,6 +9,7 @@ module HTTPure.Lookup
   ) where
 
 import Prelude
+
 import Data.Array (index)
 import Data.Map (Map)
 import Data.Map (lookup) as Map

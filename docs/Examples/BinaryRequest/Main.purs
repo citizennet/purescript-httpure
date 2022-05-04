@@ -1,9 +1,10 @@
 module Examples.BinaryRequest.Main where
 
 import Prelude
+
 import Effect.Console (log)
+import HTTPure (Request, ResponseM, ServerM, ok, serve, toBuffer)
 import Node.Buffer (Buffer)
-import HTTPure (Request, ResponseM, ServerM, toBuffer, serve, ok)
 
 foreign import sha256sum :: Buffer -> String
 

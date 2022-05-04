@@ -1,11 +1,12 @@
 module Examples.Chunked.Main where
 
 import Prelude
+
 import Effect.Aff (Aff)
 import Effect.Class (liftEffect)
 import Effect.Console (log)
-import HTTPure (ServerM, Request, ResponseM, serve, ok)
-import Node.ChildProcess (stdout, spawn, defaultSpawnOptions)
+import HTTPure (Request, ResponseM, ServerM, ok, serve)
+import Node.ChildProcess (defaultSpawnOptions, spawn, stdout)
 import Node.Stream (Readable)
 
 -- | Run a script and return it's stdout stream

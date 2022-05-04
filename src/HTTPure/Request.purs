@@ -5,6 +5,7 @@ module HTTPure.Request
   ) where
 
 import Prelude
+
 import Data.String (joinWith)
 import Effect.Aff (Aff)
 import Effect.Class (liftEffect)
