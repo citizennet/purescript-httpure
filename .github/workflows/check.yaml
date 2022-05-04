@@ -8,7 +8,7 @@ on:
       - "v[0-9]*.[0-9]*.x"
 
 jobs:
-  Setup Environment:
+  Setup_Environment:
     runs-on: ubuntu-latest
     steps:
       - name: Check out codebase
@@ -32,7 +32,7 @@ jobs:
 
   Test:
     runs-on: ubuntu-latest
-    needs: "Setup Environment"
+    needs: "Setup_Environment"
     steps:
       - name: Check out codebase
         uses: actions/checkout@v3
@@ -59,9 +59,9 @@ jobs:
       - name: Test
         run: nix-shell --run check-code
 
-  Validate Purescript Format:
+  Validate_Purescript_Format:
     runs-on: ubuntu-latest
-    needs: "Setup Environment"
+    needs: "Setup_Environment"
     steps:
       - name: Check out codebase
         uses: actions/checkout@v3
@@ -85,9 +85,9 @@ jobs:
       - name: Validate Format
         run: nix-shell --run check-format-purescript
 
-  Validate Nix Format:
+  Validate_Nix_Format:
     runs-on: ubuntu-latest
-    needs: "Setup Environment"
+    needs: "Setup_Environment"
     steps:
       - name: Check out codebase
         uses: actions/checkout@v3
@@ -111,9 +111,9 @@ jobs:
       - name: Validate Format
         run: nix-shell --run check-format-nix
 
-  Validate Pulp:
+  Validate_Pulp:
     runs-on: ubuntu-latest
-    needs: "Setup Environment"
+    needs: "Setup_Environment"
     steps:
       - name: Check out codebase
         uses: actions/checkout@v3
