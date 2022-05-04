@@ -8,11 +8,42 @@ on:
       - "v[0-9]*.[0-9]*.x"
 
 jobs:
-  Test:
+  Setup Environment:
     runs-on: ubuntu-latest
     steps:
       - name: Check out codebase
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
+
+      - name: Cache nix store
+        uses: actions/cache@v3
+        env:
+          cache-name: nix-store-cache
+        with:
+          path: /nix/store
+          key: nix-store
+
+      - name: Install nix
+        uses: cachix/install-nix-action@v15
+        with:
+          nix_path: nixpkgs=channel:nixpkgs-unstable
+
+      - name: Install environment
+        run: nix-shell
+
+  Test:
+    runs-on: ubuntu-latest
+    needs: "Setup Environment"
+    steps:
+      - name: Check out codebase
+        uses: actions/checkout@v3
+
+      - name: Cache nix store
+        uses: actions/cache@v3
+        env:
+          cache-name: nix-store-cache
+        with:
+          path: /nix/store
+          key: nix-store
 
       - name: Install nix
         uses: cachix/install-nix-action@v15
@@ -28,11 +59,20 @@ jobs:
       - name: Test
         run: nix-shell --run check-code
 
-  Validate_Format:
+  Validate Purescript Format:
     runs-on: ubuntu-latest
+    needs: "Setup Environment"
     steps:
       - name: Check out codebase
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
+
+      - name: Cache nix store
+        uses: actions/cache@v3
+        env:
+          cache-name: nix-store-cache
+        with:
+          path: /nix/store
+          key: nix-store
 
       - name: Install nix
         uses: cachix/install-nix-action@v15
@@ -43,13 +83,48 @@ jobs:
         run: nix-shell
 
       - name: Validate Format
-        run: nix-shell --run check-format
+        run: nix-shell --run check-format-purescript
 
-  Validate_Pulp:
+  Validate Nix Format:
     runs-on: ubuntu-latest
+    needs: "Setup Environment"
     steps:
       - name: Check out codebase
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
+
+      - name: Cache nix store
+        uses: actions/cache@v3
+        env:
+          cache-name: nix-store-cache
+        with:
+          path: /nix/store
+          key: nix-store
+
+      - name: Install nix
+        uses: cachix/install-nix-action@v15
+        with:
+          nix_path: nixpkgs=channel:nixpkgs-unstable
+
+      - name: Install environment
+        run: nix-shell
+
+      - name: Validate Format
+        run: nix-shell --run check-format-nix
+
+  Validate Pulp:
+    runs-on: ubuntu-latest
+    needs: "Setup Environment"
+    steps:
+      - name: Check out codebase
+        uses: actions/checkout@v3
+
+      - name: Cache nix store
+        uses: actions/cache@v3
+        env:
+          cache-name: nix-store-cache
+        with:
+          path: /nix/store
+          key: nix-store
 
       - name: Install nix
         uses: cachix/install-nix-action@v15
