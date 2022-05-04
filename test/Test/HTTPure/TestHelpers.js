@@ -1,46 +1,35 @@
-import * as zstream from "stream";
+import { Readable } from "stream";
 
-export function mockRequestImpl(httpVersion) {
-  return function (method) {
-    return function (url) {
-      return function (body) {
-        return function (headers) {
-          return function () {
-            var stream = new zstream.Readable({
-              read: function (size) {
-                this.push(body);
-                this.push(null);
-              },
-            });
-            stream.method = method;
-            stream.url = url;
-            stream.headers = headers;
-            stream.httpVersion = httpVersion;
+export const mockRequestImpl = httpVersion => method => url => body => headers => () => {
+    const stream = new Readable({
+        read: function (size) {
+            this.push(body);
+            this.push(null);
+        }
+    });
+    stream.method = method;
+    stream.url = url;
+    stream.headers = headers;
+    stream.httpVersion = httpVersion;
 
-            return stream;
-          };
-        };
-      };
-    };
-  };
-}
+    return stream;
+};
 
-export function mockResponse() {
-  return {
+export const mockResponse = () => ({
     body: "",
     headers: {},
 
     write: function (str, encoding, callback) {
-      this.body = this.body + str;
-      if (callback) {
-        callback();
-      }
+        this.body = this.body + str;
+        if (callback) {
+            callback();
+        }
     },
 
     end: function (str, encoding, callback) {
-      if (callback) {
-        callback();
-      }
+        if (callback) {
+            callback();
+        }
     },
 
     on: function () {},
@@ -48,15 +37,14 @@ export function mockResponse() {
     emit: function () {},
 
     setHeader: function (header, val) {
-      this.headers[header] = val;
+        this.headers[header] = val;
     },
-  };
-}
+});
 
-export function stringToStream(str) {
-  var stream = new zstream.Readable();
-  stream._read = function () {};
-  stream.push(str);
-  stream.push(null);
-  return stream;
+export const stringToStream = str => {
+    const stream = new Readable();
+    stream._read = function () {};
+    stream.push(str);
+    stream.push(null);
+    return stream;
 }
