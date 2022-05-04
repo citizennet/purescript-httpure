@@ -2,7 +2,6 @@
   sources ? import ./sources.nix,
   nixpkgs ? sources.nixpkgs,
   easy-purescript-nix ? sources.easy-purescript-nix,
-  niv ? sources.niv,
   alejandra ? sources.alejandra,
 }: let
   niv-overlay = self: super: {
