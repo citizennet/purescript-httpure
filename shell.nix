@@ -5,10 +5,10 @@
   niv ? sources.niv,
   alejandra ? sources.alejandra,
 }: let
-  niv-overlay = self: _: {
+  niv-overlay = self: super: {
     niv = self.symlinkJoin {
       name = "niv";
-      paths = [niv];
+      paths = [super.niv];
       buildInputs = [self.makeWrapper];
       postBuild = ''
         wrapProgram $out/bin/niv \
