@@ -1,3 +1,7 @@
+0.15.0 / 2022-05-05
+===================
+- Update for PureScript 0.15 (thanks **@thomashoneyman** and **@sigma-andex**)
+
 0.14.0 / 2021-12-06
 ===================
 - Cache Body `toBuffer`/`toString` results (thanks **@boygao1992**)
