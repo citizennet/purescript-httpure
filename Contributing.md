@@ -8,7 +8,7 @@ follow this guide when creating contributions to help make the project better!
 If you find a bug or a place where documentation needs to be improved, or if you
 have a feature request,
 please
-[submit an issue](https://github.com/cprussin/purescript-httpure/issues/new)! In
+[submit an issue](https://github.com/citizennet/purescript-httpure/issues/new)! In
 issues you submit, please be clear, and preferably have code examples indicating
 what is broken, needs improvement, or what your requested API should look like.
 
@@ -18,9 +18,9 @@ All contributions to this repository should come in the form of pull requests.
 All pull requests must be reviewed before being merged. Please follow these
 steps for creating a successful PR:
 
-1. [Create an issue](https://github.com/cprussin/purescript-httpure/issues/new)
+1. [Create an issue](https://github.com/citizennet/purescript-httpure/issues/new)
    for your contribution.
-2. [Create a fork](https://github.com/cprussin/purescript-httpure) on github.
+2. [Create a fork](https://github.com/citizennet/purescript-httpure) on github.
 3. Create a branch in your fork for your contribution.
 4. Add your contribution to the source tree.
 5. Run the test suite. All tests MUST pass for a PR to be accepted.

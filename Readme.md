@@ -1,7 +1,7 @@
 # HTTPure
 
-[![License](https://img.shields.io/badge/license-MIT-blue.svg)](https://raw.githubusercontent.com/cprussin/purescript-httpure/main/License)
-[![Latest release](http://img.shields.io/github/release/cprussin/purescript-httpure.svg)](https://github.com/cprussin/purescript-httpure/releases)
+[![License](https://img.shields.io/badge/license-MIT-blue.svg)](https://raw.githubusercontent.com/citizennet/purescript-httpure/main/License)
+[![Latest release](http://img.shields.io/github/release/citizennet/purescript-httpure.svg)](https://github.com/citizennet/purescript-httpure/releases)
 [![purescript-httpure on Pursuit](https://pursuit.purescript.org/packages/purescript-httpure/badge)](https://pursuit.purescript.org/packages/purescript-httpure)
 
 A purescript HTTP server framework.
@@ -18,7 +18,7 @@ HTTPure is:
 
 This project is currently fairly stable, but has not reached it's 1.0 release
 yet. You can track what's left before it gets there by looking at our
-[roadmap](https://github.com/cprussin/purescript-httpure/projects). The API
+[roadmap](https://github.com/citizennet/purescript-httpure/projects). The API
 signatures are _mostly_ stable, but are subject to change before the 1.0 release
 if there's a good reason to change them.
 
