@@ -80,6 +80,6 @@ headers' = foldl insertField Map.empty >>> ResponseHeaders
 header :: String -> String -> ResponseHeaders
 header key = NonEmptyArray.singleton >>> singleton (CaseInsensitiveString key) >>> ResponseHeaders
 
--- | Create a header from a key-value pair.
+-- | Create a header from a key-values pair.
 header' :: String -> NonEmptyArray String -> ResponseHeaders
 header' key = singleton (CaseInsensitiveString key) >>> ResponseHeaders
