@@ -39,7 +39,7 @@ sendSpec =
         httpResponse <- liftEffect mockResponse
         send httpResponse mockResponse'
         pure $ getResponseHeader "Test" httpResponse
-      header ?= "test"
+      header ?= [ "test" ]
     it "writes the status" do
       status <- do
         httpResponse <- liftEffect mockResponse

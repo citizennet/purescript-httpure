@@ -18,12 +18,11 @@ import Data.Map (Map, insert, singleton, union)
 import Data.Map (empty) as Map
 import Data.Newtype (class Newtype, unwrap)
 import Data.String.CaseInsensitive (CaseInsensitiveString(CaseInsensitiveString))
-import Data.Traversable (traverse)
 import Data.TraversableWithIndex (traverseWithIndex)
 import Data.Tuple (Tuple(Tuple))
 import Effect (Effect)
 import HTTPure.Lookup (class Lookup, (!!))
-import Node.HTTP (Response, setHeader)
+import Node.HTTP (Response, setHeaders)
 
 -- | The `ResponseHeaders` type is just sugar for a `Map` of `Strings`
 -- | that represents the set of headers in an HTTP request or response.
@@ -57,7 +56,7 @@ instance semigroupResponseHeaders :: Semigroup ResponseHeaders where
 write :: Response -> ResponseHeaders -> Effect Unit
 write response (ResponseHeaders responseHeaders) = void $ traverseWithIndex writeField responseHeaders
   where
-  writeField key = traverse (setHeader response (unwrap key))
+  writeField key = setHeaders response (unwrap key) <<< NonEmptyArray.toArray
 
 -- | Return a `ResponseHeaders` containing nothing.
 empty :: ResponseHeaders

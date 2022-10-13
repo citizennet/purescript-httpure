@@ -236,12 +236,12 @@ getResponseStatus :: HTTP.Response -> Int
 getResponseStatus = _.statusCode <<< unsafeCoerce
 
 -- | Get all current headers on the HTTP Response object.
-getResponseHeaders :: HTTP.Response -> Object String
+getResponseHeaders :: HTTP.Response -> Object (Array String)
 getResponseHeaders = unsafeCoerce <<< _.headers <<< unsafeCoerce
 
 -- | Get the current value for the header on the HTTP Response object.
-getResponseHeader :: String -> HTTP.Response -> String
-getResponseHeader header = fromMaybe "" <<< lookup header <<< getResponseHeaders
+getResponseHeader :: String -> HTTP.Response -> Array String
+getResponseHeader header = fromMaybe [] <<< lookup header <<< getResponseHeaders
 
 -- | Create a stream out of a string.
 foreign import stringToStream :: String -> Readable ()

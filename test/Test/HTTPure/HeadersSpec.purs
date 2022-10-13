@@ -100,7 +100,7 @@ writeSpec =
         mock <- TestHelpers.mockResponse
         write mock $ header "X-Test" "test"
         pure $ TestHelpers.getResponseHeader "X-Test" mock
-      header ?= "test"
+      header ?= [ "test" ]
 
 emptySpec :: TestHelpers.Test
 emptySpec =
