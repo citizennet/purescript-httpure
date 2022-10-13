@@ -1,8 +1,9 @@
 module Examples.Headers.Main where
 
 import Prelude
+
 import Effect.Console (log)
-import HTTPure (ServerM, ResponseHeaders, Request, ResponseM, (!@), header, serve, ok')
+import HTTPure (Request, ResponseHeaders, ResponseM, ServerM, header, ok', serve, (!@))
 
 -- | The headers that will be included in every response.
 responseHeaders :: ResponseHeaders

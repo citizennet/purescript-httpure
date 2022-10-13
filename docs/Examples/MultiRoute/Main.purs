@@ -1,8 +1,9 @@
 module Examples.MultiRoute.Main where
 
 import Prelude
+
 import Effect.Console (log)
-import HTTPure (Request, ResponseM, ServerM, serve, ok, notFound)
+import HTTPure (Request, ResponseM, ServerM, notFound, ok, serve)
 
 -- | Specify the routes
 router :: Request -> ResponseM

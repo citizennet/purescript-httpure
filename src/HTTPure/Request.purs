@@ -5,20 +5,21 @@ module HTTPure.Request
   ) where
 
 import Prelude
+
 import Data.String (joinWith)
 import Effect.Aff (Aff)
 import Effect.Class (liftEffect)
 import Foreign.Object (isEmpty, toArrayWithKey)
 import HTTPure.Body (RequestBody)
 import HTTPure.Body (read) as Body
-import HTTPure.RequestHeaders (RequestHeaders)
-import HTTPure.RequestHeaders (read) as Headers
 import HTTPure.Method (Method)
 import HTTPure.Method (read) as Method
 import HTTPure.Path (Path)
 import HTTPure.Path (read) as Path
 import HTTPure.Query (Query)
 import HTTPure.Query (read) as Query
+import HTTPure.RequestHeaders (RequestHeaders)
+import HTTPure.RequestHeaders (read) as Headers
 import HTTPure.Utils (encodeURIComponent)
 import HTTPure.Version (Version)
 import HTTPure.Version (read) as Version

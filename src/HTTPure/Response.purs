@@ -134,77 +134,78 @@ module HTTPure.Response
   ) where
 
 import Prelude
+
 import Effect.Aff (Aff)
 import Effect.Aff.Class (class MonadAff, liftAff)
 import Effect.Class (class MonadEffect, liftEffect)
-import Node.HTTP (Response) as HTTP
 import HTTPure.Body (class Body, defaultHeaders, write)
 import HTTPure.ResponseHeaders (ResponseHeaders, empty)
 import HTTPure.ResponseHeaders (write) as ResponseHeaders
 import HTTPure.Status (Status)
 import HTTPure.Status
-  ( write
-  , continue
-  , switchingProtocols
-  , processing
-  , ok
-  , created
-  , accepted
-  , nonAuthoritativeInformation
-  , noContent
-  , resetContent
-  , partialContent
-  , multiStatus
+  ( accepted
   , alreadyReported
-  , iMUsed
-  , multipleChoices
-  , movedPermanently
-  , found
-  , seeOther
-  , notModified
-  , useProxy
-  , temporaryRedirect
-  , permanentRedirect
-  , badRequest
-  , unauthorized
-  , paymentRequired
-  , forbidden
-  , notFound
-  , methodNotAllowed
-  , notAcceptable
-  , proxyAuthenticationRequired
-  , requestTimeout
-  , conflict
-  , gone
-  , lengthRequired
-  , preconditionFailed
-  , payloadTooLarge
-  , uRITooLong
-  , unsupportedMediaType
-  , rangeNotSatisfiable
-  , expectationFailed
-  , imATeapot
-  , misdirectedRequest
-  , unprocessableEntity
-  , locked
-  , failedDependency
-  , upgradeRequired
-  , preconditionRequired
-  , tooManyRequests
-  , requestHeaderFieldsTooLarge
-  , unavailableForLegalReasons
-  , internalServerError
-  , notImplemented
   , badGateway
-  , serviceUnavailable
+  , badRequest
+  , conflict
+  , continue
+  , created
+  , expectationFailed
+  , failedDependency
+  , forbidden
+  , found
   , gatewayTimeout
+  , gone
   , hTTPVersionNotSupported
-  , variantAlsoNegotiates
+  , iMUsed
+  , imATeapot
   , insufficientStorage
+  , internalServerError
+  , lengthRequired
+  , locked
   , loopDetected
-  , notExtended
+  , methodNotAllowed
+  , misdirectedRequest
+  , movedPermanently
+  , multiStatus
+  , multipleChoices
   , networkAuthenticationRequired
+  , noContent
+  , nonAuthoritativeInformation
+  , notAcceptable
+  , notExtended
+  , notFound
+  , notImplemented
+  , notModified
+  , ok
+  , partialContent
+  , payloadTooLarge
+  , paymentRequired
+  , permanentRedirect
+  , preconditionFailed
+  , preconditionRequired
+  , processing
+  , proxyAuthenticationRequired
+  , rangeNotSatisfiable
+  , requestHeaderFieldsTooLarge
+  , requestTimeout
+  , resetContent
+  , seeOther
+  , serviceUnavailable
+  , switchingProtocols
+  , temporaryRedirect
+  , tooManyRequests
+  , uRITooLong
+  , unauthorized
+  , unavailableForLegalReasons
+  , unprocessableEntity
+  , unsupportedMediaType
+  , upgradeRequired
+  , useProxy
+  , variantAlsoNegotiates
+  , write
   ) as Status
+import Node.HTTP (Response) as HTTP
 
 -- | The `ResponseM` type simply conveniently wraps up an HTTPure monad that
 -- | returns a response. This type is the return type of all router/route

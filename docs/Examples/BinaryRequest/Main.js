@@ -1,7 +1,4 @@
-'use strict';
+import crypto from 'crypto';
 
-const crypto = require('crypto');
-
-exports.sha256sum = function(buffer) {
-  return crypto.createHash('sha256').update(buffer).digest('hex');
-}
+export const sha256sum = buffer =>
+    crypto.createHash('sha256').update(buffer).digest('hex');

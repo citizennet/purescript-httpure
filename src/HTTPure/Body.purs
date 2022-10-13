@@ -10,19 +10,20 @@ module HTTPure.Body
   ) where
 
 import Prelude
+
 import Data.Either (Either(Right))
 import Data.Maybe (Maybe(Just, Nothing))
 import Effect (Effect)
 import Effect.Aff (Aff, makeAff, nonCanceler)
 import Effect.Class (liftEffect)
 import Effect.Ref (Ref)
-import Effect.Ref (read, modify, new, write) as Ref
+import Effect.Ref (modify, new, read, write) as Ref
 import HTTPure.ResponseHeaders (ResponseHeaders, header)
 import Node.Buffer (Buffer, concat, fromString, size)
 import Node.Buffer (toString) as Buffer
 import Node.Encoding (Encoding(UTF8))
 import Node.HTTP (Request, Response, requestAsStream, responseAsStream)
-import Node.Stream (Stream, Readable, onData, onEnd, writeString, pipe, end)
+import Node.Stream (Readable, Stream, end, onData, onEnd, pipe, writeString)
 import Node.Stream (write) as Stream
 import Type.Equality (class TypeEquals, to)
 
@@ -117,7 +118,7 @@ instance bodyString :: Body String where
     defaultHeaders buf
   write body response = makeAff \done -> do
     let stream = responseAsStream response
-    void $ writeString stream UTF8 body $ end stream $ done $ Right unit
+    void $ writeString stream UTF8 body $ const $ end stream $ const $ done $ Right unit
     pure nonCanceler
 
 -- | The instance for `Buffer` is trivial--we add a `Content-Length` header
@@ -127,7 +128,7 @@ instance bodyBuffer :: Body Buffer where
   defaultHeaders buf = header "Content-Length" <$> show <$> size buf
   write body response = makeAff \done -> do
     let stream = responseAsStream response
-    void $ Stream.write stream body $ end stream $ done $ Right unit
+    void $ Stream.write stream body $ const $ end stream $ const $ done $ Right unit
     pure nonCanceler
 
 -- | This instance can be used to send chunked data.  Here, we add a

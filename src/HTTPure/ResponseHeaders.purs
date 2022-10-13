@@ -10,11 +10,11 @@ module HTTPure.ResponseHeaders
 
 import Prelude
 
-import Data.Array.NonEmpty (NonEmptyArray, toArray)
+import Data.Array.NonEmpty (NonEmptyArray)
 import Data.Array.NonEmpty as NonEmptyArray
 import Data.Foldable (foldl)
 import Data.FoldableWithIndex (foldMapWithIndex)
-import Data.Map (Map, singleton, union, insert)
+import Data.Map (Map, insert, singleton, union)
 import Data.Map (empty) as Map
 import Data.Newtype (class Newtype, unwrap)
 import Data.String.CaseInsensitive (CaseInsensitiveString(CaseInsensitiveString))

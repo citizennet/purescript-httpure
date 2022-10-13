@@ -1,15 +1,16 @@
 module Test.HTTPure.RequestSpec where
 
 import Prelude
+
 import Data.Tuple (Tuple(Tuple))
 import Foreign.Object (singleton)
-import Test.Spec (describe, it)
 import HTTPure.Body (toString)
-import HTTPure.ResponseHeaders (headers)
 import HTTPure.Method (Method(Post))
 import HTTPure.Request (fromHTTPRequest, fullPath)
+import HTTPure.ResponseHeaders (headers)
 import HTTPure.Version (Version(HTTP1_1))
-import Test.HTTPure.TestHelpers (Test, (?=), convertToResponseHeader, mockRequest)
+import Test.HTTPure.TestHelpers (Test, convertToResponseHeader, mockRequest, (?=))
+import Test.Spec (describe, it)
 
 fromHTTPRequestSpec :: Test
 fromHTTPRequestSpec =

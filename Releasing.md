@@ -17,4 +17,4 @@
 5. If you are pushing a non-patch release, create and push a branch named with
    the version series, i.e. `v0.1.x`.
 6. [Create the release on
-   github](https://github.com/cprussin/purescript-httpure/releases/new).
+   github](https://github.com/citizennet/purescript-httpure/releases/new).

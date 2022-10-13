@@ -1,15 +1,16 @@
 module Examples.Post.Main where
 
 import Prelude
+
 import Effect.Console (log)
 import HTTPure
-  ( Request
+  ( Method(Post)
+  , Request
   , ResponseM
   , ServerM
-  , Method(Post)
-  , serve
-  , ok
   , notFound
+  , ok
+  , serve
   , toString
   )
 

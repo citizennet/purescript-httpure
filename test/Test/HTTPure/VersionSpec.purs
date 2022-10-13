@@ -1,12 +1,13 @@
 module Test.HTTPure.VersionSpec where
 
 import Prelude
-import Test.Spec (describe, it)
+
 import HTTPure.Version
   ( Version(HTTP0_9, HTTP1_0, HTTP1_1, HTTP2_0, HTTP3_0, Other)
   , read
   )
-import Test.HTTPure.TestHelpers (Test, (?=), mockRequest)
+import Test.HTTPure.TestHelpers (Test, mockRequest, (?=))
+import Test.Spec (describe, it)
 
 showSpec :: Test
 showSpec =

@@ -12,7 +12,7 @@ import Node.Buffer (Buffer, fromString)
 import Node.Buffer (toString) as Buffer
 import Node.Encoding (Encoding(UTF8))
 import Node.Stream (readString)
-import Test.HTTPure.TestHelpers (Test, (?=), mockRequest, mockResponse, getResponseBody, stringToStream)
+import Test.HTTPure.TestHelpers (Test, getResponseBody, mockRequest, mockResponse, stringToStream, (?=))
 import Test.Spec (describe, it)
 
 mockRequestBody :: String -> Aff RequestBody

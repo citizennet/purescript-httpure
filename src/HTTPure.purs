@@ -1,20 +1,19 @@
 module HTTPure
   ( module HTTPure.Body
-  , module HTTPure.RequestHeaders
-  , module HTTPure.ResponseHeaders
   , module HTTPure.Lookup
   , module HTTPure.Method
   , module HTTPure.Path
   , module HTTPure.Query
   , module HTTPure.Request
+  , module HTTPure.RequestHeaders
   , module HTTPure.Response
+  , module HTTPure.ResponseHeaders
   , module HTTPure.Server
   , module HTTPure.Status
   ) where
 
 import HTTPure.Body (toBuffer, toStream, toString)
-import HTTPure.ResponseHeaders (ResponseHeaders, empty, header, headers)
-import HTTPure.Lookup (at, (!@), has, (!?), lookup, (!!))
+import HTTPure.Lookup (at, has, lookup, (!!), (!?), (!@))
 import HTTPure.Method (Method(..))
 import HTTPure.Path (Path)
 import HTTPure.Query (Query)
@@ -23,136 +22,137 @@ import HTTPure.RequestHeaders (RequestHeaders, read)
 import HTTPure.Response
   ( Response
   , ResponseM
-  , response
-  , response'
-  , emptyResponse
-  , emptyResponse'
-  -- 1xx
-  , continue
-  , continue'
-  , switchingProtocols
-  , switchingProtocols'
-  , processing
-  , processing'
-  -- 2xx
-  , ok
-  , ok'
-  , created
-  , created'
   , accepted
   , accepted'
-  , nonAuthoritativeInformation
-  , nonAuthoritativeInformation'
-  , noContent
-  , noContent'
-  , resetContent
-  , resetContent'
-  , partialContent
-  , partialContent'
-  , multiStatus
-  , multiStatus'
   , alreadyReported
   , alreadyReported'
-  , iMUsed
-  , iMUsed'
-  -- 3xx
-  , multipleChoices
-  , multipleChoices'
-  , movedPermanently
-  , movedPermanently'
-  , found
-  , found'
-  , seeOther
-  , seeOther'
-  , notModified
-  , notModified'
-  , useProxy
-  , useProxy'
-  , temporaryRedirect
-  , temporaryRedirect'
-  , permanentRedirect
-  , permanentRedirect'
-  -- 4xx
-  , badRequest
-  , badRequest'
-  , unauthorized
-  , unauthorized'
-  , paymentRequired
-  , paymentRequired'
-  , forbidden
-  , forbidden'
-  , notFound
-  , notFound'
-  , methodNotAllowed
-  , methodNotAllowed'
-  , notAcceptable
-  , notAcceptable'
-  , proxyAuthenticationRequired
-  , proxyAuthenticationRequired'
-  , requestTimeout
-  , requestTimeout'
-  , conflict
-  , conflict'
-  , gone
-  , gone'
-  , lengthRequired
-  , lengthRequired'
-  , preconditionFailed
-  , preconditionFailed'
-  , payloadTooLarge
-  , payloadTooLarge'
-  , uRITooLong
-  , uRITooLong'
-  , unsupportedMediaType
-  , unsupportedMediaType'
-  , rangeNotSatisfiable
-  , rangeNotSatisfiable'
-  , expectationFailed
-  , expectationFailed'
-  , imATeapot
-  , imATeapot'
-  , misdirectedRequest
-  , misdirectedRequest'
-  , unprocessableEntity
-  , unprocessableEntity'
-  , locked
-  , locked'
-  , failedDependency
-  , failedDependency'
-  , upgradeRequired
-  , upgradeRequired'
-  , preconditionRequired
-  , preconditionRequired'
-  , tooManyRequests
-  , tooManyRequests'
-  , requestHeaderFieldsTooLarge
-  , requestHeaderFieldsTooLarge'
-  , unavailableForLegalReasons
-  , unavailableForLegalReasons'
-  -- 5xx
-  , internalServerError
-  , internalServerError'
-  , notImplemented
-  , notImplemented'
+  -- 1xx
   , badGateway
   , badGateway'
-  , serviceUnavailable
-  , serviceUnavailable'
+  , badRequest
+  , badRequest'
+  , conflict
+  , conflict'
+  -- 2xx
+  , continue
+  , continue'
+  , created
+  , created'
+  , emptyResponse
+  , emptyResponse'
+  , expectationFailed
+  , expectationFailed'
+  , failedDependency
+  , failedDependency'
+  , forbidden
+  , forbidden'
+  , found
+  , found'
   , gatewayTimeout
   , gatewayTimeout'
+  , gone
+  , gone'
   , hTTPVersionNotSupported
   , hTTPVersionNotSupported'
-  , variantAlsoNegotiates
-  , variantAlsoNegotiates'
+  -- 3xx
+  , iMUsed
+  , iMUsed'
+  , imATeapot
+  , imATeapot'
   , insufficientStorage
   , insufficientStorage'
+  , internalServerError
+  , internalServerError'
+  , lengthRequired
+  , lengthRequired'
+  , locked
+  , locked'
   , loopDetected
   , loopDetected'
-  , notExtended
-  , notExtended'
+  , methodNotAllowed
+  , methodNotAllowed'
+  -- 4xx
+  , misdirectedRequest
+  , misdirectedRequest'
+  , movedPermanently
+  , movedPermanently'
+  , multiStatus
+  , multiStatus'
+  , multipleChoices
+  , multipleChoices'
   , networkAuthenticationRequired
   , networkAuthenticationRequired'
+  , noContent
+  , noContent'
+  , nonAuthoritativeInformation
+  , nonAuthoritativeInformation'
+  , notAcceptable
+  , notAcceptable'
+  , notExtended
+  , notExtended'
+  , notFound
+  , notFound'
+  , notImplemented
+  , notImplemented'
+  , notModified
+  , notModified'
+  , ok
+  , ok'
+  , partialContent
+  , partialContent'
+  , payloadTooLarge
+  , payloadTooLarge'
+  , paymentRequired
+  , paymentRequired'
+  , permanentRedirect
+  , permanentRedirect'
+  , preconditionFailed
+  , preconditionFailed'
+  , preconditionRequired
+  , preconditionRequired'
+  , processing
+  , processing'
+  , proxyAuthenticationRequired
+  , proxyAuthenticationRequired'
+  , rangeNotSatisfiable
+  , rangeNotSatisfiable'
+  , requestHeaderFieldsTooLarge
+  , requestHeaderFieldsTooLarge'
+  , requestTimeout
+  , requestTimeout'
+  , resetContent
+  , resetContent'
+  , response
+  , response'
+  , seeOther
+  , seeOther'
+  , serviceUnavailable
+  , serviceUnavailable'
+  -- 5xx
+  , switchingProtocols
+  , switchingProtocols'
+  , temporaryRedirect
+  , temporaryRedirect'
+  , tooManyRequests
+  , tooManyRequests'
+  , uRITooLong
+  , uRITooLong'
+  , unauthorized
+  , unauthorized'
+  , unavailableForLegalReasons
+  , unavailableForLegalReasons'
+  , unprocessableEntity
+  , unprocessableEntity'
+  , unsupportedMediaType
+  , unsupportedMediaType'
+  , upgradeRequired
+  , upgradeRequired'
+  , useProxy
+  , useProxy'
+  , variantAlsoNegotiates
+  , variantAlsoNegotiates'
   )
+import HTTPure.ResponseHeaders (ResponseHeaders, empty, header, headers)
 import HTTPure.Server
   ( ServerM
   , serve

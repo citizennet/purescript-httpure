@@ -1,12 +1,13 @@
 module Test.HTTPure.MethodSpec where
 
 import Prelude
-import Test.Spec (describe, it)
+
 import HTTPure.Method
   ( Method(Get, Post, Put, Delete, Head, Connect, Options, Trace, Patch)
   , read
   )
-import Test.HTTPure.TestHelpers (Test, (?=), mockRequest)
+import Test.HTTPure.TestHelpers (Test, mockRequest, (?=))
+import Test.Spec (describe, it)
 
 showSpec :: Test
 showSpec =

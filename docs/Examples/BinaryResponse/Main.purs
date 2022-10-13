@@ -1,9 +1,10 @@
 module Examples.BinaryResponse.Main where
 
 import Prelude
+
 import Effect.Console (log)
+import HTTPure (Request, ResponseHeaders, ResponseM, ServerM, header, ok', serve)
 import Node.FS.Aff (readFile)
-import HTTPure (ServerM, Request, ResponseM, ResponseHeaders, serve, ok', header)
 
 -- | The path to the file containing the response to send
 filePath :: String

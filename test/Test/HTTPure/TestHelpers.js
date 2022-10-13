@@ -1,62 +1,50 @@
-"use strict";
+import { Readable } from "stream";
 
-exports.mockRequestImpl = function(httpVersion) {
-  return function(method) {
-    return function(url) {
-      return function(body) {
-        return function(headers) {
-          return function() {
-            var stream = new require('stream').Readable({
-              read: function(size) {
-                this.push(body);
-                this.push(null);
-              }
-            });
-            stream.method = method;
-            stream.url = url;
-            stream.headers = headers;
-            stream.httpVersion = httpVersion;
+export const mockRequestImpl = httpVersion => method => url => body => headers => () => {
+    const stream = new Readable({
+        read: function (size) {
+            this.push(body);
+            this.push(null);
+        }
+    });
+    stream.method = method;
+    stream.url = url;
+    stream.headers = headers;
+    stream.httpVersion = httpVersion;
 
-            return stream;
-          };
-        };
-      };
-    };
-  };
+    return stream;
 };
 
-exports.mockResponse = function() {
-  return {
+export const mockResponse = () => ({
     body: "",
     headers: {},
 
-    write: function(str, encoding, callback) {
-      this.body = this.body + str;
-      if (callback) {
-        callback();
-      }
+    write: function (str, encoding, callback) {
+        this.body = this.body + str;
+        if (callback) {
+            callback();
+        }
     },
 
-    end: function(str, encoding, callback) {
-      if (callback) {
-        callback();
-      }
+    end: function (str, encoding, callback) {
+        if (callback) {
+            callback();
+        }
     },
 
-    on: function() { },
-    once: function() { },
-    emit: function() { },
+    on: function () {},
+    once: function () {},
+    emit: function () {},
 
-    setHeader: function(header, val) {
-      this.headers[header] = val;
-    }
-  };
-};
+    setHeader: function (header, val) {
+        this.headers[header] = val;
+    },
+});
 
-exports.stringToStream = function (str) {
-  var stream = new require('stream').Readable();
-  stream._read = function () {};
-  stream.push(str);
-  stream.push(null);
-  return stream;
+export const stringToStream = str => {
+    const stream = new Readable();
+    stream._read = function () {};
+    stream.push(str);
+    stream.push(null);
+    return stream;
 }

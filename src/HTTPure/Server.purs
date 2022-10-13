@@ -7,20 +7,21 @@ module HTTPure.Server
   ) where
 
 import Prelude
+
+import Data.Maybe (Maybe(Nothing))
+import Data.Options (Options, (:=))
 import Effect (Effect)
-import Effect.Aff (catchError, runAff, message)
+import Effect.Aff (catchError, message, runAff)
 import Effect.Class (liftEffect)
 import Effect.Console (error)
-import Data.Maybe (Maybe(Nothing))
-import Data.Options ((:=), Options)
-import Node.Encoding (Encoding(UTF8))
-import Node.FS.Sync (readTextFile)
-import Node.HTTP (Request, Response, createServer) as HTTP
-import Node.HTTP (ListenOptions, listen, close)
-import Node.HTTP.Secure (createServer) as HTTPS
-import Node.HTTP.Secure (SSLOptions, key, keyString, cert, certString)
 import HTTPure.Request (Request, fromHTTPRequest)
 import HTTPure.Response (ResponseM, internalServerError, send)
+import Node.Encoding (Encoding(UTF8))
+import Node.FS.Sync (readTextFile)
+import Node.HTTP (ListenOptions, close, listen)
+import Node.HTTP (Request, Response, createServer) as HTTP
+import Node.HTTP.Secure (SSLOptions, cert, certString, key, keyString)
+import Node.HTTP.Secure (createServer) as HTTPS
 
 -- | The `ServerM` is just an `Effect` containing a callback to close the
 -- | server. This type is the return type of the HTTPure serve and related

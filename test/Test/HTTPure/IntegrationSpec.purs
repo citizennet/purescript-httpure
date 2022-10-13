@@ -1,21 +1,8 @@
 module Test.HTTPure.IntegrationSpec where
 
 import Prelude
+
 import Effect.Class (liftEffect)
-import Foreign.Object (singleton, empty)
-import Node.Buffer (toArray)
-import Node.FS.Aff (readFile)
-import Test.Spec (describe, it)
-import Test.HTTPure.TestHelpers
-  ( Test
-  , (?=)
-  , get
-  , get'
-  , getBinary
-  , getHeader
-  , post
-  , postBinary
-  )
 import Examples.AsyncResponse.Main as AsyncResponse
 import Examples.BinaryRequest.Main as BinaryRequest
 import Examples.BinaryResponse.Main as BinaryResponse
@@ -29,6 +16,20 @@ import Examples.PathSegments.Main as PathSegments
 import Examples.Post.Main as Post
 import Examples.QueryParameters.Main as QueryParameters
 import Examples.SSL.Main as SSL
+import Foreign.Object (empty, singleton)
+import Node.Buffer (toArray)
+import Node.FS.Aff (readFile)
+import Test.HTTPure.TestHelpers
+  ( Test
+  , get
+  , get'
+  , getBinary
+  , getHeader
+  , post
+  , postBinary
+  , (?=)
+  )
+import Test.Spec (describe, it)
 
 asyncResponseSpec :: Test
 asyncResponseSpec =

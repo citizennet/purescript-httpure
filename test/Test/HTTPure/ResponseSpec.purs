@@ -1,24 +1,25 @@
 module Test.HTTPure.ResponseSpec where
 
 import Prelude
+
 import Data.Either (Either(Right))
 import Effect.Aff (makeAff, nonCanceler)
 import Effect.Class (liftEffect)
+import HTTPure.Body (defaultHeaders)
+import HTTPure.Response (emptyResponse, emptyResponse', response, response', send)
+import HTTPure.ResponseHeaders (header)
 import Node.Encoding (Encoding(UTF8))
 import Node.HTTP (responseAsStream)
-import Node.Stream (writeString, end)
-import Test.Spec (describe, it)
-import HTTPure.Body (defaultHeaders)
-import HTTPure.ResponseHeaders (header)
-import HTTPure.Response (send, response, response', emptyResponse, emptyResponse')
+import Node.Stream (end, writeString)
 import Test.HTTPure.TestHelpers
   ( Test
-  , (?=)
-  , mockResponse
+  , getResponseBody
   , getResponseHeader
   , getResponseStatus
-  , getResponseBody
+  , mockResponse
+  , (?=)
   )
+import Test.Spec (describe, it)
 
 sendSpec :: Test
 sendSpec =
@@ -30,7 +31,7 @@ sendSpec =
         , writeBody:
             \response -> makeAff \done -> do
               stream <- pure $ responseAsStream response
-              void $ writeString stream UTF8 "test" $ end stream $ done $ Right unit
+              void $ writeString stream UTF8 "test" $ const $ end stream $ const $ done $ Right unit
               pure nonCanceler
         }
     it "writes the headers" do

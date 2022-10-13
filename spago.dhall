@@ -18,7 +18,6 @@
   , "options"
   , "ordered-collections"
   , "prelude"
-  , "psci-support"
   , "refs"
   , "strings"
   , "tuples"
@@ -27,5 +26,5 @@
 , packages = ./packages.dhall
 , sources = [ "src/**/*.purs" ]
 , license = "MIT"
-, repository = "https://github.com/cprussin/purescript-httpure.git"
+, repository = "https://github.com/citizennet/purescript-httpure.git"
 }
