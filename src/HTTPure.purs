@@ -152,7 +152,7 @@ import HTTPure.Response
   , variantAlsoNegotiates
   , variantAlsoNegotiates'
   )
-import HTTPure.ResponseHeaders (ResponseHeaders, empty, header, headers)
+import HTTPure.ResponseHeaders (ResponseHeaders, header, headers)
 import HTTPure.Server
   ( ServerM
   , serve
