@@ -11,7 +11,6 @@ import Data.Map as Map
 import Data.Maybe (fromMaybe)
 import Data.Options ((:=))
 import Data.String (toLower)
-import Data.String.CaseInsensitive (CaseInsensitiveString(..))
 import Data.Tuple (Tuple)
 import Effect (Effect)
 import Effect.Aff (Aff, makeAff, nonCanceler)
@@ -250,4 +249,4 @@ convertToResponseHeader :: HTTPure.RequestHeaders -> HTTPure.ResponseHeaders
 convertToResponseHeader (HTTPure.RequestHeaders requestHeaders) =
   HTTPure.ResponseHeaders $ foldlWithIndex insertValue Map.empty requestHeaders
   where
-  insertValue k o v = Map.insert (CaseInsensitiveString k) (NonEmptyArray.singleton v) o
+  insertValue k o v = Map.insert k (NonEmptyArray.singleton v) o

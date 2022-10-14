@@ -7,19 +7,22 @@ module HTTPure.RequestHeaders
 
 import Prelude
 
+import Data.Bifunctor (lmap)
 import Data.FoldableWithIndex (foldMapWithIndex)
 import Data.Generic.Rep (class Generic)
-import Data.Newtype (class Newtype)
+import Data.Map (Map)
+import Data.Map as Data.Map
+import Data.Newtype (class Newtype, un)
 import Data.Show.Generic (genericShow)
 import Data.String as String
-import Foreign.Object (Object, union)
+import Data.String.CaseInsensitive (CaseInsensitiveString(..))
 import Foreign.Object as Object
 import HTTPure.Lookup (class Lookup, (!!))
 import Node.HTTP (Request, requestHeaders)
 
 -- | The `RequestHeaders` type is just sugar for a `Object` of `Strings`
 -- | that represents the set of headers in an HTTP request.
-newtype RequestHeaders = RequestHeaders (Object String)
+newtype RequestHeaders = RequestHeaders (Map CaseInsensitiveString String)
 
 derive instance newtypeRequestHeaders :: Newtype RequestHeaders _
 
@@ -38,18 +41,23 @@ derive instance eqRequestHeaders :: Eq RequestHeaders
 
 -- | Allow one `RequestHeaders` objects to be appended to another.
 instance semigroupRequestHeaders :: Semigroup RequestHeaders where
-  append (RequestHeaders a) (RequestHeaders b) = RequestHeaders $ union b a
+  append (RequestHeaders a) (RequestHeaders b) = RequestHeaders $ Data.Map.union b a
 
 -- | Get the request headers out of a HTTP `Request` object.
 read :: Request -> RequestHeaders
-read = requestHeaders >>> RequestHeaders
+read =
+  RequestHeaders
+    <<< Data.Map.fromFoldable
+    <<< map (lmap CaseInsensitiveString)
+    <<< (Object.toUnfoldable :: _ -> Array _)
+    <<< requestHeaders
 
 empty :: RequestHeaders
-empty = RequestHeaders Object.empty
+empty = RequestHeaders Data.Map.empty
 
 -- | Allow a `RequestHeaders` to be represented as a string. This string is
 -- | formatted in HTTP headers format.
 toString :: RequestHeaders -> String
 toString (RequestHeaders headers') = foldMapWithIndex showField headers' <> "\n"
   where
-  showField key value = key <> ": " <> value <> "\n"
+  showField key value = un CaseInsensitiveString key <> ": " <> value <> "\n"

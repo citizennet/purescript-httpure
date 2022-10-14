@@ -2,10 +2,12 @@ module Test.HTTPure.RequestHeadersSpec where
 
 import Prelude
 
+import Data.Bifunctor (lmap)
 import Data.Foldable (class Foldable)
 import Data.Maybe (Maybe(Nothing, Just))
 import Data.Tuple (Tuple(Tuple))
-import Foreign.Object as Foreign.Object
+import Data.Map as Data.Map
+import Data.String.CaseInsensitive (CaseInsensitiveString(..))
 import HTTPure.Lookup ((!!))
 import HTTPure.RequestHeaders (RequestHeaders(..), empty, read, toString)
 import HTTPure.ResponseHeaders as HTTPure.ResponseHeaders
@@ -110,8 +112,8 @@ requestHeadersSpec =
 
 -- | Helper function for creating a singleton `RequestHeaders`.
 header :: String -> String -> RequestHeaders
-header name = RequestHeaders <<< Foreign.Object.singleton name
+header name = RequestHeaders <<< Data.Map.singleton (CaseInsensitiveString name)
 
 -- | Helper function for creating a `RequestHeaders` from a `Foldable` container.
-headers :: forall f. Foldable f => f (Tuple String String) -> RequestHeaders
-headers = RequestHeaders <<< Foreign.Object.fromFoldable
+headers :: forall f. Functor f => Foldable f => f (Tuple String String) -> RequestHeaders
+headers = RequestHeaders <<< Data.Map.fromFoldable <<< map (lmap CaseInsensitiveString)
