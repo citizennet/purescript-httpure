@@ -7,7 +7,7 @@ import Data.Maybe (Maybe(Nothing, Just))
 import Data.Tuple (Tuple(Tuple))
 import Effect.Class (liftEffect)
 import HTTPure.Lookup ((!!))
-import HTTPure.ResponseHeaders (empty, header, header', headers, write)
+import HTTPure.ResponseHeaders (empty, header, header', headers, toString, write)
 import Test.HTTPure.TestHelpers ((?=))
 import Test.HTTPure.TestHelpers as TestHelpers
 import Test.Spec (describe, it)
@@ -33,12 +33,12 @@ lookupSpec =
       it "is Nothing" do
         ((empty !! "X-Test") :: Maybe (NonEmptyArray String)) ?= Nothing
 
-showSpec :: TestHelpers.Test
-showSpec =
-  describe "show" do
+toStringSpec :: TestHelpers.Test
+toStringSpec =
+  describe "toString" do
     it "is a string representing the headers in HTTP format" do
       let mock = header "Test1" "1" <> header "Test2" "2"
-      show mock ?= "Test1: 1\nTest2: 2\n\n"
+      toString mock ?= "Test1: 1\nTest2: 2\n\n"
 
 eqSpec :: TestHelpers.Test
 eqSpec =
@@ -92,15 +92,15 @@ emptySpec :: TestHelpers.Test
 emptySpec =
   describe "empty" do
     it "is an empty Map in an empty Headers" do
-      show empty ?= "\n"
+      toString empty ?= "\n"
 
 headerSpec :: TestHelpers.Test
 headerSpec =
   describe "header" do
     it "creates a singleton Headers" do
-      show (header "X-Test" "test") ?= "X-Test: test\n\n"
+      toString (header "X-Test" "test") ?= "X-Test: test\n\n"
     it "creates a multi-value Headers" do
-      show <<< header' "X-Test" <$> fromArray [ "test1", "test2" ] ?= Just "X-Test: test1,test2\n\n"
+      toString <<< header' "X-Test" <$> fromArray [ "test1", "test2" ] ?= Just "X-Test: test1,test2\n\n"
 
 headersFunctionSpec :: TestHelpers.Test
 headersFunctionSpec =
@@ -118,7 +118,7 @@ responseHeadersSpec :: TestHelpers.Test
 responseHeadersSpec =
   describe "ResponseHeaders" do
     lookupSpec
-    showSpec
+    toStringSpec
     eqSpec
     appendSpec
     writeSpec

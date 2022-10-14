@@ -5,6 +5,7 @@ module HTTPure.ResponseHeaders
   , headers'
   , header
   , header'
+  , toString
   , write
   ) where
 
@@ -14,9 +15,11 @@ import Data.Array.NonEmpty (NonEmptyArray)
 import Data.Array.NonEmpty as NonEmptyArray
 import Data.Foldable (foldl)
 import Data.FoldableWithIndex (foldMapWithIndex)
+import Data.Generic.Rep (class Generic)
 import Data.Map (Map, insert, singleton, union)
 import Data.Map (empty) as Map
 import Data.Newtype (class Newtype, unwrap)
+import Data.Show.Generic (genericShow)
 import Data.String.CaseInsensitive (CaseInsensitiveString(CaseInsensitiveString))
 import Data.TraversableWithIndex (traverseWithIndex)
 import Data.Tuple (Tuple(Tuple))
@@ -30,17 +33,15 @@ newtype ResponseHeaders = ResponseHeaders (Map CaseInsensitiveString (NonEmptyAr
 
 derive instance newtypeResponseHeaders :: Newtype ResponseHeaders _
 
+derive instance genericResponseHeaders :: Generic ResponseHeaders _
+
 -- | Given a string, return a `Maybe` containing the value of the matching
 -- | header, if there is any.
 instance lookupResponseHeaders :: Lookup ResponseHeaders String (NonEmptyArray String) where
   lookup (ResponseHeaders responseHeaders) key = responseHeaders !! key
 
--- | Allow a `ResponseHeaders` to be represented as a string. This string
--- | is formatted in HTTP headers format.
 instance showResponseHeaders :: Show ResponseHeaders where
-  show (ResponseHeaders responseHeaders) = foldMapWithIndex showField responseHeaders <> "\n"
-    where
-    showField key value = unwrap key <> ": " <> NonEmptyArray.intercalate "," value <> "\n"
+  show = genericShow
 
 -- | Compare two `ResponseHeaders` objects by comparing the underlying
 -- | `Objects`.
@@ -82,3 +83,10 @@ header key = NonEmptyArray.singleton >>> singleton (CaseInsensitiveString key) >
 -- | Create a header from a key-values pair.
 header' :: String -> NonEmptyArray String -> ResponseHeaders
 header' key = singleton (CaseInsensitiveString key) >>> ResponseHeaders
+
+-- | Allow a `ResponseHeaders` to be represented as a string. This string
+-- | is formatted in HTTP headers format.
+toString :: ResponseHeaders -> String
+toString (ResponseHeaders responseHeaders) = foldMapWithIndex showField responseHeaders <> "\n"
+  where
+  showField key value = unwrap key <> ": " <> NonEmptyArray.intercalate "," value <> "\n"

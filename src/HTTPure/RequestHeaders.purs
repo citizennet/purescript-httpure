@@ -2,12 +2,15 @@ module HTTPure.RequestHeaders
   ( RequestHeaders(..)
   , empty
   , read
+  , toString
   ) where
 
 import Prelude
 
 import Data.FoldableWithIndex (foldMapWithIndex)
+import Data.Generic.Rep (class Generic)
 import Data.Newtype (class Newtype)
+import Data.Show.Generic (genericShow)
 import Data.String as String
 import Foreign.Object (Object, union)
 import Foreign.Object as Object
@@ -20,17 +23,15 @@ newtype RequestHeaders = RequestHeaders (Object String)
 
 derive instance newtypeRequestHeaders :: Newtype RequestHeaders _
 
+derive instance genericRequestHeaders :: Generic RequestHeaders _
+
 -- | Given a string. return a `Maybe` containing the value of the matching
 -- | request header, if there is any.
 instance lookupRequestHeaders :: Lookup RequestHeaders String String where
   lookup (RequestHeaders headers') key = headers' !! (String.toLower key)
 
--- | Allow a `RequestHeaders` to be represented as a string. This string is
--- | formatted in HTTP headers format.
 instance showRequestHeaders :: Show RequestHeaders where
-  show (RequestHeaders headers') = foldMapWithIndex showField headers' <> "\n"
-    where
-    showField key value = key <> ": " <> value <> "\n"
+  show = genericShow
 
 -- | Compare two `RequestHeaders` objects by comparing the underlying `Objects`.
 derive instance eqRequestHeaders :: Eq RequestHeaders
@@ -45,3 +46,10 @@ read = requestHeaders >>> RequestHeaders
 
 empty :: RequestHeaders
 empty = RequestHeaders Object.empty
+
+-- | Allow a `RequestHeaders` to be represented as a string. This string is
+-- | formatted in HTTP headers format.
+toString :: RequestHeaders -> String
+toString (RequestHeaders headers') = foldMapWithIndex showField headers' <> "\n"
+  where
+  showField key value = key <> ": " <> value <> "\n"

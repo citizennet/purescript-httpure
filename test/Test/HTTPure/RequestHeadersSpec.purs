@@ -7,7 +7,7 @@ import Data.Maybe (Maybe(Nothing, Just))
 import Data.Tuple (Tuple(Tuple))
 import Foreign.Object as Foreign.Object
 import HTTPure.Lookup ((!!))
-import HTTPure.RequestHeaders (RequestHeaders(..), empty, read)
+import HTTPure.RequestHeaders (RequestHeaders(..), empty, read, toString)
 import HTTPure.ResponseHeaders as HTTPure.ResponseHeaders
 import Test.HTTPure.TestHelpers ((?=))
 import Test.HTTPure.TestHelpers as TestHelpers
@@ -34,12 +34,12 @@ lookupSpec =
       it "is Nothing" do
         ((empty !! "X-Test") :: Maybe String) ?= Nothing
 
-showSpec :: TestHelpers.Test
-showSpec =
-  describe "show" do
+toStringSpec :: TestHelpers.Test
+toStringSpec =
+  describe "toString" do
     it "is a string representing the headers in HTTP format" do
       let mock = header "Test1" "1" <> header "Test2" "2"
-      show mock ?= "Test1: 1\nTest2: 2\n\n"
+      toString mock ?= "Test1: 1\nTest2: 2\n\n"
 
 eqSpec :: TestHelpers.Test
 eqSpec =
@@ -96,13 +96,13 @@ emptySpec :: TestHelpers.Test
 emptySpec =
   describe "empty" do
     it "is an empty Map in an empty Headers" do
-      show empty ?= "\n"
+      toString empty ?= "\n"
 
 requestHeadersSpec :: TestHelpers.Test
 requestHeadersSpec =
   describe "RequestHeaders" do
     lookupSpec
-    showSpec
+    toStringSpec
     eqSpec
     appendSpec
     readSpec
