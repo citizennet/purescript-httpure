@@ -33,8 +33,7 @@ instance showRequestHeaders :: Show RequestHeaders where
     showField key value = key <> ": " <> value <> "\n"
 
 -- | Compare two `RequestHeaders` objects by comparing the underlying `Objects`.
-instance eqRequestHeaders :: Eq RequestHeaders where
-  eq (RequestHeaders a) (RequestHeaders b) = eq a b
+derive instance eqRequestHeaders :: Eq RequestHeaders
 
 -- | Allow one `RequestHeaders` objects to be appended to another.
 instance semigroupRequestHeaders :: Semigroup RequestHeaders where

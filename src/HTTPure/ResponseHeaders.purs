@@ -44,8 +44,7 @@ instance showResponseHeaders :: Show ResponseHeaders where
 
 -- | Compare two `ResponseHeaders` objects by comparing the underlying
 -- | `Objects`.
-instance eqResponseHeaders :: Eq ResponseHeaders where
-  eq (ResponseHeaders a) (ResponseHeaders b) = eq a b
+derive newtype instance eqResponseHeaders :: Eq ResponseHeaders
 
 -- | Allow one `ResponseHeaders` objects to be appended to another.
 instance semigroupResponseHeaders :: Semigroup ResponseHeaders where
