@@ -4,7 +4,8 @@ import Prelude
 
 import Effect.Class (liftEffect)
 import Effect.Console (log)
-import HTTPure (Request, ResponseM, ServerM, fullPath, header, ok, ok', serve)
+import HTTPure (Request, ResponseM, ServerM, fullPath, ok, ok', serve)
+import HTTPure.ResponseHeaders (header)
 
 -- | A middleware that logs at the beginning and end of each request
 loggingMiddleware ::

@@ -1,6 +1,8 @@
 module HTTPure.RequestHeaders
   ( RequestHeaders(..)
   , empty
+  , header
+  , headers
   , read
   , toString
   ) where
@@ -8,6 +10,7 @@ module HTTPure.RequestHeaders
 import Prelude
 
 import Data.Bifunctor (lmap)
+import Data.Foldable (foldl)
 import Data.FoldableWithIndex (foldMapWithIndex)
 import Data.Generic.Rep (class Generic)
 import Data.Map (Map)
@@ -16,6 +19,7 @@ import Data.Newtype (class Newtype, un)
 import Data.Show.Generic (genericShow)
 import Data.String as String
 import Data.String.CaseInsensitive (CaseInsensitiveString(..))
+import Data.Tuple (Tuple(..))
 import Foreign.Object as Object
 import HTTPure.Lookup (class Lookup, (!!))
 import Node.HTTP (Request, requestHeaders)
@@ -42,6 +46,17 @@ derive instance eqRequestHeaders :: Eq RequestHeaders
 -- | Allow one `RequestHeaders` objects to be appended to another.
 instance semigroupRequestHeaders :: Semigroup RequestHeaders where
   append (RequestHeaders a) (RequestHeaders b) = RequestHeaders $ Data.Map.union b a
+
+-- | Create a singleton header from a key-value pair.
+header :: String -> String -> RequestHeaders
+header key = Data.Map.singleton (CaseInsensitiveString key) >>> RequestHeaders
+
+-- | Convert an `Array` of `Tuples` of 2 `Strings` to a `RequestHeaders`
+-- | object.
+headers :: Array (Tuple String String) -> RequestHeaders
+headers = foldl insertField Data.Map.empty >>> RequestHeaders
+  where
+  insertField x (Tuple key value) = Data.Map.insert (CaseInsensitiveString key) value x
 
 -- | Get the request headers out of a HTTP `Request` object.
 read :: Request -> RequestHeaders

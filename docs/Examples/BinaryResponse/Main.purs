@@ -3,7 +3,8 @@ module Examples.BinaryResponse.Main where
 import Prelude
 
 import Effect.Console (log)
-import HTTPure (Request, ResponseHeaders, ResponseM, ServerM, header, ok', serve)
+import HTTPure (Request, ResponseM, ServerM, ok', serve)
+import HTTPure.ResponseHeaders (ResponseHeaders, header)
 import Node.FS.Aff (readFile)
 
 -- | The path to the file containing the response to send
