@@ -2,10 +2,12 @@ module Test.HTTPure.HeadersSpec where
 
 import Prelude
 
-import Data.Maybe (Maybe(Nothing, Just))
-import Data.Tuple (Tuple(Tuple))
+import Data.Map as Data.Map
+import Data.Maybe (Maybe(..))
+import Data.String.CaseInsensitive (CaseInsensitiveString(..))
+import Data.Tuple (Tuple(..))
 import Effect.Class (liftEffect)
-import HTTPure.Headers (empty, header, headers, read, write)
+import HTTPure.Headers (Headers(..), empty, header, headers, read, write)
 import HTTPure.Lookup ((!!))
 import Test.HTTPure.TestHelpers ((?=))
 import Test.HTTPure.TestHelpers as TestHelpers
@@ -31,13 +33,6 @@ lookupSpec =
     describe "when the string is not in the header set" do
       it "is Nothing" do
         ((empty !! "X-Test") :: Maybe String) ?= Nothing
-
-showSpec :: TestHelpers.Test
-showSpec =
-  describe "show" do
-    it "is a string representing the headers in HTTP format" do
-      let mock = header "Test1" "1" <> header "Test2" "2"
-      show mock ?= "Test1: 1\nTest2: 2\n\n"
 
 eqSpec :: TestHelpers.Test
 eqSpec =
@@ -104,13 +99,13 @@ emptySpec :: TestHelpers.Test
 emptySpec =
   describe "empty" do
     it "is an empty Map in an empty Headers" do
-      show empty ?= "\n"
+      empty ?= Headers Data.Map.empty
 
 headerSpec :: TestHelpers.Test
 headerSpec =
   describe "header" do
     it "creates a singleton Headers" do
-      show (header "X-Test" "test") ?= "X-Test: test\n\n"
+      header "X-Test" "test" ?= Headers (Data.Map.singleton (CaseInsensitiveString "X-Test") "test")
 
 headersFunctionSpec :: TestHelpers.Test
 headersFunctionSpec =
@@ -128,7 +123,6 @@ headersSpec :: TestHelpers.Test
 headersSpec =
   describe "Headers" do
     lookupSpec
-    showSpec
     eqSpec
     appendSpec
     readSpec

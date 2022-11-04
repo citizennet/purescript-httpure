@@ -10,10 +10,11 @@ module HTTPure.Headers
 import Prelude
 
 import Data.Foldable (foldl)
-import Data.FoldableWithIndex (foldMapWithIndex)
+import Data.Generic.Rep (class Generic)
 import Data.Map (Map, insert, singleton, union)
 import Data.Map (empty) as Map
 import Data.Newtype (class Newtype, unwrap)
+import Data.Show.Generic (genericShow)
 import Data.String.CaseInsensitive (CaseInsensitiveString(CaseInsensitiveString))
 import Data.TraversableWithIndex (traverseWithIndex)
 import Data.Tuple (Tuple(Tuple))
@@ -28,24 +29,21 @@ newtype Headers = Headers (Map CaseInsensitiveString String)
 
 derive instance newtypeHeaders :: Newtype Headers _
 
+derive instance genericHeaders :: Generic Headers _
+
 -- | Given a string, return a `Maybe` containing the value of the matching
 -- | header, if there is any.
-instance lookup :: Lookup Headers String String where
+instance lookupHeaders :: Lookup Headers String String where
   lookup (Headers headers') key = headers' !! key
 
--- | Allow a `Headers` to be represented as a string. This string is formatted
--- | in HTTP headers format.
-instance show :: Show Headers where
-  show (Headers headers') = foldMapWithIndex showField headers' <> "\n"
-    where
-    showField key value = unwrap key <> ": " <> value <> "\n"
+instance showHeaders :: Show Headers where
+  show = genericShow
 
 -- | Compare two `Headers` objects by comparing the underlying `Objects`.
-instance eq :: Eq Headers where
-  eq (Headers a) (Headers b) = eq a b
+derive newtype instance eqHeaders :: Eq Headers
 
 -- | Allow one `Headers` objects to be appended to another.
-instance semigroup :: Semigroup Headers where
+instance semigroupHeaders :: Semigroup Headers where
   append (Headers a) (Headers b) = Headers $ union b a
 
 -- | Get the headers out of a HTTP `Request` object.
