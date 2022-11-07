@@ -7,6 +7,7 @@ import Foreign.Object (singleton)
 import HTTPure.Body (toString)
 import HTTPure.Headers (headers)
 import HTTPure.Method (Method(Post))
+import HTTPure.MultiHeaders as HTTPure.MultiHeaders
 import HTTPure.Request (fromHTTPRequest, fullPath)
 import HTTPure.Version (Version(HTTP1_1))
 import Test.HTTPure.TestHelpers (Test, mockRequest, (?=))
@@ -27,6 +28,9 @@ fromHTTPRequestSpec =
     it "contains the correct headers" do
       mock <- mockRequest'
       mock.headers ?= headers mockHeaders
+    it "contains the correct multi-headers" do
+      mock <- mockRequest'
+      mock.multiHeaders ?= HTTPure.MultiHeaders.headers mockHeaders
     it "contains the correct body" do
       mockBody <- mockRequest' >>= _.body >>> toString
       mockBody ?= "body"
@@ -34,7 +38,11 @@ fromHTTPRequestSpec =
       mock <- mockRequest'
       mock.httpVersion ?= HTTP1_1
   where
-  mockHeaders = [ Tuple "Test" "test" ]
+  mockHeaders =
+    [ Tuple "Test" "test"
+    , Tuple "TestMulti" "test1"
+    , Tuple "TestMulti" "test2"
+    ]
 
   mockHTTPRequest = mockRequest "1.1" "POST" "/test?a=b" "body" mockHeaders
 

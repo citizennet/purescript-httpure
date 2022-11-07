@@ -3,6 +3,7 @@ module Test.HTTPure.TestHelpers where
 import Prelude
 
 import Data.Array (fromFoldable) as Array
+import Data.Array.NonEmpty (NonEmptyArray)
 import Data.Either (Either(Right))
 import Data.List (List(Nil, Cons), reverse)
 import Data.Maybe (fromMaybe)
@@ -14,7 +15,7 @@ import Effect.Aff (Aff, makeAff, nonCanceler)
 import Effect.Class (liftEffect)
 import Effect.Ref (modify_, new, read)
 import Foreign.Object (Object, lookup)
-import Foreign.Object (fromFoldable) as Object
+import Foreign.Object as Object
 import Node.Buffer (Buffer, concat, create, fromString)
 import Node.Buffer (toString) as Buffer
 import Node.Encoding (Encoding(UTF8))
@@ -204,7 +205,7 @@ foreign import mockRequestImpl ::
   String ->
   String ->
   String ->
-  Object String ->
+  Object (NonEmptyArray String) ->
   Effect Request
 
 -- | Mock an HTTP Request object
@@ -215,7 +216,11 @@ mockRequest ::
   String ->
   Array (Tuple String String) ->
   Aff Request
-mockRequest httpVersion method url body = liftEffect <<< mockRequestImpl httpVersion method url body <<< Object.fromFoldable
+mockRequest httpVersion method url body =
+  liftEffect
+    <<< mockRequestImpl httpVersion method url body
+    <<< Object.fromFoldableWith (flip append)
+    <<< map (map pure)
 
 -- | Mock an HTTP Response object
 foreign import mockResponse :: Effect HTTP.Response
@@ -236,6 +241,10 @@ getResponseHeaders = unsafeCoerce <<< _.headers <<< unsafeCoerce
 -- | Get the current value for the header on the HTTP Response object.
 getResponseHeader :: String -> HTTP.Response -> String
 getResponseHeader header = fromMaybe "" <<< lookup header <<< getResponseHeaders
+
+-- | Get the current value for the multi-header on the HTTP Response object.
+getResponseMultiHeader :: String -> HTTP.Response -> Array String
+getResponseMultiHeader header = fromMaybe [] <<< lookup header <<< _.headers <<< unsafeCoerce
 
 -- | Create a stream out of a string.
 foreign import stringToStream :: String -> Readable ()

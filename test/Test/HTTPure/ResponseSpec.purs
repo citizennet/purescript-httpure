@@ -7,6 +7,7 @@ import Effect.Aff (makeAff, nonCanceler)
 import Effect.Class (liftEffect)
 import HTTPure.Body (defaultHeaders)
 import HTTPure.Headers (header)
+import HTTPure.MultiHeaders as HTTPure.MultiHeaders
 import HTTPure.Response (emptyResponse, emptyResponse', response, response', send)
 import Node.Encoding (Encoding(UTF8))
 import Node.HTTP (responseAsStream)
@@ -15,6 +16,7 @@ import Test.HTTPure.TestHelpers
   ( Test
   , getResponseBody
   , getResponseHeader
+  , getResponseMultiHeader
   , getResponseStatus
   , mockResponse
   , (?=)
@@ -28,6 +30,9 @@ sendSpec =
       mockResponse' =
         { status: 123
         , headers: header "Test" "test"
+        , multiHeaders:
+            HTTPure.MultiHeaders.header "Set-Cookie" "test1"
+              <> HTTPure.MultiHeaders.header "Set-Cookie" "test2"
         , writeBody:
             \response -> makeAff \done -> do
               stream <- pure $ responseAsStream response
@@ -40,6 +45,12 @@ sendSpec =
         send httpResponse mockResponse'
         pure $ getResponseHeader "Test" httpResponse
       header ?= "test"
+    it "writes the multi-headers" do
+      header <- do
+        httpResponse <- liftEffect mockResponse
+        send httpResponse mockResponse'
+        pure $ getResponseMultiHeader "Set-Cookie" httpResponse
+      header ?= [ "test1", "test2" ]
     it "writes the status" do
       status <- do
         httpResponse <- liftEffect mockResponse

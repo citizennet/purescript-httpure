@@ -9,7 +9,8 @@ export const mockRequestImpl = httpVersion => method => url => body => headers =
     });
     stream.method = method;
     stream.url = url;
-    stream.headers = headers;
+    stream.headers = Object.fromEntries(Object.entries(headers).map(([key, values]) => [key, values[values.length - 1]]));
+    stream.headersDistinct = headers;
     stream.httpVersion = httpVersion;
 
     return stream;
