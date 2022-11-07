@@ -9,7 +9,7 @@ import Data.String.CaseInsensitive (CaseInsensitiveString(..))
 import Data.Tuple (Tuple(..))
 import Effect.Class (liftEffect)
 import HTTPure.Lookup ((!!))
-import HTTPure.MultiHeaders (MultiHeaders(..), empty, header, header', headers, read, write)
+import HTTPure.MultiHeaders (MultiHeaders(..), empty, header, header', headers, read, toString, write)
 import Test.HTTPure.TestHelpers ((?=))
 import Test.HTTPure.TestHelpers as TestHelpers
 import Test.Spec (describe, it)
@@ -120,6 +120,19 @@ headersFunctionSpec =
           ]
       test ?= expected
 
+toStringSpec :: TestHelpers.Test
+toStringSpec =
+  describe "toString" do
+    it "is a string representing the headers in HTTP format" do
+      let mock = header "Test1" "1" <> header "Test2" "2"
+      toString mock ?= "Test1: 1\nTest2: 2\n\n"
+    it "separates duplicate headers with a comma" do
+      let mock = header "Test1" "1" <> header "Test1" "2" <> header "Test2" "2"
+      toString mock ?= "Test1: 1, 2\nTest2: 2\n\n"
+    it "separates duplicate 'Set-Cookie' headers with a semicolon" do
+      let mock = header "Test1" "1" <> header "Set-Cookie" "1" <> header "Set-Cookie" "2"
+      toString mock ?= "Set-Cookie: 1; 2\nTest1: 1\n\n"
+
 multiHeadersSpec :: TestHelpers.Test
 multiHeadersSpec =
   describe "MultiHeaders" do
@@ -131,3 +144,4 @@ multiHeadersSpec =
     emptySpec
     headerSpec
     headersFunctionSpec
+    toStringSpec

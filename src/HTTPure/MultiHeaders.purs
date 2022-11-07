@@ -6,6 +6,7 @@ module HTTPure.MultiHeaders
   , headers
   , headers'
   , read
+  , toString
   , write
   ) where
 
@@ -14,11 +15,12 @@ import Prelude
 import Data.Array.NonEmpty (NonEmptyArray)
 import Data.Array.NonEmpty as Data.Array.NonEmpty
 import Data.Foldable (foldl)
+import Data.FoldableWithIndex (foldMapWithIndex)
 import Data.Generic.Rep (class Generic)
 import Data.Map (Map)
 import Data.Map as Data.Map
 import Data.Maybe (Maybe(..))
-import Data.Newtype (class Newtype, unwrap)
+import Data.Newtype (class Newtype, un)
 import Data.Show.Generic (genericShow)
 import Data.String.CaseInsensitive (CaseInsensitiveString(CaseInsensitiveString))
 import Data.TraversableWithIndex (traverseWithIndex)
@@ -99,9 +101,22 @@ read = requestHeadersDistinct >>> fold insertField Data.Map.empty >>> MultiHeade
   requestHeadersDistinct :: Request -> Object (Array String)
   requestHeadersDistinct = _.headersDistinct <<< unsafeCoerce
 
+-- | Allow a `MultiHeaders` to be represented as a string. This string is
+-- | formatted in HTTP headers format.
+toString :: MultiHeaders -> String
+toString (MultiHeaders headersMap) = foldMapWithIndex showField headersMap <> "\n"
+  where
+  showField :: CaseInsensitiveString -> NonEmptyArray String -> String
+  showField key values =
+    let
+      separator :: String
+      separator = if key == CaseInsensitiveString "Set-Cookie" then "; " else ", "
+    in
+      un CaseInsensitiveString key <> ": " <> Data.Foldable.intercalate separator values <> "\n"
+
 -- | Given an HTTP `Response` and a `MultiHeaders` object, return an effect that will
 -- | write the `MultiHeaders` to the `Response`.
 write :: Response -> MultiHeaders -> Effect Unit
 write response (MultiHeaders headersMap) = void $ traverseWithIndex writeField headersMap
   where
-  writeField key = setHeaders response (unwrap key) <<< Data.Array.NonEmpty.toArray
+  writeField key = setHeaders response (un CaseInsensitiveString key) <<< Data.Array.NonEmpty.toArray

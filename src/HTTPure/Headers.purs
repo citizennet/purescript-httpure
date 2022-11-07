@@ -4,12 +4,14 @@ module HTTPure.Headers
   , headers
   , header
   , read
+  , toString
   , write
   ) where
 
 import Prelude
 
 import Data.Foldable (foldl)
+import Data.FoldableWithIndex (foldMapWithIndex)
 import Data.Generic.Rep (class Generic)
 import Data.Map (Map, insert, singleton, union)
 import Data.Map (empty) as Map
@@ -72,3 +74,11 @@ headers = foldl insertField Map.empty >>> Headers
 -- | Create a singleton header from a key-value pair.
 header :: String -> String -> Headers
 header key = singleton (CaseInsensitiveString key) >>> Headers
+
+-- | Allow a `Headers` to be represented as a string. This string is formatted
+-- | in HTTP headers format.
+toString :: Headers -> String
+toString (Headers headersMap) = foldMapWithIndex showField headersMap <> "\n"
+  where
+  showField :: CaseInsensitiveString -> String -> String
+  showField key value = unwrap key <> ": " <> value <> "\n"

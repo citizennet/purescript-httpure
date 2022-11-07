@@ -7,7 +7,7 @@ import Data.Maybe (Maybe(..))
 import Data.String.CaseInsensitive (CaseInsensitiveString(..))
 import Data.Tuple (Tuple(..))
 import Effect.Class (liftEffect)
-import HTTPure.Headers (Headers(..), empty, header, headers, read, write)
+import HTTPure.Headers (Headers(..), empty, header, headers, read, toString, write)
 import HTTPure.Lookup ((!!))
 import Test.HTTPure.TestHelpers ((?=))
 import Test.HTTPure.TestHelpers as TestHelpers
@@ -119,6 +119,13 @@ headersFunctionSpec =
           ]
       test ?= expected
 
+toStringSpec :: TestHelpers.Test
+toStringSpec =
+  describe "toString" do
+    it "is a string representing the headers in HTTP format" do
+      let mock = header "Test1" "1" <> header "Test2" "2"
+      toString mock ?= "Test1: 1\nTest2: 2\n\n"
+
 headersSpec :: TestHelpers.Test
 headersSpec =
   describe "Headers" do
@@ -130,3 +137,4 @@ headersSpec =
     emptySpec
     headerSpec
     headersFunctionSpec
+    toStringSpec
