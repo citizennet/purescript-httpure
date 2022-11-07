@@ -234,15 +234,11 @@ getResponseBody = _.body <<< unsafeCoerce
 getResponseStatus :: HTTP.Response -> Int
 getResponseStatus = _.statusCode <<< unsafeCoerce
 
--- | Get all current headers on the HTTP Response object.
-getResponseHeaders :: HTTP.Response -> Object String
-getResponseHeaders = unsafeCoerce <<< _.headers <<< unsafeCoerce
-
 -- | Get the current value for the header on the HTTP Response object.
 getResponseHeader :: String -> HTTP.Response -> String
-getResponseHeader header = fromMaybe "" <<< lookup header <<< getResponseHeaders
+getResponseHeader header = fromMaybe "" <<< lookup header <<< _.headers <<< unsafeCoerce
 
--- | Get the current value for the multi-header on the HTTP Response object.
+-- | Get the current values for the header on the HTTP Response object.
 getResponseMultiHeader :: String -> HTTP.Response -> Array String
 getResponseMultiHeader header = fromMaybe [] <<< lookup header <<< _.headers <<< unsafeCoerce
 

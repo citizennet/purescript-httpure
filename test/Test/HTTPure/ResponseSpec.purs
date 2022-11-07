@@ -15,7 +15,6 @@ import Node.Stream (end, writeString)
 import Test.HTTPure.TestHelpers
   ( Test
   , getResponseBody
-  , getResponseHeader
   , getResponseMultiHeader
   , getResponseStatus
   , mockResponse
@@ -39,18 +38,24 @@ sendSpec =
               void $ writeString stream UTF8 "test" $ const $ end stream $ const $ done $ Right unit
               pure nonCanceler
         }
-    it "writes the headers" do
+    it "writes the `headers`" do
       header <- do
         httpResponse <- liftEffect mockResponse
         send httpResponse mockResponse'
-        pure $ getResponseHeader "Test" httpResponse
-      header ?= "test"
-    it "writes the multi-headers" do
+        pure $ getResponseMultiHeader "Test" httpResponse
+      header ?= [ "test" ]
+    it "writes the `multiHeaders`" do
       header <- do
         httpResponse <- liftEffect mockResponse
         send httpResponse mockResponse'
         pure $ getResponseMultiHeader "Set-Cookie" httpResponse
       header ?= [ "test1", "test2" ]
+    it "joins headers that exist in both `headers` and `multiHeaders`" do
+      header <- do
+        httpResponse <- liftEffect mockResponse
+        send httpResponse mockResponse' { headers = header "Set-Cookie" "test0" }
+        pure $ getResponseMultiHeader "Set-Cookie" httpResponse
+      header ?= [ "test0", "test1", "test2" ]
     it "writes the status" do
       status <- do
         httpResponse <- liftEffect mockResponse

@@ -140,7 +140,6 @@ import Effect.Aff.Class (class MonadAff, liftAff)
 import Effect.Class (class MonadEffect, liftEffect)
 import HTTPure.Body (class Body, defaultHeaders, write)
 import HTTPure.Headers (Headers, empty)
-import HTTPure.Headers (write) as Headers
 import HTTPure.MultiHeaders (MultiHeaders)
 import HTTPure.MultiHeaders as HTTPure.MultiHeaders
 import HTTPure.Status (Status)
@@ -225,11 +224,15 @@ type Response =
 -- | Given an HTTP `Response` and a HTTPure `Response`, this method will return
 -- | a monad encapsulating writing the HTTPure `Response` to the HTTP `Response`
 -- | and closing the HTTP `Response`.
+-- |
+-- | If a header exists in both `headers` and `multiHeaders`, the values will be
+-- | joined as if they were all in `multiHeaders`.
 send :: forall m. MonadEffect m => MonadAff m => HTTP.Response -> Response -> m Unit
 send httpresponse { status, headers, multiHeaders, writeBody } = do
   liftEffect $ Status.write httpresponse status
-  liftEffect $ Headers.write httpresponse headers
-  liftEffect $ HTTPure.MultiHeaders.write httpresponse multiHeaders
+  liftEffect
+    $ HTTPure.MultiHeaders.write httpresponse
+    $ HTTPure.MultiHeaders.fromHeaders headers <> multiHeaders
   liftAff $ writeBody httpresponse
 
 -- | For custom response statuses or providing a body for response codes that

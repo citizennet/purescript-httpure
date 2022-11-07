@@ -1,6 +1,7 @@
 module HTTPure.MultiHeaders
   ( MultiHeaders(..)
   , empty
+  , fromHeaders
   , header
   , header'
   , headers
@@ -15,6 +16,7 @@ import Prelude
 import Data.Array.NonEmpty (NonEmptyArray)
 import Data.Array.NonEmpty as Data.Array.NonEmpty
 import Data.Foldable (foldl)
+import Data.Foldable as Data.Foldable
 import Data.FoldableWithIndex (foldMapWithIndex)
 import Data.Generic.Rep (class Generic)
 import Data.Map (Map)
@@ -27,6 +29,7 @@ import Data.TraversableWithIndex (traverseWithIndex)
 import Data.Tuple (Tuple(Tuple))
 import Effect (Effect)
 import Foreign.Object (Object, fold)
+import HTTPure.Headers (Headers(..))
 import HTTPure.Lookup (class Lookup, (!!))
 import Node.HTTP (Request, Response, setHeaders)
 import Unsafe.Coerce (unsafeCoerce)
@@ -60,6 +63,10 @@ instance semigroupMultiHeaders :: Semigroup MultiHeaders where
 -- | Return a `MultiHeaders` containing nothing.
 empty :: MultiHeaders
 empty = MultiHeaders Data.Map.empty
+
+-- | Create a `MultiHeaders` out of a `Headers` value.
+fromHeaders :: Headers -> MultiHeaders
+fromHeaders = MultiHeaders <<< map pure <<< Data.Map.fromFoldableWithIndex <<< un Headers
 
 -- | Create a singleton header from a key-value pair.
 header :: String -> String -> MultiHeaders
