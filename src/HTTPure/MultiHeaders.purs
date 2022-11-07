@@ -15,24 +15,24 @@ import Prelude
 
 import Data.Array.NonEmpty (NonEmptyArray)
 import Data.Array.NonEmpty as Data.Array.NonEmpty
-import Data.Foldable (foldl)
 import Data.Foldable as Data.Foldable
-import Data.FoldableWithIndex (foldMapWithIndex)
+import Data.FoldableWithIndex as Data.FoldableWithIndex
 import Data.Generic.Rep (class Generic)
 import Data.Map (Map)
 import Data.Map as Data.Map
 import Data.Maybe (Maybe(..))
 import Data.Newtype (class Newtype, un)
-import Data.Show.Generic (genericShow)
-import Data.String.CaseInsensitive (CaseInsensitiveString(CaseInsensitiveString))
-import Data.TraversableWithIndex (traverseWithIndex)
-import Data.Tuple (Tuple(Tuple))
+import Data.Show.Generic as Data.Show.Generic
+import Data.String.CaseInsensitive (CaseInsensitiveString(..))
+import Data.TraversableWithIndex as Data.TraversableWithIndex
+import Data.Tuple (Tuple(..))
 import Effect (Effect)
-import Foreign.Object (Object, fold)
+import Foreign.Object (Object)
+import Foreign.Object as Foreign.Object
 import HTTPure.Headers (Headers(..))
 import HTTPure.Lookup (class Lookup, (!!))
-import Node.HTTP (Request, Response, setHeaders)
-import Unsafe.Coerce (unsafeCoerce)
+import Node.HTTP as Node.HTTP
+import Unsafe.Coerce as Unsafe.Coerce
 
 -- | The `MultiHeaders` type represets the set of headers in a HTTP request or
 -- | response read in a way such that every header name maps to a non-empty list
@@ -50,7 +50,7 @@ instance lookupMultiHeaders :: Lookup MultiHeaders String (NonEmptyArray String)
   lookup (MultiHeaders headersMap) key = headersMap !! key
 
 instance showMultiHeaders :: Show MultiHeaders where
-  show = genericShow
+  show = Data.Show.Generic.genericShow
 
 -- | Compare two `MultiHeaders` objects by comparing the underlying `Objects`.
 derive newtype instance eqMultiHeaders :: Eq MultiHeaders
@@ -82,15 +82,15 @@ headers = headers' <<< map (map pure)
 
 -- | Convert an `Array` of `Tuples` of 2 `Strings` to a `MultiHeaders` object.
 headers' :: Array (Tuple String (NonEmptyArray String)) -> MultiHeaders
-headers' = foldl insertField Data.Map.empty >>> MultiHeaders
+headers' = MultiHeaders <<< Data.Foldable.foldl insertField Data.Map.empty
   where
   insertField x (Tuple key values) = Data.Map.insertWith append (CaseInsensitiveString key) values x
 
 -- | Read the headers out of a HTTP `Request` object and parse duplicated
 -- | headers as a list (instead of comma-separated values, as with
 -- | `HTTPure.Headers.read`).
-read :: Request -> MultiHeaders
-read = requestHeadersDistinct >>> fold insertField Data.Map.empty >>> MultiHeaders
+read :: Node.HTTP.Request -> MultiHeaders
+read = MultiHeaders <<< Foreign.Object.fold insertField Data.Map.empty <<< requestHeadersDistinct
   where
   insertField ::
     forall a.
@@ -105,13 +105,13 @@ read = requestHeadersDistinct >>> fold insertField Data.Map.empty >>> MultiHeade
   -- | Similar to `Node.HTTP.requestHeaders`, but there is no join logic and the
   -- | values are always arrays of strings, even for headers received just once.
   -- | See https://nodejs.org/api/http.html#messageheadersdistinct.
-  requestHeadersDistinct :: Request -> Object (Array String)
-  requestHeadersDistinct = _.headersDistinct <<< unsafeCoerce
+  requestHeadersDistinct :: Node.HTTP.Request -> Object (Array String)
+  requestHeadersDistinct = _.headersDistinct <<< Unsafe.Coerce.unsafeCoerce
 
 -- | Allow a `MultiHeaders` to be represented as a string. This string is
 -- | formatted in HTTP headers format.
 toString :: MultiHeaders -> String
-toString (MultiHeaders headersMap) = foldMapWithIndex showField headersMap <> "\n"
+toString (MultiHeaders headersMap) = Data.FoldableWithIndex.foldMapWithIndex showField headersMap <> "\n"
   where
   showField :: CaseInsensitiveString -> NonEmptyArray String -> String
   showField key values =
@@ -123,7 +123,8 @@ toString (MultiHeaders headersMap) = foldMapWithIndex showField headersMap <> "\
 
 -- | Given an HTTP `Response` and a `MultiHeaders` object, return an effect that will
 -- | write the `MultiHeaders` to the `Response`.
-write :: Response -> MultiHeaders -> Effect Unit
-write response (MultiHeaders headersMap) = void $ traverseWithIndex writeField headersMap
+write :: Node.HTTP.Response -> MultiHeaders -> Effect Unit
+write response (MultiHeaders headersMap) = void $ Data.TraversableWithIndex.traverseWithIndex writeField headersMap
   where
-  writeField key = setHeaders response (un CaseInsensitiveString key) <<< Data.Array.NonEmpty.toArray
+  writeField :: CaseInsensitiveString -> NonEmptyArray String -> Effect Unit
+  writeField key = Node.HTTP.setHeaders response (un CaseInsensitiveString key) <<< Data.Array.NonEmpty.toArray
