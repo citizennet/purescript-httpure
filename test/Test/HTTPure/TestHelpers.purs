@@ -3,13 +3,13 @@ module Test.HTTPure.TestHelpers where
 import Prelude
 
 import Data.Array (fromFoldable) as Array
-import Data.Array.NonEmpty (NonEmptyArray)
+import Data.Array as Data.Array
 import Data.Either (Either(Right))
 import Data.List (List(Nil, Cons), reverse)
 import Data.Maybe (fromMaybe)
 import Data.Options ((:=))
 import Data.String (toLower)
-import Data.Tuple (Tuple)
+import Data.Tuple (Tuple(..))
 import Effect (Effect)
 import Effect.Aff (Aff, makeAff, nonCanceler)
 import Effect.Class (liftEffect)
@@ -205,7 +205,8 @@ foreign import mockRequestImpl ::
   String ->
   String ->
   String ->
-  Object (NonEmptyArray String) ->
+  Object String ->
+  Array String ->
   Effect Request
 
 -- | Mock an HTTP Request object
@@ -216,11 +217,11 @@ mockRequest ::
   String ->
   Array (Tuple String String) ->
   Aff Request
-mockRequest httpVersion method url body =
-  liftEffect
-    <<< mockRequestImpl httpVersion method url body
-    <<< Object.fromFoldableWith (flip append)
-    <<< map (map pure)
+mockRequest httpVersion method url body headers =
+  liftEffect $ mockRequestImpl httpVersion method url body (Object.fromFoldable headers) rawHeaders
+  where
+  rawHeaders :: Array String
+  rawHeaders = Data.Array.concatMap (\(Tuple key value) -> [ key, value ]) headers
 
 -- | Mock an HTTP Response object
 foreign import mockResponse :: Effect HTTP.Response

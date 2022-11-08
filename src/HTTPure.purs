@@ -3,6 +3,7 @@ module HTTPure
   , module HTTPure.Headers
   , module HTTPure.Lookup
   , module HTTPure.Method
+  , module HTTPure.MultiHeaders
   , module HTTPure.Path
   , module HTTPure.Query
   , module HTTPure.Request
@@ -15,6 +16,7 @@ import HTTPure.Body (toBuffer, toStream, toString)
 import HTTPure.Headers (Headers, empty, header, headers)
 import HTTPure.Lookup (at, has, lookup, (!!), (!?), (!@))
 import HTTPure.Method (Method(..))
+import HTTPure.MultiHeaders (MultiHeaders)
 import HTTPure.Path (Path)
 import HTTPure.Query (Query)
 import HTTPure.Request (Request, fullPath)

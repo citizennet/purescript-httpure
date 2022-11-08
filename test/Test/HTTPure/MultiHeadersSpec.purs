@@ -83,7 +83,12 @@ readSpec =
         HTTPure.MultiHeaders.read request ?= HTTPure.MultiHeaders.empty
     Test.Spec.describe "with headers" do
       Test.Spec.it "is a Map with the contents of the headers" do
-        let testHeader = [ Tuple "X-Test" "test" ]
+        let testHeader = [ Tuple "X-Test" "test", Tuple "X-Foo" "bar" ]
+        request <- TestHelpers.mockRequest "" "" "" "" testHeader
+        HTTPure.MultiHeaders.read request ?= HTTPure.MultiHeaders.headers testHeader
+    Test.Spec.describe "with duplicate headers" do
+      Test.Spec.it "is a Map with the contents of the headers" do
+        let testHeader = [ Tuple "X-Test" "test1", Tuple "X-Test" "test2" ]
         request <- TestHelpers.mockRequest "" "" "" "" testHeader
         HTTPure.MultiHeaders.read request ?= HTTPure.MultiHeaders.headers testHeader
 

@@ -20,15 +20,12 @@ import Data.FoldableWithIndex as Data.FoldableWithIndex
 import Data.Generic.Rep (class Generic)
 import Data.Map (Map)
 import Data.Map as Data.Map
-import Data.Maybe (Maybe(..))
 import Data.Newtype (class Newtype, un)
 import Data.Show.Generic as Data.Show.Generic
 import Data.String.CaseInsensitive (CaseInsensitiveString(..))
 import Data.TraversableWithIndex as Data.TraversableWithIndex
 import Data.Tuple (Tuple(..))
 import Effect (Effect)
-import Foreign.Object (Object)
-import Foreign.Object as Foreign.Object
 import HTTPure.Headers (Headers(..))
 import HTTPure.Lookup (class Lookup, (!!))
 import Node.HTTP as Node.HTTP
@@ -86,27 +83,30 @@ headers' = MultiHeaders <<< Data.Foldable.foldl insertField Data.Map.empty
   where
   insertField x (Tuple key values) = Data.Map.insertWith append (CaseInsensitiveString key) values x
 
+-- | Parse a list of raw request headers, applying the given function to every
+-- | key-value pair.
+-- | See https://nodejs.org/api/http.html#messagerawheaders.
+foreign import parseRawHeaders :: forall a. (String -> String -> a) -> Array String -> Array a
+
 -- | Read the headers out of a HTTP `Request` object and parse duplicated
 -- | headers as a list (instead of comma-separated values, as with
 -- | `HTTPure.Headers.read`).
 read :: Node.HTTP.Request -> MultiHeaders
-read = MultiHeaders <<< Foreign.Object.fold insertField Data.Map.empty <<< requestHeadersDistinct
+read =
+  MultiHeaders
+    <<< Data.Map.fromFoldableWith (flip append)
+    <<< map (\(Tuple key value) -> Tuple (CaseInsensitiveString key) (pure value))
+    <<< parseRawHeaders Tuple
+    <<< requestRawHeaders
   where
-  insertField ::
-    forall a.
-    Map CaseInsensitiveString (NonEmptyArray a) ->
-    String ->
-    Array a ->
-    Map CaseInsensitiveString (NonEmptyArray a)
-  insertField headersMap key array = case Data.Array.NonEmpty.fromArray array of
-    Nothing -> headersMap
-    Just nonEmptyArray -> Data.Map.insert (CaseInsensitiveString key) nonEmptyArray headersMap
-
-  -- | Similar to `Node.HTTP.requestHeaders`, but there is no join logic and the
-  -- | values are always arrays of strings, even for headers received just once.
-  -- | See https://nodejs.org/api/http.html#messageheadersdistinct.
-  requestHeadersDistinct :: Node.HTTP.Request -> Object (Array String)
-  requestHeadersDistinct = _.headersDistinct <<< Unsafe.Coerce.unsafeCoerce
+  -- | The raw request/response headers list exactly as they were received.
+  -- | The keys and values are in the same list. It is not a list of tuples.
+  -- | So, the even-numbered offsets are key values, and the odd-numbered
+  -- | offsets are the associated values. Header names are not lowercased, and
+  -- | duplicates are not merged.
+  -- | See https://nodejs.org/api/http.html#messagerawheaders.
+  requestRawHeaders :: Node.HTTP.Request -> Array String
+  requestRawHeaders = _.rawHeaders <<< Unsafe.Coerce.unsafeCoerce
 
 -- | Allow a `MultiHeaders` to be represented as a string. This string is
 -- | formatted in HTTP headers format.
