@@ -84,6 +84,12 @@ readSpec =
         let testHeader = [ Tuple "X-Test" "test" ]
         request <- TestHelpers.mockRequest "" "" "" "" testHeader
         read request ?= headers testHeader
+    describe "with 'Set-Cookie' headers" do
+      it "is a Map with the contents of the headers without any 'Set-Cookie' headers" do
+        let testHeader = [ Tuple "X-Test" "test", Tuple "Set-Cookie" "foo", Tuple "set-cookie" "bar" ]
+        let headers' = Headers $ Data.Map.singleton (CaseInsensitiveString "X-Test") "test"
+        request <- TestHelpers.mockRequest "" "" "" "" testHeader
+        read request ?= headers'
 
 writeSpec :: TestHelpers.Test
 writeSpec =

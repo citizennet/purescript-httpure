@@ -10,18 +10,19 @@ module HTTPure.Headers
 
 import Prelude
 
-import Data.Foldable (foldl)
+import Data.Foldable (foldMap)
 import Data.FoldableWithIndex (foldMapWithIndex)
 import Data.Generic.Rep (class Generic)
-import Data.Map (Map, insert, singleton, union)
+import Data.Map (Map, singleton, union)
 import Data.Map (empty) as Map
 import Data.Newtype (class Newtype, unwrap)
 import Data.Show.Generic (genericShow)
+import Data.String as Data.String
 import Data.String.CaseInsensitive (CaseInsensitiveString(CaseInsensitiveString))
 import Data.TraversableWithIndex (traverseWithIndex)
-import Data.Tuple (Tuple(Tuple))
+import Data.Tuple (Tuple, uncurry)
 import Effect (Effect)
-import Foreign.Object (fold)
+import Foreign.Object as Foreign.Object
 import HTTPure.Lookup (class Lookup, (!!))
 import Node.HTTP (Request, Response, requestHeaders, setHeader)
 
@@ -48,11 +49,22 @@ derive newtype instance eqHeaders :: Eq Headers
 instance semigroupHeaders :: Semigroup Headers where
   append (Headers a) (Headers b) = Headers $ union b a
 
+instance monoidHeaders :: Monoid Headers where
+  mempty = Headers Map.empty
+
 -- | Get the headers out of a HTTP `Request` object.
+-- |
+-- | We intentionally filter out "Set-Cookie" headers here as according to the
+-- | node.js docs, the "set-cookie" header is always represented as an array,
+-- | and trying to read it as `String` would cause a runtime type error.
+-- | See https://nodejs.org/api/http.html#messageheaders.
 read :: Request -> Headers
-read = requestHeaders >>> fold insertField Map.empty >>> Headers
+read = Foreign.Object.foldMap header' <<< requestHeaders
   where
-  insertField x key value = insert (CaseInsensitiveString key) value x
+  header' :: String -> String -> Headers
+  header' key
+    | Data.String.toLower key == "set-cookie" = const mempty
+    | otherwise = header key
 
 -- | Given an HTTP `Response` and a `Headers` object, return an effect that will
 -- | write the `Headers` to the `Response`.
@@ -67,9 +79,7 @@ empty = Headers Map.empty
 
 -- | Convert an `Array` of `Tuples` of 2 `Strings` to a `Headers` object.
 headers :: Array (Tuple String String) -> Headers
-headers = foldl insertField Map.empty >>> Headers
-  where
-  insertField x (Tuple key value) = insert (CaseInsensitiveString key) value x
+headers = foldMap (uncurry header)
 
 -- | Create a singleton header from a key-value pair.
 header :: String -> String -> Headers

@@ -57,6 +57,9 @@ instance semigroupMultiHeaders :: Semigroup MultiHeaders where
   append (MultiHeaders a) (MultiHeaders b) =
     MultiHeaders $ Data.Map.unionWith append a b
 
+instance monoidMultiHeaders :: Monoid MultiHeaders where
+  mempty = MultiHeaders Data.Map.empty
+
 -- | Return a `MultiHeaders` containing nothing.
 empty :: MultiHeaders
 empty = MultiHeaders Data.Map.empty

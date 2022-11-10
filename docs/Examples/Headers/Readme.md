@@ -5,6 +5,11 @@ on any url and will read the header 'X-Input' and return the contents in the
 response body. It will also return the 'X-Example' response header with the
 value 'hello world!'.
 
+Bear in mind that acessing `Set-Cookie` headers through the `headers` interface
+will not work because of how node.js represents those headers specifically. For
+`Set-Cookie` request headers, please use the `multiHeaders` property of
+`HTTPure.Request`.
+
 To run the example server, run:
 
 ```bash
