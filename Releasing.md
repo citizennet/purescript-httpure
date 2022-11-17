@@ -13,7 +13,7 @@
 3. Commit your update to [History.md](./History.md). Use the message `Release
    notes for v<new version number>`.
 4. Follow the instructions on
-   https://discourse.purescript.org/t/how-i-publish-a-purescript-package/2482.
+   https://github.com/purescript-contrib/governance/blob/main/pursuit-preregistry.md.
 5. If you are pushing a non-patch release, create and push a branch named with
    the version series, i.e. `v0.1.x`.
 6. [Create the release on
