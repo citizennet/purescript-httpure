@@ -1,3 +1,10 @@
+0.16.0 / 2022-11-17
+===================
+- Allow multi-value headers in request and response
+- Breaking change: change the `Show` instance of `HTTPure.Headers.Headers` so
+    that it's used for debugging only. The previous behavior of `show` is now
+    available with `HTTPure.Headers.toString`.
+
 0.15.0 / 2022-05-05
 ===================
 - Update for PureScript 0.15 (thanks **@thomashoneyman** and **@sigma-andex**)
