@@ -8,6 +8,7 @@ import Test.HTTPure.HeadersSpec (headersSpec)
 import Test.HTTPure.IntegrationSpec (integrationSpec)
 import Test.HTTPure.LookupSpec (lookupSpec)
 import Test.HTTPure.MethodSpec (methodSpec)
+import Test.HTTPure.MultiHeadersSpec (multiHeadersSpec)
 import Test.HTTPure.PathSpec (pathSpec)
 import Test.HTTPure.QuerySpec (querySpec)
 import Test.HTTPure.RequestSpec (requestSpec)
@@ -27,6 +28,7 @@ main = launchAff_ $ runSpec [ specReporter ] $ describe "HTTPure" do
   headersSpec
   lookupSpec
   methodSpec
+  multiHeadersSpec
   pathSpec
   querySpec
   requestSpec

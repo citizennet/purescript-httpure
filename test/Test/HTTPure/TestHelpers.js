@@ -1,6 +1,6 @@
 import { Readable } from "stream";
 
-export const mockRequestImpl = httpVersion => method => url => body => headers => () => {
+export const mockRequestImpl = httpVersion => method => url => body => headers => rawHeaders => () => {
     const stream = new Readable({
         read: function (size) {
             this.push(body);
@@ -10,6 +10,7 @@ export const mockRequestImpl = httpVersion => method => url => body => headers =
     stream.method = method;
     stream.url = url;
     stream.headers = headers;
+    stream.rawHeaders = rawHeaders;
     stream.httpVersion = httpVersion;
 
     return stream;

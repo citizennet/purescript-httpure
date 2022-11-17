@@ -7,6 +7,7 @@ import Effect.Aff (makeAff, nonCanceler)
 import Effect.Class (liftEffect)
 import HTTPure.Body (defaultHeaders)
 import HTTPure.Headers (header)
+import HTTPure.MultiHeaders as HTTPure.MultiHeaders
 import HTTPure.Response (emptyResponse, emptyResponse', response, response', send)
 import Node.Encoding (Encoding(UTF8))
 import Node.HTTP (responseAsStream)
@@ -14,7 +15,7 @@ import Node.Stream (end, writeString)
 import Test.HTTPure.TestHelpers
   ( Test
   , getResponseBody
-  , getResponseHeader
+  , getResponseMultiHeader
   , getResponseStatus
   , mockResponse
   , (?=)
@@ -28,18 +29,33 @@ sendSpec =
       mockResponse' =
         { status: 123
         , headers: header "Test" "test"
+        , multiHeaders:
+            HTTPure.MultiHeaders.header "Set-Cookie" "test1"
+              <> HTTPure.MultiHeaders.header "Set-Cookie" "test2"
         , writeBody:
             \response -> makeAff \done -> do
               stream <- pure $ responseAsStream response
               void $ writeString stream UTF8 "test" $ const $ end stream $ const $ done $ Right unit
               pure nonCanceler
         }
-    it "writes the headers" do
+    it "writes the `headers`" do
       header <- do
         httpResponse <- liftEffect mockResponse
         send httpResponse mockResponse'
-        pure $ getResponseHeader "Test" httpResponse
-      header ?= "test"
+        pure $ getResponseMultiHeader "Test" httpResponse
+      header ?= [ "test" ]
+    it "writes the `multiHeaders`" do
+      header <- do
+        httpResponse <- liftEffect mockResponse
+        send httpResponse mockResponse'
+        pure $ getResponseMultiHeader "Set-Cookie" httpResponse
+      header ?= [ "test1", "test2" ]
+    it "joins headers that exist in both `headers` and `multiHeaders`" do
+      header <- do
+        httpResponse <- liftEffect mockResponse
+        send httpResponse mockResponse' { headers = header "Set-Cookie" "test0" }
+        pure $ getResponseMultiHeader "Set-Cookie" httpResponse
+      header ?= [ "test0", "test1", "test2" ]
     it "writes the status" do
       status <- do
         httpResponse <- liftEffect mockResponse

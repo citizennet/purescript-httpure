@@ -16,6 +16,8 @@ import HTTPure.Headers (Headers)
 import HTTPure.Headers (read) as Headers
 import HTTPure.Method (Method)
 import HTTPure.Method (read) as Method
+import HTTPure.MultiHeaders (MultiHeaders)
+import HTTPure.MultiHeaders as HTTPure.MultiHeaders
 import HTTPure.Path (Path)
 import HTTPure.Path (read) as Path
 import HTTPure.Query (Query)
@@ -33,6 +35,7 @@ type Request =
   , path :: Path
   , query :: Query
   , headers :: Headers
+  , multiHeaders :: MultiHeaders
   , body :: RequestBody
   , httpVersion :: Version
   , url :: String
@@ -60,8 +63,8 @@ fromHTTPRequest request = do
     , path: Path.read request
     , query: Query.read request
     , headers: Headers.read request
+    , multiHeaders: HTTPure.MultiHeaders.read request
     , body
     , httpVersion: Version.read request
     , url: requestURL request
     }
-
